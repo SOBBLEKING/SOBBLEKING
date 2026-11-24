@@ -1,119 +1,176 @@
+
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#eaf5ff">
 <title>SOBBLEKING | SOBBLE PARADISE</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,"Noto Sans TC",sans-serif;
-background:linear-gradient(160deg,#e9f6ff,#f0eaff,#fff8f5);
-color:#456b91}
-header{text-align:center;padding:35px 15px 20px}
-header h1{header h1{
-  font-family:'Nunito',sans-serif;
-  font-size:34px;
-  font-weight:800;
-  letter-spacing:4px;
-  margin:12px 0 4px;
-  color:#548db8;
-}
-..brand-cn{
-  font-family:'Noto Serif TC',serif;
-  font-size:29px;
-  font-weight:600;
-  letter-spacing:6px;
-  margin-top:-11px;
-  color:#6d91b7;
-}
-}
-.brand-cn{
-  font-family:'Noto Serif TC',serif;
-  font-size:23px;
-  font-weight:600;
-  letter-spacing:5px;
-  margin:0;
-  color:#6d91b7;
-}}
-header p{letter-spacing:5px;font-size:12px;color:#91a9c8}
-nav{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  flex-wrap:wrap;
-  gap:18px;
-  padding:18px 12px;
-  background:#ffffffa8;
-  position:sticky;
-  top:0;
-  backdrop-filter:blur(12px);
-}
-
-nav a{
-  color:#6287aa;
-  text-decoration:none;
-  font-size:14px;
-  font-weight:600;
-  letter-spacing:1px;
-  background:linear-gradient(135deg,#ffffff,#edf6ff);
-  border:1px solid #d9eaff;
-  border-radius:30px;
-  padding:11px 25px;
-  box-shadow:0 4px 12px #a9cce522;
-}
-.hero{text-align:center;padding:35px 20px}
-.hero h2{font-size:25px;color:#5d91bc}
-.hero p{color:#91a9c8;line-height:1.8}
-.section{padding:25px 18px;max-width:900px;margin:auto}
-.section h2{text-align:center;color:#5d91bc}
-.products{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.product{background:#ffffffd9;border:1px solid #dcecff;
-border-radius:20px;padding:18px;text-align:center;
-box-shadow:0 6px 20px #a9cce522}
-.product .drop{font-size:36px}
-.product h3{font-size:17px;margin:10px 0;color:#547fa7}
-.price{font-size:21px;color:#629bc5;font-weight:bold}
-.note{text-align:center;font-size:12px;color:#9aacc3}
-footer{text-align:center;padding:35px 15px;color:#91a9c8;font-size:12px}
-button{background:#d9edff;color:#507fa9;border:0;
-border-radius:20px;padding:10px 20px;margin-top:10px}
-@media(min-width:650px){.products{grid-template-columns:repeat(3,1fr)}}
+body{margin:0;font-family:Arial,"Noto Sans TC",sans-serif;color:#52799d;background:linear-gradient(145deg,#eaf7ff,#f1edff 55%,#fff9f4);min-height:100vh}
+header{text-align:center;padding:48px 16px 28px}
+.eyebrow{letter-spacing:5px;font-size:11px;color:#9ab3d0}
+h1{font-size:36px;letter-spacing:5px;color:#6098c2;margin:12px 0}
+.brand-cn{font-family:serif;font-size:24px;letter-spacing:7px}
+.tagline{font-size:11px;letter-spacing:5px;color:#9bb2ce;margin-top:14px}
+nav{position:sticky;top:0;z-index:5;display:flex;justify-content:center;gap:10px;padding:12px;background:#ffffffd9;backdrop-filter:blur(12px)}
+nav a{color:#638db2;text-decoration:none;font-size:13px;padding:9px 17px;border:1px solid #dcecff;border-radius:30px;background:white}
+.hero{text-align:center;padding:42px 20px 35px}
+.hero h2{font-size:25px;color:#659ac1}
+.hero p{font-size:13px;line-height:2;color:#91a9c5}
+.section{max-width:900px;margin:auto;padding:25px 18px}
+.section-title{text-align:center;margin-bottom:24px}
+.section-title h2{font-size:23px;color:#6598bf;margin-bottom:8px}
+.section-title p{font-size:12px;color:#9aafc8}
+.products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+.product{background:#ffffffd9;border:1px solid #dcecff;border-radius:20px;padding:20px 10px;text-align:center;box-shadow:0 8px 24px #9abbd51a}
+.drop{font-size:32px}
+.product h3{font-size:15px;color:#557fa5;min-height:36px}
+.price{font-size:21px;font-weight:bold;color:#6a9fc8}
+.product button,.action{border:0;border-radius:30px;padding:11px 18px;background:linear-gradient(120deg,#d8edff,#e9e0ff);color:#527ca4;font-weight:bold;cursor:pointer}
+.product button{margin-top:12px;width:100%}
+.cart{background:#ffffffc9;border:1px solid #dcecff;border-radius:22px;padding:22px;margin-top:20px}
+.cart h3{text-align:center;margin-top:0}
+.cart-row{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #edf2fa;font-size:13px}
+.total{font-size:22px;text-align:right;color:#6199c4;font-weight:bold;margin:18px 0}
+.cart-actions{display:flex;gap:10px;flex-wrap:wrap}
+.cart-actions button{flex:1}
+.empty{text-align:center;color:#a2b4ca;font-size:13px;padding:12px}
+.info{background:#ffffffa8;border-radius:20px;padding:20px;text-align:center;line-height:2;font-size:13px}
+footer{text-align:center;padding:35px 12px;color:#91a9c8;font-size:12px;line-height:2}
+@media(min-width:650px){.products{grid-template-columns:repeat(4,1fr)}}
 </style>
 </head>
 <body>
 <header>
-  <div>歡迎來到</div>
-  <h1><h1>SOBBLEKING</h1>
-<div class="brand-cn">淚眼蜥王國</div>
-  <p>S O B B L E &nbsp; P A R A D I S E</p>
+<div class="eyebrow">WELCOME TO</div>
+<h1>SOBBLEKING</h1>
+<div class="brand-cn">淚 眼 蜥 王 國</div>
+<div class="tagline">S O B B L E &nbsp; P A R A D I S E</div>
 </header>
+
 <nav>
-  <a href="#home">首頁</a>
-  <a href="#products">商品</a>
-  <a href="#member">會員</a>
+<a href="#home">首頁</a>
+<a href="#products">商品</a>
+<a href="#cart">購物車</a>
+<a href="#member">會員資訊</a>
 </nav>
+
 <section class="hero" id="home">
+<h2>Welcome to Sobble Paradise ✦</h2>
+<p>在水藍色的夢幻國度裡<br>找到屬於你的冒險補給。</p>
+</section>
+
 <section class="section" id="products">
-  <h2>SOBBLEKING 商品</h2>
-  <div class="products">
-    <div class="product"><div class="drop">🪙</div><h3>1,300 皮幣</h3><div class="price">NT$150</div></div>
-    <div class="product"><div class="drop">🪙</div><h3>2,700 皮幣</h3><div class="price">NT$250</div></div>
-    <div class="product"><div class="drop">🪙</div><h3>5,600 皮幣</h3><div class="price">NT$450</div></div>
-    <div class="product"><div class="drop">🪙</div><h3>15,500 皮幣</h3><div class="price">NT$1,000</div></div>
-    <div class="product"><div class="drop">🪙</div><h3>46,500 皮幣</h3><div class="price">NT$2,950</div></div>
-    <div class="product"><div class="drop">🪙</div><h3>77,500 皮幣</h3><div class="price">NT$4,900</div></div>
-    <div class="product"><div class="drop">⭐</div><h3>當月 GO Pass</h3><div class="price">NT$130</div></div>
-    <div class="product"><div class="drop">⭐</div><h3>當月 GO Pass＋10 等級</h3><div class="price">NT$150</div></div>
-  </div>
-  <p class="note">商品展示預覽｜尚未開放正式下單</p>
+<div class="section-title">
+<h2>✦ 商品選購 ✦</h2>
+<p>選擇你需要的商品，加入購物車吧！</p>
+</div>
+<div class="products" id="productList"></div>
 </section>
+
+<section class="section" id="cart">
+<div class="cart">
+<h3>🛒 我的購物車</h3>
+<div id="cartItems"><div class="empty">目前還沒有選購商品</div></div>
+<div class="total" id="total">總計 NT$0</div>
+<div class="cart-actions">
+<button class="action" onclick="clearCart()">清空購物車</button>
+<button class="action" onclick="copyOrder()">複製選購明細</button>
+</div>
+<p class="empty">目前為選購預覽，尚未開放正式下單。</p>
+</div>
+</section>
+
 <section class="section" id="member">
-  <h2>MY SOBBSTARS</h2>
-  <p class="note">歡迎加入 SOBBSTARS COMMUNITY </p>
+<div class="section-title">
+<h2>MY SOBBSTARS</h2>
+<p>Welcome to SOBBSTARS COMMUNITY</p>
+</div>
+<div class="info">
+💧 成為 SOBBSTARS 的一員<br>
+會員登入、錢包餘額及訂單查詢功能<br>
+即將開放，敬請期待！
+</div>
 </section>
+
 <footer>
-  SOBBLEKING · SOBBLE PARADISE<br>
-  SOBBLEKINGGG@GMAIL.COM
+SOBBLEKING · SOBBLE PARADISE<br>
+SOBBLEKINGGG@GMAIL.COM<br>
+Made with love for SOBBSTARS ✦
 </footer>
+
+<script>
+const products=[
+{name:"1,300 皮幣",price:150,icon:"💧"},
+{name:"2,700 皮幣",price:250,icon:"💧"},
+{name:"5,600 皮幣",price:450,icon:"💧"},
+{name:"15,500 皮幣",price:1000,icon:"💧"},
+{name:"46,500 皮幣",price:2950,icon:"💧"},
+{name:"77,500 皮幣",price:4900,icon:"💧"},
+{name:"當月 GO Pass",price:130,icon:"⭐"},
+{name:"當月 GO Pass＋10 等級",price:150,icon:"⭐"}
+];
+let cart={};
+
+function renderProducts(){
+document.getElementById("productList").innerHTML=products.map((p,i)=>`
+<div class="product">
+<div class="drop">${p.icon}</div>
+<h3>${p.name}</h3>
+<div class="price">NT$${p.price.toLocaleString("zh-TW")}</div>
+<button onclick="addItem(${i})">加入購物車</button>
+</div>`).join("");
+}
+function addItem(i){
+cart[i]=(cart[i]||0)+1;
+renderCart();
+}
+function changeQty(i,delta){
+cart[i]=(cart[i]||0)+delta;
+if(cart[i]<=0)delete cart[i];
+renderCart();
+}
+function clearCart(){
+cart={};
+renderCart();
+}
+function renderCart(){
+const ids=Object.keys(cart);
+const area=document.getElementById("cartItems");
+if(!ids.length){
+area.innerHTML='<div class="empty">目前還沒有選購商品</div>';
+}else{
+area.innerHTML=ids.map(i=>`
+<div class="cart-row">
+<span>${products[i].name}<br>NT$${products[i].price.toLocaleString("zh-TW")}</span>
+<span>
+<button onclick="changeQty(${i},-1)">－</button>
+${cart[i]}
+<button onclick="changeQty(${i},1)">＋</button>
+</span>
+</div>`).join("");
+}
+const total=ids.reduce((sum,i)=>sum+products[i].price*cart[i],0);
+document.getElementById("total").textContent="總計 NT$"+total.toLocaleString("zh-TW");
+}
+function copyOrder(){
+const ids=Object.keys(cart);
+if(!ids.length){alert("請先選擇商品！");return;}
+let lines=["SOBBLEKING 選購明細","----------------"];
+ids.forEach(i=>lines.push(products[i].name+" × "+cart[i]+" = NT$"+(products[i].price*cart[i]).toLocaleString("zh-TW")));
+const total=ids.reduce((sum,i)=>sum+products[i].price*cart[i],0);
+lines.push("----------------","總計：NT$"+total.toLocaleString("zh-TW"));
+const text=lines.join("\n");
+if(navigator.clipboard&&navigator.clipboard.writeText){
+navigator.clipboard.writeText(text).then(()=>alert("明細已複製！")).catch(()=>prompt("請複製以下明細",text));
+}else{
+prompt("請複製以下明細",text);
+}
+}
+renderProducts();
+renderCart();
+</script>
 </body>
 </html>
