@@ -3,172 +3,352 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="theme-color" content="#eaf5ff">
-<title>SOBBLEKING | SOBBLE PARADISE</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SOBBLEKING｜SOBBLE PARADISE</title>
 <style>
+:root {
+  --sky:#DDF2FF;
+  --water:#A9D8F5;
+  --blue:#78B5E2;
+  --deep:#477FAF;
+  --white:#F7FCFF;
+  --text:#315C7C;
+}
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial,"Noto Sans TC",sans-serif;color:#52799d;background:linear-gradient(145deg,#eaf7ff,#f1edff 55%,#fff9f4);min-height:100vh}
-header{text-align:center;padding:48px 16px 28px}
-.eyebrow{letter-spacing:5px;font-size:11px;color:#9ab3d0}
-h1{font-size:36px;letter-spacing:5px;color:#6098c2;margin:12px 0}
-.brand-cn{font-family:serif;font-size:24px;letter-spacing:7px}
-.tagline{font-size:11px;letter-spacing:5px;color:#9bb2ce;margin-top:14px}
-nav{position:sticky;top:0;z-index:5;display:flex;justify-content:center;gap:10px;padding:12px;background:#ffffffd9;backdrop-filter:blur(12px)}
-nav a{color:#638db2;text-decoration:none;font-size:13px;padding:9px 17px;border:1px solid #dcecff;border-radius:30px;background:white}
-.hero{text-align:center;padding:42px 20px 35px}
-.hero h2{font-size:25px;color:#659ac1}
-.hero p{font-size:13px;line-height:2;color:#91a9c5}
-.section{max-width:900px;margin:auto;padding:25px 18px}
-.section-title{text-align:center;margin-bottom:24px}
-.section-title h2{font-size:23px;color:#6598bf;margin-bottom:8px}
-.section-title p{font-size:12px;color:#9aafc8}
-.products{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
-.product{background:#ffffffd9;border:1px solid #dcecff;border-radius:20px;padding:20px 10px;text-align:center;box-shadow:0 8px 24px #9abbd51a}
-.drop{font-size:32px}
-.product h3{font-size:15px;color:#557fa5;min-height:36px}
-.price{font-size:21px;font-weight:bold;color:#6a9fc8}
-.product button,.action{border:0;border-radius:30px;padding:11px 18px;background:linear-gradient(120deg,#d8edff,#e9e0ff);color:#527ca4;font-weight:bold;cursor:pointer}
-.product button{margin-top:12px;width:100%}
-.cart{background:#ffffffc9;border:1px solid #dcecff;border-radius:22px;padding:22px;margin-top:20px}
-.cart h3{text-align:center;margin-top:0}
-.cart-row{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-bottom:1px solid #edf2fa;font-size:13px}
-.total{font-size:22px;text-align:right;color:#6199c4;font-weight:bold;margin:18px 0}
-.cart-actions{display:flex;gap:10px;flex-wrap:wrap}
-.cart-actions button{flex:1}
-.empty{text-align:center;color:#a2b4ca;font-size:13px;padding:12px}
-.info{background:#ffffffa8;border-radius:20px;padding:20px;text-align:center;line-height:2;font-size:13px}
-footer{text-align:center;padding:35px 12px;color:#91a9c8;font-size:12px;line-height:2}
-@media(min-width:650px){.products{grid-template-columns:repeat(4,1fr)}}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:"Arial","Noto Sans TC",sans-serif;
+  color:var(--text);
+  background:var(--white);
+}
+header{
+  position:sticky;top:0;z-index:10;
+  background:rgba(247,252,255,.94);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid #d8edfa;
+  padding:15px 6%;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.logo{font-weight:900;letter-spacing:2px;color:var(--deep);font-size:20px}
+nav{display:flex;gap:20px;align-items:center}
+nav a{color:var(--text);text-decoration:none;font-size:13px}
+nav a:hover{color:var(--deep)}
+.cart-link{
+  background:var(--deep);color:white!important;
+  padding:10px 17px;border-radius:30px;
+}
+.hero{
+  padding:85px 20px 95px;
+  text-align:center;
+  background:
+    radial-gradient(circle at 15% 20%,#fff 0 5px,transparent 6px),
+    radial-gradient(circle at 85% 35%,#fff 0 8px,transparent 9px),
+    linear-gradient(135deg,#DDF2FF,#A9D8F5,#78B5E2);
+  position:relative;overflow:hidden;
+}
+.hero:after{
+  content:"";position:absolute;bottom:-65px;left:-5%;
+  width:110%;height:110px;background:var(--white);
+  border-radius:50% 50% 0 0;
+}
+.hero .eyebrow{letter-spacing:5px;font-size:12px;color:#477FAF}
+.hero h1{font-size:clamp(38px,8vw,68px);margin:18px 0 8px;color:#315F87}
+.hero h2{font-size:19px;letter-spacing:5px;margin:0 0 18px}
+.hero p{font-size:14px;line-height:2}
+.hero-icon{font-size:65px;margin:15px}
+.btn{
+  display:inline-block;text-decoration:none;
+  background:var(--deep);color:white;
+  padding:14px 28px;border-radius:30px;
+  font-weight:bold;margin-top:15px;
+  box-shadow:0 6px 15px #477FAF33;
+}
+.btn:hover{transform:translateY(-2px)}
+section{padding:55px 7%}
+.section-title{text-align:center;margin-bottom:35px}
+.section-title small{letter-spacing:4px;color:var(--blue)}
+.section-title h2{font-size:27px;margin:10px 0;color:var(--deep)}
+.section-title p{font-size:13px;color:#7896AC}
+.quick-links{
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:12px;max-width:850px;margin:-15px auto 20px;
+  position:relative;z-index:2;
+}
+.quick-links a{
+  text-align:center;text-decoration:none;color:var(--deep);
+  background:white;border:1px solid #e0f1fb;
+  padding:19px 8px;border-radius:17px;
+  box-shadow:0 5px 18px #477FAF0D;font-size:13px;
+}
+.quick-links span{display:block;font-size:25px;margin-bottom:8px}
+.products{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:18px;max-width:1050px;margin:auto;
+}
+.product{
+  background:white;border:1px solid #dfedf7;
+  border-radius:22px;padding:23px 18px;
+  text-align:center;box-shadow:0 8px 25px #477FAF0D;
+}
+.product .emoji{font-size:42px}
+.product h3{font-size:17px;margin:13px 0 5px}
+.product .desc{font-size:12px;color:#8AA8BD}
+.price{font-size:24px;font-weight:900;color:var(--deep);margin:13px}
+.product button{
+  border:0;background:var(--blue);color:white;
+  padding:11px 24px;border-radius:25px;
+  font-size:14px;font-weight:bold;cursor:pointer;
+}
+.product button:hover{background:var(--deep)}
+.promo{
+  background:linear-gradient(135deg,#E9F7FF,#C6E7FA);
+  border-radius:25px;padding:35px 20px;text-align:center;
+  max-width:900px;margin:auto;
+}
+.promo h2{color:var(--deep)}
+.promo p{font-size:14px;line-height:2}
+.steps{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:15px;max-width:900px;margin:auto;
+}
+.step{
+  background:white;border-radius:20px;padding:25px 15px;text-align:center;
+  border:1px solid #e0eff9;
+}
+.step span{font-size:35px}
+.step h3{font-size:16px;color:var(--deep)}
+.step p{font-size:13px;line-height:1.8;color:#7896AC}
+.member{
+  background:linear-gradient(135deg,#BDE3FA,#E5F5FF);
+  border-radius:25px;text-align:center;padding:45px 20px;
+}
+.member h2{color:var(--deep);letter-spacing:3px}
+.member p{font-size:14px;line-height:2}
+.faq{max-width:800px;margin:auto}
+details{
+  background:white;padding:18px 20px;margin:10px 0;
+  border-radius:14px;border:1px solid #e0eff9;font-size:14px;
+}
+summary{cursor:pointer;font-weight:bold;color:var(--deep)}
+details p{line-height:1.8;color:#7896AC}
+.cart{
+  max-width:850px;margin:auto;background:white;
+  border-radius:22px;padding:25px;
+  border:1px solid #dfedf7;
+}
+.cart-item{
+  display:flex;justify-content:space-between;gap:10px;
+  padding:12px 0;border-bottom:1px solid #edf4f8;font-size:14px;
+}
+.cart-item button{
+  border:0;background:#e8f5fd;color:var(--deep);
+  border-radius:10px;padding:4px 10px;cursor:pointer;
+}
+.cart-total{text-align:right;font-size:21px;font-weight:bold;color:var(--deep);margin-top:20px}
+.empty{text-align:center;color:#91AFC3;padding:20px}
+footer{
+  background:#477FAF;color:white;text-align:center;
+  padding:35px 15px;font-size:12px;line-height:2;
+}
+@media(max-width:650px){
+  header{padding:13px 5%}
+  nav{gap:10px}
+  nav a{font-size:11px}
+  .logo{font-size:16px}
+  .quick-links{grid-template-columns:repeat(2,1fr);margin:0 auto}
+  .steps{grid-template-columns:1fr}
+  section{padding:45px 5%}
+}
 </style>
 </head>
 <body>
+
 <header>
-<div class="eyebrow">WELCOME TO</div>
-<h1>SOBBLEKING</h1>
-<div class="brand-cn">淚 眼 蜥 王 國</div>
-<div class="tagline">S O B B L E &nbsp; P A R A D I S E</div>
+  <div class="logo">SOBBLEKING</div>
+  <nav>
+    <a href="#products">商品</a>
+    <a href="#process">購買流程</a>
+    <a href="#faq">FAQ</a>
+    <a href="#cart" class="cart-link">購物車 <span id="cartCount">0</span></a>
+  </nav>
 </header>
 
-<nav>
-<a href="#home">首頁</a>
-<a href="#products">商品</a>
-<a href="#cart">購物車</a>
-<a href="#member">會員資訊</a>
-</nav>
+<div class="hero">
+  <h1>SOBBLEKING</h1>
+  <h2>S O B B L E  P A R A D I S E</h2>
+  <p>歡迎來到淚眼蜥王國！<br>一起展開專屬於訓練家的冒險旅程吧。</p>
+  <a class="btn" href="#products">探索商品 ✦</a>
+</div>
 
-<section class="hero" id="home">
-<h2>Welcome to Sobble Paradise </h2>
-<p>儲值交給我們，快樂交給你。</p>
+<section>
+  <div class="quick-links">
+    <a href="#products"><span>🛍️</span>商品選購</a>
+    <a href="#process"><span>📦</span>購買流程</a>
+    <a href="#member"><span>⭐</span>SOBBSTARS</a>
+    <a href="#faq"><span>💬</span>常見問題</a>
+  </div>
 </section>
 
-<section class="section" id="products">
-<div class="section-title">
-<h2>✦ 商品選購 ✦</h2>
-<p>選擇你需要的商品，加入購物車吧！</p>
-</div>
-<div class="products" id="productList"></div>
+<section id="products">
+  <div class="section-title">
+    <small>OUR COLLECTION</small>
+    <h2>✦ 王國商品 ✦</h2>
+    <p>挑選你需要的商品，開始冒險吧！</p>
+  </div>
+
+  <div class="products" id="productList"></div>
 </section>
 
-<section class="section" id="cart">
-<div class="cart">
-<h3>🛒 我的購物車</h3>
-<div id="cartItems"><div class="empty">目前還沒有選購商品</div></div>
-<div class="total" id="total">總計 NT$0</div>
-<div class="cart-actions">
-<button class="action" onclick="clearCart()">清空購物車</button>
-<button class="action" onclick="copyOrder()">複製選購明細</button>
-</div>
-<p class="empty">目前為選購預覽，尚未開放正式下單。</p>
-</div>
+<section>
+  <div class="promo">
+    <div style="font-size:42px">🫧</div>
+    <h2>王國最新消息</h2>
+    <p>活動優惠及最新公告將於此公布。<br>記得關注 SOBBLEKING，不錯過任何好康！</p>
+  </div>
 </section>
 
-<section class="section" id="member">
-<div class="section-title">
-<h2>MY SOBBSTARS</h2>
-<p>Welcome to SOBBSTARS COMMUNITY</p>
-</div>
-<div class="info">
-成為 SOBBSTARS 的一員<br>
-會員登入、錢包餘額及訂單查詢功能<br>
-即將開放，敬請期待！
-</div>
+<section id="process">
+  <div class="section-title">
+    <small>HOW TO ORDER</small>
+    <h2>✦ 購買流程 ✦</h2>
+    <p>簡單幾個步驟，完成你的訂單。</p>
+  </div>
+  <div class="steps">
+    <div class="step">
+      <span>🛒</span>
+      <h3>STEP 01｜選擇商品</h3>
+      <p>挑選需要的商品並加入購物車。</p>
+    </div>
+    <div class="step">
+      <span>💬</span>
+      <h3>STEP 02｜聯絡客服</h3>
+      <p>確認商品、遊戲登入方式及付款資訊。</p>
+    </div>
+    <div class="step">
+      <span>✨</span>
+      <h3>STEP 03｜完成儲值</h3>
+      <p>付款確認後，依照客服指示完成儲值。</p>
+    </div>
+  </div>
+</section>
+
+<section id="member">
+  <div class="member">
+    <div style="font-size:45px">⭐</div>
+    <h2>SOBBSTARS</h2>
+    <p>每一位訓練家，都是王國珍貴的星星。<br>會員專屬功能與優惠將陸續開放，敬請期待！</p>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="section-title">
+    <small>FREQUENTLY ASKED QUESTIONS</small>
+    <h2>✦ 常見問題 ✦</h2>
+  </div>
+  <div class="faq">
+    <details>
+      <summary>目前支援哪些登入方式？</summary>
+      <p>目前支援 PTC、Google 及 Facebook 登入。不同登入方式可能有額外費用，請以商品及公告說明為準。</p>
+    </details>
+    <details>
+      <summary>付款後多久會開始儲值？</summary>
+      <p>需由客服確認款項後，才會安排後續儲值作業。</p>
+    </details>
+    <details>
+      <summary>可以使用錢包餘額付款嗎？</summary>
+      <p>錢包功能尚在建置中，正式開放後將另行公告。</p>
+    </details>
+    <details>
+      <summary>遇到問題要找誰？</summary>
+      <p>請透過官方客服 LINE 聯絡我們。</p>
+    </details>
+  </div>
+</section>
+
+<section id="cart">
+  <div class="section-title">
+    <small>YOUR SHOPPING BAG</small>
+    <h2>✦ 我的購物車 ✦</h2>
+  </div>
+  <div class="cart">
+    <div id="cartItems"><div class="empty">🫧 購物車目前是空的</div></div>
+    <div class="cart-total">總計：NT$ <span id="cartTotal">0</span></div>
+    <p style="text-align:center;font-size:12px;color:#91AFC3">
+      目前為購物車預覽，正式下單功能尚在建置中。
+    </p>
+  </div>
 </section>
 
 <footer>
-SOBBLEKING · SOBBLE PARADISE<br>
-SOBBLEKINGGG@GMAIL.COM<br>
-Made with love for SOBBSTARS ✦
+  <div style="font-size:23px;font-weight:bold;letter-spacing:3px">SOBBLEKING</div>
+  SOBBLE PARADISE 💧<br>
+  © 2026 SOBBLEKING. All Rights Reserved.
 </footer>
 
 <script>
-const products=[
-{name:"1,300 皮幣",price:150,icon:"💧"},
-{name:"2,700 皮幣",price:250,icon:"💧"},
-{name:"5,600 皮幣",price:450,icon:"💧"},
-{name:"15,500 皮幣",price:1000,icon:"💧"},
-{name:"46,500 皮幣",price:2950,icon:"💧"},
-{name:"77,500 皮幣",price:4900,icon:"💧"},
-{name:"當月 GO Pass",price:130,icon:"⭐"},
-{name:"當月 GO Pass＋10 等級",price:150,icon:"⭐"}
+const products = [
+  {id:1,name:"1,300 皮幣",price:150,icon:"💎"},
+  {id:2,name:"2,700 皮幣",price:250,icon:"💎"},
+  {id:3,name:"5,600 皮幣",price:450,icon:"💎"},
+  {id:4,name:"15,500 皮幣",price:1000,icon:"💎"},
+  {id:5,name:"46,500 皮幣",price:2950,icon:"💎"},
+  {id:6,name:"77,500 皮幣",price:4900,icon:"💎"},
+  {id:7,name:"當月 GO Pass",price:130,icon:"🎫"},
+  {id:8,name:"當月 GO Pass＋10 等級",price:150,icon:"🎟️"}
 ];
-let cart={};
+
+let cart = {};
 
 function renderProducts(){
-document.getElementById("productList").innerHTML=products.map((p,i)=>`
-<div class="product">
-<div class="drop">${p.icon}</div>
-<h3>${p.name}</h3>
-<div class="price">NT$${p.price.toLocaleString("zh-TW")}</div>
-<button onclick="addItem(${i})">加入購物車</button>
-</div>`).join("");
+  document.getElementById("productList").innerHTML = products.map(p=>`
+    <div class="product">
+      <div class="emoji">${p.icon}</div>
+      <h3>${p.name}</h3>
+      <div class="desc">SOBBLEKING 精選商品</div>
+      <div class="price">NT$ ${p.price.toLocaleString("zh-TW")}</div>
+      <button onclick="addCart(${p.id})">＋ 加入購物車</button>
+    </div>
+  `).join("");
 }
-function addItem(i){
-cart[i]=(cart[i]||0)+1;
-renderCart();
+
+function addCart(id){
+  cart[id]=(cart[id]||0)+1;
+  renderCart();
 }
-function changeQty(i,delta){
-cart[i]=(cart[i]||0)+delta;
-if(cart[i]<=0)delete cart[i];
-renderCart();
+
+function changeQty(id,amount){
+  cart[id]=(cart[id]||0)+amount;
+  if(cart[id]<=0) delete cart[id];
+  renderCart();
 }
-function clearCart(){
-cart={};
-renderCart();
-}
+
 function renderCart(){
-const ids=Object.keys(cart);
-const area=document.getElementById("cartItems");
-if(!ids.length){
-area.innerHTML='<div class="empty">目前還沒有選購商品</div>';
-}else{
-area.innerHTML=ids.map(i=>`
-<div class="cart-row">
-<span>${products[i].name}<br>NT$${products[i].price.toLocaleString("zh-TW")}</span>
-<span>
-<button onclick="changeQty(${i},-1)">－</button>
-${cart[i]}
-<button onclick="changeQty(${i},1)">＋</button>
-</span>
-</div>`).join("");
+  const ids=Object.keys(cart);
+  const count=ids.reduce((sum,id)=>sum+cart[id],0);
+  const total=ids.reduce((sum,id)=>{
+    const p=products.find(x=>x.id==id);
+    return sum+p.price*cart[id];
+  },0);
+
+  document.getElementById("cartCount").textContent=count;
+  document.getElementById("cartTotal").textContent=total.toLocaleString("zh-TW");
+
+  document.getElementById("cartItems").innerHTML=ids.length
+    ? ids.map(id=>{
+      const p=products.find(x=>x.id==id);
+      return `<div class="cart-item">
+        <span>${p.name} × ${cart[id]}</span>
+        <span>
+          NT$ ${(p.price*cart[id]).toLocaleString("zh-TW")}
+          <button onclick="changeQty(${id},-1)">－</button>
+          <button onclick="changeQty(${id},1)">＋</button>
+        </span>
+      </div>`;
+    }).join("")
+    : '<div class="empty">🫧 購物車目前是空的</div>';
 }
-const total=ids.reduce((sum,i)=>sum+products[i].price*cart[i],0);
-document.getElementById("total").textContent="總計 NT$"+total.toLocaleString("zh-TW");
-}
-function copyOrder(){
-const ids=Object.keys(cart);
-if(!ids.length){alert("請先選擇商品！");return;}
-let lines=["SOBBLEKING 選購明細","----------------"];
-ids.forEach(i=>lines.push(products[i].name+" × "+cart[i]+" = NT$"+(products[i].price*cart[i]).toLocaleString("zh-TW")));
-const total=ids.reduce((sum,i)=>sum+products[i].price*cart[i],0);
-lines.push("----------------","總計：NT$"+total.toLocaleString("zh-TW"));
-const text=lines.join("\n");
-if(navigator.clipboard&&navigator.clipboard.writeText){
-navigator.clipboard.writeText(text).then(()=>alert("明細已複製！")).catch(()=>prompt("請複製以下明細",text));
-}else{
-prompt("請複製以下明細",text);
-}
-}
+
 renderProducts();
 renderCart();
 </script>
