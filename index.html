@@ -169,30 +169,42 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 @media(max-width:600px){.member-card-info{aspect-ratio:1.48/1;border-radius:19px}.premium-card-inner{padding:21px 22px 17px}.premium-brand-lockup{font-size:9px;letter-spacing:1.5px}.premium-card-type{font-size:7px;letter-spacing:1px}.premium-card-title{font-size:clamp(24px,7vw,31px);letter-spacing:3.5px}.premium-card-eyebrow{font-size:7px;letter-spacing:2px}.premium-card-name-label,.premium-meta-label{font-size:7px;letter-spacing:1.4px}.premium-card-name{font-size:17px}.premium-number-value{font-size:13px;letter-spacing:1px}.premium-card-date{font-size:8px}.premium-sk-mark{width:48px;flex-basis:48px}.premium-sk-mark svg{width:48px;height:27px}.premium-card-foot{gap:8px}}
 @media(max-width:380px){.premium-card-inner{padding:18px 17px 15px}.premium-card-date{font-size:7px}.premium-sk-mark{width:40px;flex-basis:40px}.premium-sk-mark svg{width:40px}}
 
-/* 會員卡質感微調：珍珠霧面、細緻銀邊與更清晰的文字層次 */
+/* SOBBLEKING 藍色星泡會員卡：移除半圓裝飾與品牌前置符號 */
 .member-card-info{
   background:
-    radial-gradient(ellipse at 14% 12%,rgba(255,255,255,.98) 0%,rgba(255,255,255,.48) 23%,transparent 46%),
-    radial-gradient(ellipse at 88% 92%,rgba(172,211,233,.30) 0%,transparent 42%),
-    linear-gradient(128deg,#FDFEFF 0%,#EDF6FB 28%,#DCECF5 52%,#F8FCFF 76%,#E5F1F8 100%);
+    radial-gradient(ellipse at 18% 18%,rgba(255,255,255,.94) 0%,rgba(224,245,255,.58) 22%,transparent 48%),
+    radial-gradient(ellipse at 86% 88%,rgba(80,157,210,.26) 0%,transparent 42%),
+    linear-gradient(132deg,#EAF8FF 0%,#B9E2F7 26%,#D8F0FC 52%,#8FC6E8 78%,#DDF3FF 100%);
   border:1px solid rgba(255,255,255,.98);
-  box-shadow:0 25px 55px rgba(47,91,121,.19),0 5px 14px rgba(75,127,158,.10),inset 0 1px 0 #fff,inset 0 -1px 0 rgba(117,157,181,.18);
+  box-shadow:0 25px 58px rgba(38,103,151,.23),0 5px 16px rgba(61,131,178,.13),inset 0 1px 0 #fff,inset 0 -1px 0 rgba(66,129,169,.20);
 }
-.member-card-info:before{inset:8px;border:1px solid rgba(255,255,255,.98);box-shadow:inset 0 0 0 1px rgba(112,153,178,.20),0 0 0 1px rgba(255,255,255,.45)}
-.member-card-info:after{width:300px;height:300px;right:-125px;top:-160px;border-color:rgba(102,153,181,.19);box-shadow:0 0 0 18px rgba(255,255,255,.20),0 0 0 38px rgba(102,153,181,.075),0 0 0 64px rgba(255,255,255,.13)}
-.premium-card-glow{background:radial-gradient(ellipse at 8% 92%,rgba(255,255,255,.95),transparent 38%),radial-gradient(ellipse at 78% 5%,rgba(255,255,255,.62),transparent 35%),linear-gradient(112deg,transparent 25%,rgba(255,255,255,.38) 46%,rgba(255,255,255,.08) 54%,transparent 70%)}
+.member-card-info:before{inset:8px;border:1px solid rgba(255,255,255,.96);box-shadow:inset 0 0 0 1px rgba(75,143,184,.20),0 0 0 1px rgba(255,255,255,.38)}
+/* 關閉原本右上角的大型半圓形裝飾 */
+.member-card-info:after{content:none}
+.premium-card-glow{background:radial-gradient(ellipse at 8% 92%,rgba(255,255,255,.88),transparent 38%),radial-gradient(ellipse at 78% 5%,rgba(255,255,255,.62),transparent 35%),linear-gradient(112deg,transparent 25%,rgba(255,255,255,.42) 46%,rgba(255,255,255,.08) 54%,transparent 70%)}
 .premium-card-inner{padding:29px 37px 24px}
-.premium-brand-lockup{color:#426984;text-shadow:0 1px 0 rgba(255,255,255,.9);letter-spacing:2.5px}
-.premium-brand-dot{background:linear-gradient(145deg,#FDFEFF 0%,#A9CDE1 45%,#5D8CAB 100%);box-shadow:0 0 0 4px rgba(126,173,199,.13),inset 0 1px 1px rgba(255,255,255,.95)}
-.premium-card-type{color:#7895A9;letter-spacing:2.2px}
+.premium-brand-lockup{color:#285F86;text-shadow:0 1px 0 rgba(255,255,255,.92);letter-spacing:2.5px;gap:0}
+.premium-brand-dot{display:none}
+.premium-card-type{color:#4F83A5;letter-spacing:2.2px}
 .premium-card-main{padding:8px 0 0 2px}
-.premium-card-title{color:#294F69;font-size:clamp(30px,5.2vw,39px);letter-spacing:6px;text-shadow:0 1px 0 #fff,0 2px 0 rgba(116,151,171,.15),0 5px 12px rgba(55,98,126,.13)}
-.premium-card-name-label,.premium-meta-label{color:#66859B;letter-spacing:2.2px}
-.premium-card-name{color:#284A62;font-size:clamp(18px,3vw,23px);text-shadow:0 1px 0 rgba(255,255,255,.95),0 2px 5px rgba(60,101,126,.10)}
-.premium-card-foot{border-top:1px solid rgba(92,139,165,.24);padding-top:14px;align-items:flex-end}
-.premium-number-value{color:#315F7D;text-shadow:0 1px 0 rgba(255,255,255,.95);letter-spacing:1.8px}
-.premium-card-date{margin-left:auto;color:#587B93;font-size:9px;font-weight:800;letter-spacing:.7px;text-align:right;white-space:nowrap;padding:0 1px 2px 12px}
-@media(max-width:600px){.premium-card-inner{padding:22px 23px 18px}.premium-card-title{font-size:clamp(26px,7vw,33px);letter-spacing:4px}.premium-card-name{font-size:18px}.premium-number-value{font-size:13px}.premium-card-date{font-size:8px;padding-left:8px}}
+.premium-card-title{color:#174F78;font-size:clamp(30px,5.2vw,39px);letter-spacing:6px;text-shadow:0 1px 0 #fff,0 2px 0 rgba(87,147,181,.15),0 5px 12px rgba(34,94,133,.14)}
+.premium-card-name-label,.premium-meta-label{color:#477895;letter-spacing:2.2px}
+.premium-card-name{color:#194D6D;font-size:clamp(18px,3vw,23px);text-shadow:0 1px 0 rgba(255,255,255,.95),0 2px 5px rgba(43,100,136,.10)}
+.premium-card-foot{border-top:1px solid rgba(58,121,160,.25);padding-top:14px;align-items:flex-end}
+.premium-number-value{color:#205B82;text-shadow:0 1px 0 rgba(255,255,255,.95);letter-spacing:1.8px}
+.premium-card-date{margin-left:auto;color:#326B8F;font-size:9px;font-weight:800;letter-spacing:.7px;text-align:right;white-space:nowrap;padding:0 1px 2px 12px}
+/* 珍珠泡泡與細緻星芒，作為背景層，不遮擋會員資料 */
+.premium-card-decor{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
+.premium-card-decor .decor-bubble{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.88);background:radial-gradient(circle at 30% 25%,rgba(255,255,255,.96),rgba(255,255,255,.30) 34%,rgba(92,174,218,.13) 72%,rgba(255,255,255,.08));box-shadow:inset 2px 2px 8px rgba(255,255,255,.82),0 4px 14px rgba(48,119,163,.12)}
+.premium-card-decor .bubble-one{width:66px;height:66px;right:8%;top:20%}
+.premium-card-decor .bubble-two{width:25px;height:25px;right:25%;top:70%}
+.premium-card-decor .bubble-three{width:15px;height:15px;left:8%;top:22%}
+.premium-card-decor .bubble-four{width:39px;height:39px;left:16%;bottom:12%;opacity:.72}
+.premium-card-decor .decor-star{position:absolute;color:rgba(255,255,255,.92);font-family:Georgia,serif;text-shadow:0 1px 7px rgba(48,125,171,.35);line-height:1}
+.premium-card-decor .star-one{right:22%;top:16%;font-size:25px}
+.premium-card-decor .star-two{right:12%;bottom:18%;font-size:17px}
+.premium-card-decor .star-three{left:35%;top:16%;font-size:13px;color:rgba(255,255,255,.75)}
+@media(max-width:600px){.premium-card-inner{padding:22px 23px 18px}.premium-card-title{font-size:clamp(26px,7vw,33px);letter-spacing:4px}.premium-card-name{font-size:18px}.premium-number-value{font-size:13px}.premium-card-date{font-size:8px;padding-left:8px}.premium-card-decor .bubble-one{width:48px;height:48px}.premium-card-decor .bubble-four{width:30px;height:30px}}
 @media(max-width:380px){.premium-card-inner{padding:19px 18px 16px}.premium-card-date{font-size:7px;letter-spacing:.2px}}
 
 
@@ -266,10 +278,18 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
     <!-- SOBBSTARS 冰晶珍珠會員卡：保留原本動態會員資料 ID -->
     <div class="member-card-info" id="member-card" hidden>
       <div class="premium-card-glow" aria-hidden="true"></div>
+      <div class="premium-card-decor" aria-hidden="true">
+        <span class="decor-bubble bubble-one"></span>
+        <span class="decor-bubble bubble-two"></span>
+        <span class="decor-bubble bubble-three"></span>
+        <span class="decor-bubble bubble-four"></span>
+        <span class="decor-star star-one">✦</span>
+        <span class="decor-star star-two">✧</span>
+        <span class="decor-star star-three">✦</span>
+      </div>
       <div class="premium-card-inner">
         <div class="premium-card-head">
           <div class="premium-brand-lockup">
-            <span class="premium-brand-dot"></span>
             <span>SOBBLEKING</span>
           </div>
           <span class="premium-card-type">OFFICIAL MEMBER</span>
