@@ -4,353 +4,855 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SOBBLEKING｜SOBBLE PARADISE</title>
+<meta name="theme-color" content="#E5F3FC">
+<title>SOBBLEKING｜淚眼蜥王國</title>
+
 <style>
-:root {
-  --sky:#DDF2FF;
-  --water:#A9D8F5;
-  --blue:#78B5E2;
-  --deep:#477FAF;
-  --white:#F7FCFF;
-  --text:#315C7C;
+:root{
+  --sky:#E5F3FC;
+  --water:#A9D2ED;
+  --blue:#76A9D0;
+  --deep:#315F85;
+  --white:#F8FBFE;
+  --text:#405D76;
+  --purple:#A99BCF;
+  --muted:#71869B;
+  --line:rgba(80,130,170,.16);
+  --shadow:0 12px 35px rgba(49,95,133,.10);
 }
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{
+
+*{
+  box-sizing:border-box;
   margin:0;
-  font-family:"Arial","Noto Sans TC",sans-serif;
+  padding:0;
+}
+
+html{scroll-behavior:smooth}
+
+body{
+  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",
+  "Microsoft JhengHei",sans-serif;
   color:var(--text);
-  background:var(--white);
-}
-header{
-  position:sticky;top:0;z-index:10;
-  background:rgba(247,252,255,.94);
-  backdrop-filter:blur(12px);
-  border-bottom:1px solid #d8edfa;
-  padding:15px 6%;
-  display:flex;justify-content:space-between;align-items:center;
-}
-.logo{font-weight:900;letter-spacing:2px;color:var(--deep);font-size:20px}
-nav{display:flex;gap:20px;align-items:center}
-nav a{color:var(--text);text-decoration:none;font-size:13px}
-nav a:hover{color:var(--deep)}
-.cart-link{
-  background:var(--deep);color:white!important;
-  padding:10px 17px;border-radius:30px;
-}
-.hero{
-  padding:85px 20px 95px;
-  text-align:center;
   background:
-    radial-gradient(circle at 15% 20%,#fff 0 5px,transparent 6px),
-    radial-gradient(circle at 85% 35%,#fff 0 8px,transparent 9px),
-    linear-gradient(135deg,#DDF2FF,#A9D8F5,#78B5E2);
-  position:relative;overflow:hidden;
+    radial-gradient(circle at 15% 10%,#FFFFFF 0,transparent 35%),
+    linear-gradient(180deg,#EAF6FD 0%,#F8FBFE 48%,#EAF5FC 100%);
+  overflow-x:hidden;
+  line-height:1.7;
 }
-.hero:after{
-  content:"";position:absolute;bottom:-65px;left:-5%;
-  width:110%;height:110px;background:var(--white);
-  border-radius:50% 50% 0 0;
+
+a{
+  color:inherit;
+  text-decoration:none;
 }
-.hero .eyebrow{letter-spacing:5px;font-size:12px;color:#477FAF}
-.hero h1{font-size:clamp(38px,8vw,68px);margin:18px 0 8px;color:#315F87}
-.hero h2{font-size:19px;letter-spacing:5px;margin:0 0 18px}
-.hero p{font-size:14px;line-height:2}
-.hero-icon{font-size:65px;margin:15px}
+
+button{
+  font:inherit;
+  cursor:pointer;
+  border:0;
+}
+
+header,main,section,footer{
+  position:relative;
+  z-index:1;
+}
+
+/* 漂浮泡泡背景 */
+.bubble-background{
+  position:fixed;
+  inset:0;
+  overflow:hidden;
+  pointer-events:none;
+  z-index:0;
+}
+
+.bubble{
+  position:absolute;
+  bottom:-100px;
+  border-radius:50%;
+  border:1px solid rgba(255,255,255,.9);
+  background:linear-gradient(
+    135deg,
+    rgba(255,255,255,.55),
+    rgba(169,216,245,.08)
+  );
+  box-shadow:
+    inset -5px -5px 12px rgba(120,181,226,.10),
+    0 0 14px rgba(255,255,255,.35);
+  animation:bubbleFloat linear infinite;
+}
+
+.bubble::after{
+  content:"";
+  position:absolute;
+  width:25%;
+  height:25%;
+  top:20%;
+  left:22%;
+  border-radius:50%;
+  background:rgba(255,255,255,.9);
+  filter:blur(1px);
+}
+
+@keyframes bubbleFloat{
+  0%{
+    transform:translate3d(0,0,0) scale(.8);
+    opacity:0;
+  }
+  15%{opacity:.65}
+  50%{
+    transform:translate3d(25px,-50vh,0) scale(1);
+    opacity:.55;
+  }
+  85%{opacity:.35}
+  100%{
+    transform:translate3d(-20px,-115vh,0) scale(1.15);
+    opacity:0;
+  }
+}
+
+@media(prefers-reduced-motion:reduce){
+  .bubble{animation:none;display:none}
+}
+
+/* 導覽列 */
+header{
+  width:100%;
+  padding:18px 7%;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  border-bottom:1px solid var(--line);
+  background:rgba(248,251,254,.72);
+  backdrop-filter:blur(14px);
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+
+.logo{
+  color:var(--deep);
+  font-weight:900;
+  letter-spacing:2.5px;
+  font-size:20px;
+  text-shadow:0 1px 0 #fff;
+}
+
+nav{
+  display:flex;
+  gap:22px;
+  align-items:center;
+  font-size:13px;
+  color:#58738D;
+}
+
+nav a:hover{color:var(--deep)}
+
+.nav-cart{
+  background:#477FAF;
+  color:white;
+  padding:8px 17px;
+  border-radius:30px;
+}
+
+/* 首頁 */
+.hero{
+  min-height:570px;
+  padding:110px 20px 100px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+}
+
+.hero .welcome{
+  color:#7189A2;
+  font-size:15px;
+  letter-spacing:5px;
+  font-weight:600;
+  margin-bottom:16px;
+}
+
+.hero h1{
+  color:#315F85;
+  font-size:clamp(43px,9vw,76px);
+  font-weight:900;
+  letter-spacing:5px;
+  line-height:1.25;
+  text-shadow:0 3px 12px rgba(49,95,133,.12);
+}
+
+.hero .brand-cn{
+  color:#587B9D;
+  font-size:19px;
+  font-weight:600;
+  letter-spacing:8px;
+  margin-top:14px;
+}
+
+.hero .subtitle{
+  color:#8999B5;
+  font-size:12px;
+  font-weight:600;
+  letter-spacing:7px;
+  margin-top:12px;
+}
+
+.hero p{
+  color:#58738D;
+  margin-top:28px;
+  font-size:14px;
+}
+
 .btn{
-  display:inline-block;text-decoration:none;
-  background:var(--deep);color:white;
-  padding:14px 28px;border-radius:30px;
-  font-weight:bold;margin-top:15px;
-  box-shadow:0 6px 15px #477FAF33;
+  display:inline-block;
+  margin-top:32px;
+  padding:13px 35px;
+  border-radius:40px;
+  background:linear-gradient(135deg,#477FAF,#78B5E2);
+  color:white;
+  font-weight:700;
+  box-shadow:0 5px 18px rgba(71,127,175,.22);
+  transition:.25s;
 }
-.btn:hover{transform:translateY(-2px)}
-section{padding:55px 7%}
-.section-title{text-align:center;margin-bottom:35px}
-.section-title small{letter-spacing:4px;color:var(--blue)}
-.section-title h2{font-size:27px;margin:10px 0;color:var(--deep)}
-.section-title p{font-size:13px;color:#7896AC}
-.quick-links{
-  display:grid;grid-template-columns:repeat(4,1fr);
-  gap:12px;max-width:850px;margin:-15px auto 20px;
-  position:relative;z-index:2;
+
+.btn:hover{
+  transform:translateY(-3px);
+  background:linear-gradient(135deg,#315F85,#659CC8);
 }
-.quick-links a{
-  text-align:center;text-decoration:none;color:var(--deep);
-  background:white;border:1px solid #e0f1fb;
-  padding:19px 8px;border-radius:17px;
-  box-shadow:0 5px 18px #477FAF0D;font-size:13px;
+
+/* 通用區塊 */
+section{
+  padding:75px 7%;
 }
-.quick-links span{display:block;font-size:25px;margin-bottom:8px}
+
+.section-title{
+  text-align:center;
+  margin-bottom:38px;
+}
+
+.section-title small{
+  color:#9184B9;
+  font-size:12px;
+  letter-spacing:3px;
+  font-weight:700;
+}
+
+.section-title h2{
+  color:#315F85;
+  font-size:27px;
+  font-weight:800;
+  letter-spacing:2px;
+  margin-top:5px;
+}
+
+.section-title p{
+  color:#71869B;
+  font-size:13px;
+  margin-top:8px;
+}
+
+/* 商品 */
 .products{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:18px;max-width:1050px;margin:auto;
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:20px;
+  max-width:1100px;
+  margin:auto;
 }
+
 .product{
-  background:white;border:1px solid #dfedf7;
-  border-radius:22px;padding:23px 18px;
-  text-align:center;box-shadow:0 8px 25px #477FAF0D;
+  background:rgba(255,255,255,.82);
+  border:1px solid rgba(255,255,255,.95);
+  border-radius:20px;
+  padding:25px 17px;
+  text-align:center;
+  box-shadow:var(--shadow);
+  transition:.25s;
 }
-.product .emoji{font-size:42px}
-.product h3{font-size:17px;margin:13px 0 5px}
-.product .desc{font-size:12px;color:#8AA8BD}
-.price{font-size:24px;font-weight:900;color:var(--deep);margin:13px}
+
+.product:hover{
+  transform:translateY(-5px);
+  box-shadow:0 16px 35px rgba(49,95,133,.15);
+}
+
+.product-icon{
+  width:68px;
+  height:68px;
+  margin:0 auto 16px;
+  border-radius:22px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:30px;
+  background:linear-gradient(145deg,#E5F4FD,#C8E4F6);
+}
+
+.product h3{
+  color:#405F7C;
+  font-size:16px;
+  font-weight:800;
+}
+
+.product .desc{
+  color:#8799AA;
+  font-size:12px;
+  margin:5px 0 12px;
+}
+
+.price{
+  color:#477FAF;
+  font-size:21px;
+  font-weight:900;
+  text-shadow:0 1px 0 rgba(255,255,255,.8);
+}
+
 .product button{
-  border:0;background:var(--blue);color:white;
-  padding:11px 24px;border-radius:25px;
-  font-size:14px;font-weight:bold;cursor:pointer;
+  width:100%;
+  margin-top:17px;
+  padding:10px;
+  border-radius:30px;
+  background:linear-gradient(135deg,#477FAF,#78B5E2);
+  color:white;
+  font-weight:700;
+  box-shadow:0 5px 13px rgba(71,127,175,.2);
+  transition:.2s;
 }
-.product button:hover{background:var(--deep)}
-.promo{
-  background:linear-gradient(135deg,#E9F7FF,#C6E7FA);
-  border-radius:25px;padding:35px 20px;text-align:center;
-  max-width:900px;margin:auto;
+
+.product button:hover{
+  background:linear-gradient(135deg,#315F85,#659CC8);
 }
-.promo h2{color:var(--deep)}
-.promo p{font-size:14px;line-height:2}
+
+/* 流程 */
 .steps{
-  display:grid;grid-template-columns:repeat(3,1fr);
-  gap:15px;max-width:900px;margin:auto;
+  max-width:900px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
 }
+
 .step{
-  background:white;border-radius:20px;padding:25px 15px;text-align:center;
-  border:1px solid #e0eff9;
+  text-align:center;
+  padding:28px 18px;
+  border-radius:20px;
+  background:rgba(255,255,255,.75);
+  box-shadow:var(--shadow);
 }
-.step span{font-size:35px}
-.step h3{font-size:16px;color:var(--deep)}
-.step p{font-size:13px;line-height:1.8;color:#7896AC}
+
+.step-number{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  margin:0 auto 13px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#D9ECF9;
+  color:#315F85;
+  font-weight:900;
+}
+
+.step h3{
+  color:#315F85;
+  font-size:16px;
+  margin-bottom:8px;
+}
+
+.step p{
+  color:#687F95;
+  font-size:13px;
+}
+
+/* 會員 */
 .member{
-  background:linear-gradient(135deg,#BDE3FA,#E5F5FF);
-  border-radius:25px;text-align:center;padding:45px 20px;
+  max-width:900px;
+  margin:auto;
+  text-align:center;
+  padding:55px 25px;
+  border-radius:28px;
+  background:linear-gradient(135deg,#DCEFFC,#F1F8FD);
+  border:1px solid white;
+  box-shadow:var(--shadow);
 }
-.member h2{color:var(--deep);letter-spacing:3px}
-.member p{font-size:14px;line-height:2}
-.faq{max-width:800px;margin:auto}
+
+.member h2{
+  color:#315F85;
+  font-size:30px;
+  letter-spacing:3px;
+}
+
+.member p{
+  color:#58738D;
+  font-size:14px;
+  margin-top:12px;
+}
+
+/* FAQ */
+.faq{
+  max-width:800px;
+  margin:auto;
+}
+
 details{
-  background:white;padding:18px 20px;margin:10px 0;
-  border-radius:14px;border:1px solid #e0eff9;font-size:14px;
+  background:rgba(255,255,255,.82);
+  border:1px solid var(--line);
+  border-radius:14px;
+  padding:17px 20px;
+  margin-bottom:12px;
 }
-summary{cursor:pointer;font-weight:bold;color:var(--deep)}
-details p{line-height:1.8;color:#7896AC}
-.cart{
-  max-width:850px;margin:auto;background:white;
-  border-radius:22px;padding:25px;
-  border:1px solid #dfedf7;
+
+summary{
+  color:#315F85;
+  font-weight:700;
+  cursor:pointer;
 }
+
+details p{
+  color:#687F95;
+  font-size:13px;
+  margin-top:12px;
+}
+
+/* 購物車 */
+.cart-area{
+  max-width:850px;
+  margin:auto;
+  background:rgba(255,255,255,.88);
+  border:1px solid white;
+  border-radius:22px;
+  padding:28px;
+  box-shadow:var(--shadow);
+}
+
+.cart-empty{
+  color:#71869B;
+  text-align:center;
+  padding:20px;
+}
+
 .cart-item{
-  display:flex;justify-content:space-between;gap:10px;
-  padding:12px 0;border-bottom:1px solid #edf4f8;font-size:14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:14px 0;
+  border-bottom:1px solid var(--line);
+  font-size:14px;
 }
-.cart-item button{
-  border:0;background:#e8f5fd;color:var(--deep);
-  border-radius:10px;padding:4px 10px;cursor:pointer;
+
+.cart-controls{
+  display:flex;
+  align-items:center;
+  gap:10px;
 }
-.cart-total{text-align:right;font-size:21px;font-weight:bold;color:var(--deep);margin-top:20px}
-.empty{text-align:center;color:#91AFC3;padding:20px}
+
+.cart-controls button{
+  width:27px;
+  height:27px;
+  border-radius:50%;
+  background:#E5F3FC;
+  color:#315F85;
+  font-weight:900;
+}
+
+.cart-total{
+  display:flex;
+  justify-content:space-between;
+  margin-top:22px;
+  font-size:18px;
+  font-weight:900;
+  color:#315F85;
+}
+
+.cart-note{
+  color:#8799AA;
+  font-size:12px;
+  margin-top:15px;
+  text-align:center;
+}
+
+/* 聯絡 */
+.contact{
+  text-align:center;
+}
+
+.contact-links{
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+  gap:14px;
+  margin-top:25px;
+}
+
+.contact-links a{
+  padding:11px 24px;
+  border-radius:30px;
+  background:#477FAF;
+  color:white;
+  font-size:13px;
+  font-weight:700;
+  transition:.2s;
+}
+
+.contact-links a:hover{
+  background:#315F85;
+  transform:translateY(-2px);
+}
+
+/* 頁尾 */
 footer{
-  background:#477FAF;color:white;text-align:center;
-  padding:35px 15px;font-size:12px;line-height:2;
+  position:relative;
+  z-index:1;
+  text-align:center;
+  padding:35px 15px;
+  background:rgba(220,239,250,.75);
+  color:#607D98;
+  font-size:12px;
 }
-@media(max-width:650px){
-  header{padding:13px 5%}
-  nav{gap:10px}
-  nav a{font-size:11px}
-  .logo{font-size:16px}
-  .quick-links{grid-template-columns:repeat(2,1fr);margin:0 auto}
+
+footer strong{
+  color:#315F85;
+  letter-spacing:2px;
+}
+
+footer a{
+  margin:0 7px;
+}
+
+@media(max-width:850px){
+  .products{grid-template-columns:repeat(2,1fr)}
+  nav{gap:12px}
+}
+
+@media(max-width:600px){
+  header{padding:15px 5%}
+  .logo{font-size:17px}
+  nav{gap:10px;font-size:11px}
+  nav a:nth-child(2),
+  nav a:nth-child(3){display:none}
+  .hero{min-height:520px;padding:90px 15px}
+  .hero .brand-cn{font-size:16px;letter-spacing:5px}
+  .hero .subtitle{letter-spacing:4px}
+  section{padding:60px 5%}
+  .products{gap:12px}
+  .product{padding:20px 12px}
+  .product h3{font-size:14px}
+  .price{font-size:19px}
   .steps{grid-template-columns:1fr}
-  section{padding:45px 5%}
+  .cart-area{padding:20px 15px}
+  .cart-item{font-size:12px}
 }
 </style>
 </head>
+
 <body>
 
+<!-- 泡泡背景 -->
+<div class="bubble-background" aria-hidden="true">
+  <span class="bubble" style="left:5%;width:25px;height:25px;animation-duration:16s"></span>
+  <span class="bubble" style="left:18%;width:13px;height:13px;animation-duration:21s;animation-delay:4s"></span>
+  <span class="bubble" style="left:35%;width:38px;height:38px;animation-duration:24s;animation-delay:2s"></span>
+  <span class="bubble" style="left:55%;width:18px;height:18px;animation-duration:18s;animation-delay:7s"></span>
+  <span class="bubble" style="left:72%;width:30px;height:30px;animation-duration:22s;animation-delay:3s"></span>
+  <span class="bubble" style="left:90%;width:16px;height:16px;animation-duration:19s;animation-delay:9s"></span>
+  <span class="bubble" style="left:45%;width:11px;height:11px;animation-duration:20s;animation-delay:10s"></span>
+  <span class="bubble" style="left:82%;width:22px;height:22px;animation-duration:25s;animation-delay:6s"></span>
+</div>
+
 <header>
-  <div class="logo">SOBBLEKING</div>
+  <a class="logo" href="#">SOBBLEKING</a>
   <nav>
-    <a href="#products">商品</a>
-    <a href="#process">購買流程</a>
-    <a href="#faq">FAQ</a>
-    <a href="#cart" class="cart-link">購物車 <span id="cartCount">0</span></a>
+    <a href="#products">商品選購</a>
+    <a href="#process">儲值流程</a>
+    <a href="#faq">常見問題</a>
+    <a href="#cart" class="nav-cart">購物車 <span id="cart-count">0</span></a>
   </nav>
 </header>
 
-<div class="hero">
-  <h1>SOBBLEKING</h1>
-  <h2>S O B B L E  P A R A D I S E</h2>
-  <p>歡迎來到淚眼蜥王國！<br>一起展開專屬於訓練家的冒險旅程吧。</p>
-  <a class="btn" href="#products">探索商品 ✦</a>
-</div>
+<main>
 
-<section>
-  <div class="quick-links">
-    <a href="#products"><span>🛍️</span>商品選購</a>
-    <a href="#process"><span>📦</span>購買流程</a>
-    <a href="#member"><span>⭐</span>SOBBSTARS</a>
-    <a href="#faq"><span>💬</span>常見問題</a>
-  </div>
+<!-- 首頁主視覺 -->
+<section class="hero">
+  <div class="welcome">歡迎來到</div>
+  <h1>SOBBLEKING</h1>
+  <div class="brand-cn">淚眼蜥王國</div>
+  <div class="subtitle">SOBBLE PARADISE</div>
+  <p>在這片水之王國，開啟你的冒險旅程。</p>
+  <a href="#products" class="btn">前往商品選購</a>
 </section>
 
+<!-- 商品 -->
 <section id="products">
   <div class="section-title">
-    <small>OUR COLLECTION</small>
-    <h2>✦ 王國商品 ✦</h2>
-    <p>挑選你需要的商品，開始冒險吧！</p>
+    <small>OUR PRODUCTS</small>
+    <h2>商品選購</h2>
+    <p>選擇你需要的商品，開始選購吧</p>
   </div>
 
-  <div class="products" id="productList"></div>
-</section>
+  <div class="products">
 
-<section>
-  <div class="promo">
-    <div style="font-size:42px">🫧</div>
-    <h2>王國最新消息</h2>
-    <p>活動優惠及最新公告將於此公布。<br>記得關注 SOBBLEKING，不錯過任何好康！</p>
+    <div class="product">
+      <div class="product-icon">💧</div>
+      <h3>1,300 皮幣</h3>
+      <p class="desc">皮幣儲值</p>
+      <div class="price">NT$150</div>
+      <button onclick="addToCart(1)">加入購物車</button>
+    </div>
+
+    <div class="product">
+      <div class="product-icon">🫧</div>
+      <h3>2,700 皮幣</h3>
+      <p class="desc">皮幣儲值</p>
+      <div class="price">NT$250</div>
+      <button onclick="addToCart(2)">加入購物車</button>
+    </div>
+
+    <div class="product">
+      <div class="product-icon">🐚</div>
+      <h3>5,600 皮幣</h3>
+      <p class="desc">皮幣儲值</p>
+      <div class="price">NT$450</div>
+      <button onclick="addToCart(3)">加入購物車</button>
+    </div>
+
+    <div class="product">
+      <div class="product-icon">🌊</div>
+      <h3>15,500 皮幣</h3>
+      <p class="desc">皮幣儲值</p>
+      <div class="price">NT$1,000</div>
+      <button onclick="addToCart(4)">加入購物車</button>
+    </div>
+
+    <div class="product">
+      <div class="product-icon">🪸</div>
+      <h3>46,500 皮幣</h3>
+      <p class="desc">皮幣儲值</p>
+      <div class="price">NT$2,950</div>
+      <button onclick="addToCart(5)">加入購物車</button>
+    </div>
+
+    <div class="product">
+      <div class="product-icon">🐬</div>
+      <h3>77,500 皮幣</h3>
+      <p class="desc">皮幣儲值</p>
+      <div class="price">NT$4,900</div>
+      <button onclick="addToCart(6)">加入購物車</button>
+    </div>
+
+    <div class="product">
+      <div class="product-icon">🎫</div>
+      <h3>當月 GO Pass</h3>
+      <p class="desc">通行證</p>
+      <div class="price">NT$130</div>
+      <button onclick="addToCart(7)">加入購物車</button>
+    </div>
+
+    <div class="product">
+      <div class="product-icon">⭐</div>
+      <h3>GO Pass＋10 等級</h3>
+      <p class="desc">通行證加購</p>
+      <div class="price">NT$150</div>
+      <button onclick="addToCart(8)">加入購物車</button>
+    </div>
+
   </div>
 </section>
 
+<!-- 儲值流程 -->
 <section id="process">
   <div class="section-title">
     <small>HOW TO ORDER</small>
-    <h2>✦ 購買流程 ✦</h2>
-    <p>簡單幾個步驟，完成你的訂單。</p>
+    <h2>儲值流程</h2>
+    <p>簡單幾個步驟，完成你的訂單</p>
   </div>
+
   <div class="steps">
     <div class="step">
-      <span>🛒</span>
-      <h3>STEP 01｜選擇商品</h3>
-      <p>挑選需要的商品並加入購物車。</p>
+      <div class="step-number">01</div>
+      <h3>選擇商品</h3>
+      <p>挑選需要的皮幣或通行證商品，加入購物車。</p>
     </div>
+
     <div class="step">
-      <span>💬</span>
-      <h3>STEP 02｜聯絡客服</h3>
-      <p>確認商品、遊戲登入方式及付款資訊。</p>
+      <div class="step-number">02</div>
+      <h3>建立訂單</h3>
+      <p>依照訂單流程填寫必要資料及選擇付款方式。</p>
     </div>
+
     <div class="step">
-      <span>✨</span>
-      <h3>STEP 03｜完成儲值</h3>
-      <p>付款確認後，依照客服指示完成儲值。</p>
+      <div class="step-number">03</div>
+      <h3>完成儲值</h3>
+      <p>付款確認後，由我們為你處理儲值服務。</p>
     </div>
   </div>
 </section>
 
+<!-- 會員 -->
 <section id="member">
   <div class="member">
-    <div style="font-size:45px">⭐</div>
     <h2>SOBBSTARS</h2>
-    <p>每一位訓練家，都是王國珍貴的星星。<br>會員專屬功能與優惠將陸續開放，敬請期待！</p>
+    <p>歡迎加入淚眼蜥王國會員行列。</p>
+    <p>會員專屬服務與錢包功能，將依網站實際開放項目提供。</p>
   </div>
 </section>
 
+<!-- FAQ -->
 <section id="faq">
   <div class="section-title">
-    <small>FREQUENTLY ASKED QUESTIONS</small>
-    <h2>✦ 常見問題 ✦</h2>
+    <small>Q & A</small>
+    <h2>常見問題</h2>
+    <p>關於購買與儲值，你可能想知道的事</p>
   </div>
+
   <div class="faq">
     <details>
-      <summary>目前支援哪些登入方式？</summary>
-      <p>目前支援 PTC、Google 及 Facebook 登入。不同登入方式可能有額外費用，請以商品及公告說明為準。</p>
+      <summary>下單後多久會完成儲值？</summary>
+      <p>完成付款確認後，會依照訂單狀況安排處理，實際時間以客服通知為準。</p>
     </details>
+
     <details>
-      <summary>付款後多久會開始儲值？</summary>
-      <p>需由客服確認款項後，才會安排後續儲值作業。</p>
+      <summary>可以使用哪些付款方式？</summary>
+      <p>付款方式依結帳頁面實際提供的選項為準。</p>
     </details>
+
     <details>
-      <summary>可以使用錢包餘額付款嗎？</summary>
-      <p>錢包功能尚在建置中，正式開放後將另行公告。</p>
+      <summary>付款後需要提供什麼資料？</summary>
+      <p>請依照訂單流程填寫必要的遊戲登入方式及相關資料。</p>
     </details>
+
     <details>
-      <summary>遇到問題要找誰？</summary>
-      <p>請透過官方客服 LINE 聯絡我們。</p>
+      <summary>有問題可以聯絡客服嗎？</summary>
+      <p>可以透過官方 LINE 聯絡客服，我們會協助處理訂單相關問題。</p>
     </details>
   </div>
 </section>
 
+<!-- 購物車 -->
 <section id="cart">
   <div class="section-title">
-    <small>YOUR SHOPPING BAG</small>
-    <h2>✦ 我的購物車 ✦</h2>
+    <small>YOUR SHOPPING CART</small>
+    <h2>購物車</h2>
+    <p>確認目前選購的商品</p>
   </div>
-  <div class="cart">
-    <div id="cartItems"><div class="empty">🫧 購物車目前是空的</div></div>
-    <div class="cart-total">總計：NT$ <span id="cartTotal">0</span></div>
-    <p style="text-align:center;font-size:12px;color:#91AFC3">
-      目前為購物車預覽，正式下單功能尚在建置中。
+
+  <div class="cart-area">
+    <div id="cart-items">
+      <div class="cart-empty">目前還沒有選購商品 🫧</div>
+    </div>
+
+    <div class="cart-total">
+      <span>商品總計</span>
+      <span id="cart-total">NT$0</span>
+    </div>
+
+    <p class="cart-note">
+      目前為商品選購預覽，正式訂單請以網站結帳功能開放後的流程為準。
     </p>
   </div>
 </section>
 
+<!-- 聯絡方式 -->
+<section class="contact">
+  <div class="section-title">
+    <small>CONTACT US</small>
+    <h2>聯絡我們</h2>
+    <p>有任何問題，歡迎透過以下方式找到我們</p>
+  </div>
+
+  <div class="contact-links">
+    <a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">官方 LINE 客服</a>
+    <a href="https://www.threads.net/@sobble.king" target="_blank" rel="noopener">Threads</a>
+  </div>
+</section>
+
+</main>
+
 <footer>
-  <div style="font-size:23px;font-weight:bold;letter-spacing:3px">SOBBLEKING</div>
-  SOBBLE PARADISE 💧<br>
-  © 2026 SOBBLEKING. All Rights Reserved.
+  <strong>SOBBLEKING</strong>
+  <p>SOBBLE PARADISE</p>
+  <p>© 2026 SOBBLEKING. All Rights Reserved.</p>
+  <p>
+    <a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">LINE 客服</a>
+    |
+    <a href="https://www.threads.net/@sobble.king" target="_blank" rel="noopener">Threads</a>
+  </p>
 </footer>
 
 <script>
 const products = [
-  {id:1,name:"1,300 皮幣",price:150,icon:"💎"},
-  {id:2,name:"2,700 皮幣",price:250,icon:"💎"},
-  {id:3,name:"5,600 皮幣",price:450,icon:"💎"},
-  {id:4,name:"15,500 皮幣",price:1000,icon:"💎"},
-  {id:5,name:"46,500 皮幣",price:2950,icon:"💎"},
-  {id:6,name:"77,500 皮幣",price:4900,icon:"💎"},
-  {id:7,name:"當月 GO Pass",price:130,icon:"🎫"},
-  {id:8,name:"當月 GO Pass＋10 等級",price:150,icon:"🎟️"}
+  {id:1,name:"1,300 皮幣",price:150},
+  {id:2,name:"2,700 皮幣",price:250},
+  {id:3,name:"5,600 皮幣",price:450},
+  {id:4,name:"15,500 皮幣",price:1000},
+  {id:5,name:"46,500 皮幣",price:2950},
+  {id:6,name:"77,500 皮幣",price:4900},
+  {id:7,name:"當月 GO Pass",price:130},
+  {id:8,name:"GO Pass＋10 等級",price:150}
 ];
 
 let cart = {};
 
-function renderProducts(){
-  document.getElementById("productList").innerHTML = products.map(p=>`
-    <div class="product">
-      <div class="emoji">${p.icon}</div>
-      <h3>${p.name}</h3>
-      <div class="desc">SOBBLEKING 精選商品</div>
-      <div class="price">NT$ ${p.price.toLocaleString("zh-TW")}</div>
-      <button onclick="addCart(${p.id})">＋ 加入購物車</button>
-    </div>
-  `).join("");
-}
-
-function addCart(id){
-  cart[id]=(cart[id]||0)+1;
+function addToCart(id){
+  if(!cart[id]){
+    cart[id]=1;
+  }else{
+    cart[id]++;
+  }
   renderCart();
 }
 
-function changeQty(id,amount){
-  cart[id]=(cart[id]||0)+amount;
-  if(cart[id]<=0) delete cart[id];
+function changeQuantity(id,amount){
+  cart[id]+=amount;
+  if(cart[id]<=0){
+    delete cart[id];
+  }
   renderCart();
 }
 
 function renderCart(){
-  const ids=Object.keys(cart);
-  const count=ids.reduce((sum,id)=>sum+cart[id],0);
-  const total=ids.reduce((sum,id)=>{
-    const p=products.find(x=>x.id==id);
-    return sum+p.price*cart[id];
-  },0);
+  const container=document.getElementById("cart-items");
+  const totalElement=document.getElementById("cart-total");
+  const countElement=document.getElementById("cart-count");
 
-  document.getElementById("cartCount").textContent=count;
-  document.getElementById("cartTotal").textContent=total.toLocaleString("zh-TW");
+  let total=0;
+  let count=0;
+  let html="";
 
-  document.getElementById("cartItems").innerHTML=ids.length
-    ? ids.map(id=>{
-      const p=products.find(x=>x.id==id);
-      return `<div class="cart-item">
-        <span>${p.name} × ${cart[id]}</span>
-        <span>
-          NT$ ${(p.price*cart[id]).toLocaleString("zh-TW")}
-          <button onclick="changeQty(${id},-1)">－</button>
-          <button onclick="changeQty(${id},1)">＋</button>
-        </span>
-      </div>`;
-    }).join("")
-    : '<div class="empty">🫧 購物車目前是空的</div>';
+  products.forEach(product=>{
+    const quantity=cart[product.id]||0;
+
+    if(quantity>0){
+      const subtotal=product.price*quantity;
+      total+=subtotal;
+      count+=quantity;
+
+      html+=`
+        <div class="cart-item">
+          <div>
+            <strong>${product.name}</strong>
+            <div>NT$${product.price.toLocaleString()} × ${quantity}</div>
+          </div>
+          <div class="cart-controls">
+            <button onclick="changeQuantity(${product.id},-1)">−</button>
+            <span>${quantity}</span>
+            <button onclick="changeQuantity(${product.id},1)">＋</button>
+          </div>
+          <strong>NT$${subtotal.toLocaleString()}</strong>
+        </div>
+      `;
+    }
+  });
+
+  if(count===0){
+    html='<div class="cart-empty">目前還沒有選購商品 🫧</div>';
+  }
+
+  container.innerHTML=html;
+  totalElement.textContent="NT$"+total.toLocaleString();
+  countElement.textContent=count;
 }
-
-renderProducts();
-renderCart();
 </script>
+
 </body>
 </html>
