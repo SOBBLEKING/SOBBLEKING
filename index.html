@@ -193,11 +193,11 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 .premium-card-foot{border-top:1px solid rgba(58,121,160,.25);padding-top:14px;align-items:flex-end}
 .premium-number-value{color:#205B82;text-shadow:0 1px 0 rgba(255,255,255,.95);letter-spacing:1.8px}
 .premium-number-line{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;margin-top:1px}
-.copy-number-button{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:25px;padding:3px 9px;border:1px solid rgba(71,127,175,.28);border-radius:20px;background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(218,239,251,.94));color:#326F99;font-size:10px;font-weight:800;letter-spacing:.3px;white-space:nowrap;box-shadow:0 2px 7px rgba(54,116,157,.10);transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
+.copy-number-button{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;min-width:22px;padding:0;border:1px solid rgba(71,127,175,.28);border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(218,239,251,.94));color:#326F99;box-shadow:0 2px 7px rgba(54,116,157,.10);transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
 .copy-number-button:hover{transform:translateY(-1px);box-shadow:0 4px 11px rgba(54,116,157,.17);background:linear-gradient(135deg,#fff,#CDEBFC)}
 .copy-number-button:active{transform:scale(.96)}
-.copy-number-button svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-@media(max-width:600px){.premium-number-line{gap:5px}.copy-number-button{min-height:23px;padding:2px 7px;font-size:9px}.copy-number-button svg{width:10px;height:10px}}
+.copy-number-button svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.copy-number-button.is-copied{background:linear-gradient(135deg,#DDF5FF,#B9E5FA);color:#174F78}
+@media(max-width:600px){.premium-number-line{gap:5px}.copy-number-button{width:20px;height:20px;min-width:20px}.copy-number-button svg{width:10px;height:10px}}
 .premium-card-date{margin-left:auto;color:#326B8F;font-size:9px;font-weight:800;letter-spacing:.7px;text-align:right;white-space:nowrap;padding:0 1px 2px 12px}
 /* 珍珠泡泡與細緻星芒，作為背景層，不遮擋會員資料 */
 .premium-card-decor{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
@@ -336,7 +336,6 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
               <span class="premium-number-value" id="member-number">SKM00000000</span>
               <button class="copy-number-button" type="button" data-copy-target="member-number" aria-label="複製會員編號">
                 <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="9" height="10" rx="1.5"></rect><path d="M11 3V2.5A1.5 1.5 0 0 0 9.5 1h-7A1.5 1.5 0 0 0 1 2.5v8A1.5 1.5 0 0 0 2.5 12H4"></path></svg>
-                <span>複製</span>
               </button>
             </div>
           </div>
@@ -678,24 +677,16 @@ async function copyNumberFromButton(button){
       input.remove();
       if(!copied) throw new Error("copy failed");
     }
-    const label = button.querySelector("span");
-    if(label){
-      const original = label.textContent;
-      label.textContent = "已複製";
-      button.classList.add("is-copied");
-      window.setTimeout(()=>{
-        label.textContent = original;
-        button.classList.remove("is-copied");
-      }, 1500);
-    }
+    button.classList.add("is-copied");
+    button.setAttribute("aria-label", "已複製會員編號");
+    window.setTimeout(()=>{
+      button.classList.remove("is-copied");
+      button.setAttribute("aria-label", "複製會員編號");
+    }, 1500);
   }catch(error){
     console.error("複製編號失敗：", error);
-    const label = button.querySelector("span");
-    if(label){
-      const original = label.textContent;
-      label.textContent = "請長按複製";
-      window.setTimeout(()=>{ label.textContent = original; }, 1800);
-    }
+    button.setAttribute("aria-label", "複製失敗，請長按編號");
+    window.setTimeout(()=>{ button.setAttribute("aria-label", "複製會員編號"); }, 1800);
   }
 }
 
