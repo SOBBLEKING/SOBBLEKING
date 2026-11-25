@@ -140,6 +140,35 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
  .member-card-label{font-size:8px}.member-card-name{font-size:20px}.member-number-label{font-size:7px;margin-top:7px}
  .member-number{font-size:17px;letter-spacing:1.5px}.member-date{font-size:8px}.member-card-footer{font-size:7px;letter-spacing:1px}
 }
+
+/* 全新 SOBBSTARS 珍珠冰銀會員卡 */
+.member-card-info{width:100%;max-width:620px;aspect-ratio:1.72/1;margin:30px auto 0;padding:0;position:relative;overflow:hidden;text-align:left;border:1px solid rgba(255,255,255,.98);border-radius:25px;background:linear-gradient(135deg,#FDFEFF 0%,#EAF5FB 38%,#D5EAF5 68%,#F9FCFF 100%);box-shadow:0 22px 48px rgba(54,104,140,.18),inset 0 1px 0 #fff;color:#284B65;isolation:isolate}
+.member-card-info[hidden]{display:none}
+.member-card-info:before{content:"";position:absolute;inset:9px;border:1px solid rgba(255,255,255,.96);border-radius:17px;box-shadow:inset 0 0 0 1px rgba(117,160,187,.15);pointer-events:none;z-index:3}
+.member-card-info:after{content:"";position:absolute;width:270px;height:270px;right:-105px;top:-145px;border-radius:50%;border:1px solid rgba(105,161,192,.2);box-shadow:0 0 0 18px rgba(255,255,255,.18),0 0 0 38px rgba(105,161,192,.08),0 0 0 62px rgba(255,255,255,.12);pointer-events:none;z-index:0}
+.premium-card-glow{position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(ellipse at 8% 90%,rgba(255,255,255,.98),transparent 35%),linear-gradient(115deg,transparent 35%,rgba(255,255,255,.48) 49%,transparent 62%)}
+.premium-card-inner{position:relative;z-index:2;height:100%;padding:28px 36px 23px;display:flex;flex-direction:column;justify-content:space-between}
+.premium-card-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.premium-brand-lockup{display:flex;align-items:center;gap:9px;color:#527994;font-size:11px;font-weight:900;letter-spacing:2.2px}
+.premium-brand-dot{width:8px;height:8px;border-radius:50%;background:linear-gradient(135deg,#A9D9F0,#477FAF);box-shadow:0 0 0 4px rgba(139,190,218,.16)}
+.premium-card-type{color:#8CA7B9;font-size:8px;font-weight:800;letter-spacing:2px}
+.premium-card-main{padding:5px 0 0 2px}
+.premium-card-eyebrow{color:#8BA8BA;font-size:8px;font-weight:800;letter-spacing:3px;margin-bottom:5px}
+.premium-card-title{color:#315F85;font-size:clamp(27px,5vw,36px);font-weight:950;letter-spacing:5px;line-height:1.2;text-shadow:0 1px 0 #fff,0 3px 8px rgba(65,111,143,.12)}
+.premium-card-name-label,.premium-meta-label{display:block;color:#829EAF;font-size:8px;font-weight:850;letter-spacing:2px}
+.premium-card-name-label{margin-top:15px}
+.premium-card-name{margin-top:3px;color:#31536B;font-size:clamp(17px,3vw,22px);font-weight:850;letter-spacing:1.5px;overflow-wrap:anywhere;text-shadow:0 1px 0 #fff}
+.premium-card-foot{display:flex;align-items:flex-end;gap:14px;padding-top:13px;border-top:1px solid rgba(91,143,173,.2)}
+.premium-member-number{display:flex;flex-direction:column;gap:3px;min-width:0}
+.premium-number-value{color:#315F85;font-size:clamp(13px,2.5vw,17px);font-weight:900;letter-spacing:1.6px;white-space:nowrap}
+.premium-card-date{margin-left:auto;color:#718FA4;font-size:9px;font-weight:700;letter-spacing:.3px;white-space:nowrap;padding-bottom:2px}
+.premium-sk-mark{width:62px;flex:0 0 62px;display:flex;align-items:center;justify-content:center}
+.premium-sk-mark svg{width:60px;height:32px;overflow:visible;filter:drop-shadow(0 2px 2px rgba(49,95,133,.13))}
+.premium-sk-mark svg path{fill:none;stroke:#477FAF;stroke-width:5.2;stroke-linecap:round;stroke-linejoin:round}
+.premium-sk-mark svg .premium-sk-star{fill:#8FC8E5;stroke:#fff;stroke-width:1}
+@media(max-width:600px){.member-card-info{aspect-ratio:1.48/1;border-radius:19px}.premium-card-inner{padding:21px 22px 17px}.premium-brand-lockup{font-size:9px;letter-spacing:1.5px}.premium-card-type{font-size:7px;letter-spacing:1px}.premium-card-title{font-size:clamp(24px,7vw,31px);letter-spacing:3.5px}.premium-card-eyebrow{font-size:7px;letter-spacing:2px}.premium-card-name-label,.premium-meta-label{font-size:7px;letter-spacing:1.4px}.premium-card-name{font-size:17px}.premium-number-value{font-size:13px;letter-spacing:1px}.premium-card-date{font-size:8px}.premium-sk-mark{width:48px;flex-basis:48px}.premium-sk-mark svg{width:48px;height:27px}.premium-card-foot{gap:8px}}
+@media(max-width:380px){.premium-card-inner{padding:18px 17px 15px}.premium-card-date{font-size:7px}.premium-sk-mark{width:40px;flex-basis:40px}.premium-sk-mark svg{width:40px}}
+
 </style>
 </head>
 <body>
@@ -207,33 +236,36 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
     </div>
     <div class="member-status" id="member-status" aria-live="polite">尚未登入會員</div>
 
-    <!-- 冰晶珍珠會員卡：保留原本 LINE 登入與會員資料 ID -->
+    <!-- SOBBSTARS 冰晶珍珠會員卡：保留原本動態會員資料 ID -->
     <div class="member-card-info" id="member-card" hidden>
-      <div class="member-card-bubbles" aria-hidden="true">
-        <span></span><span></span><span></span><span></span><span></span>
-      </div>
-      <div class="member-card-content">
-        <div class="member-card-middle">
-          <div class="member-card-label">SOBBSTARS</div>
-          <div class="member-card-details">
-            <div class="member-detail">
-              <span class="member-field-label">會員名稱</span>
-              <span class="member-card-name" id="member-name">會員名稱</span>
-            </div>
-            <div class="member-detail">
-              <span class="member-number-label">SK 會員編號</span>
-              <span class="member-number" id="member-number">SK000000</span>
-            </div>
+      <div class="premium-card-glow" aria-hidden="true"></div>
+      <div class="premium-card-inner">
+        <div class="premium-card-head">
+          <div class="premium-brand-lockup">
+            <span class="premium-brand-dot"></span>
+            <span>SOBBLEKING</span>
           </div>
+          <span class="premium-card-type">OFFICIAL MEMBER</span>
         </div>
-        <div class="member-card-bottom">
-          <div class="member-date" id="member-date"></div>
-          <svg class="member-card-sk" viewBox="0 0 120 52" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="SK 品牌標誌">
-            <defs><linearGradient id="skCardMetal" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="25%" stop-color="#A9D5F2"/><stop offset="50%" stop-color="#477FAF"/><stop offset="75%" stop-color="#D9F0FF"/><stop offset="100%" stop-color="#527FA4"/></linearGradient></defs>
-            <path d="M48 10 C37 1 13 4 13 19 C13 31 42 28 42 38 C42 49 17 50 7 40"/>
-            <path d="M57 5 V46 M57 28 L91 5 M57 28 L94 47"/>
-            <path class="sk-spark" d="M103 5 L106 12 L113 15 L106 18 L103 25 L100 18 L93 15 L100 12 Z"/>
-          </svg>
+        <div class="premium-card-main">
+          <div class="premium-card-eyebrow">A LITTLE WATER KINGDOM</div>
+          <div class="premium-card-title">SOBBSTARS</div>
+          <div class="premium-card-name-label">MEMBER NAME</div>
+          <div class="premium-card-name" id="member-name">會員名稱</div>
+        </div>
+        <div class="premium-card-foot">
+          <div class="premium-member-number">
+            <span class="premium-meta-label">MEMBER ID</span>
+            <span class="premium-number-value" id="member-number">SK000000</span>
+          </div>
+          <div class="premium-card-date" id="member-date">加入日期：—</div>
+          <div class="premium-sk-mark" aria-label="SK 品牌標誌">
+            <svg viewBox="0 0 100 52" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
+              <path d="M43 10C35 3 15 5 13 17c-2 11 25 10 25 21 0 10-20 13-31 5"/>
+              <path d="M54 7v38M54 27 84 7M54 27l31 18"/>
+              <path class="premium-sk-star" d="m91 4 3.2 7.2 7.2 3.2-7.2 3.2L91 25l-3.2-7.4-7.2-3.2 7.2-3.2z"/>
+            </svg>
+          </div>
         </div>
       </div>
     </div>
