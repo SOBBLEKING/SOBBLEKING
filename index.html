@@ -207,6 +207,30 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 @media(max-width:600px){.premium-card-inner{padding:22px 23px 18px}.premium-card-title{font-size:clamp(26px,7vw,33px);letter-spacing:4px}.premium-card-name{font-size:18px}.premium-number-value{font-size:13px}.premium-card-date{font-size:8px;padding-left:8px}.premium-card-decor .bubble-one{width:48px;height:48px}.premium-card-decor .bubble-four{width:30px;height:30px}}
 @media(max-width:380px){.premium-card-inner{padding:19px 18px 16px}.premium-card-date{font-size:7px;letter-spacing:.2px}}
 
+/* 會員卡專屬柔和動態：泡泡緩慢漂浮、星星輕柔閃爍 */
+.premium-card-decor .decor-bubble{will-change:transform;animation:memberBubbleDrift 8s ease-in-out infinite}
+.premium-card-decor .bubble-one{animation-duration:9s;animation-delay:-1.5s}
+.premium-card-decor .bubble-two{animation-duration:7s;animation-delay:-3s}
+.premium-card-decor .bubble-three{animation-duration:8.5s;animation-delay:-2s}
+.premium-card-decor .bubble-four{animation-duration:10s;animation-delay:-4s}
+.premium-card-decor .decor-star{transform-origin:center;will-change:transform,opacity;animation:memberStarTwinkle 3.8s ease-in-out infinite}
+.premium-card-decor .star-one{animation-delay:-.8s}
+.premium-card-decor .star-two{animation-duration:4.6s;animation-delay:-2.1s}
+.premium-card-decor .star-three{animation-duration:3.3s;animation-delay:-1.4s}
+@keyframes memberBubbleDrift{
+  0%,100%{transform:translate3d(0,0,0) scale(1)}
+  25%{transform:translate3d(5px,-7px,0) scale(1.035)}
+  55%{transform:translate3d(-4px,-13px,0) scale(.98)}
+  78%{transform:translate3d(3px,-5px,0) scale(1.02)}
+}
+@keyframes memberStarTwinkle{
+  0%,100%{opacity:.58;transform:scale(.82) rotate(-8deg)}
+  45%{opacity:1;transform:scale(1.18) rotate(8deg)}
+  70%{opacity:.82;transform:scale(1) rotate(0deg)}
+}
+@media(prefers-reduced-motion:reduce){
+  .premium-card-decor .decor-bubble,.premium-card-decor .decor-star{animation:none!important;will-change:auto}
+}
 
 </style>
 </head>
@@ -343,7 +367,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 
 <footer>
   <strong>SOBBLEKING</strong>
-  <p>SOBBLE PARADISE</p>
+  <p><a href="mailto:sobblekinggg@gmail.com">sobblekinggg@gmail.com</a></p>
   <p>© 2026 SOBBLEKING. All Rights Reserved.</p>
   <p><a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">LINE 客服</a> | <a href="https://www.threads.net/@sobble.king" target="_blank" rel="noopener">Threads</a></p>
 </footer>
