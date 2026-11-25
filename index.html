@@ -75,40 +75,35 @@ section{padding:75px 7%;scroll-margin-top:90px}
 .member-button:disabled{opacity:.6;cursor:wait;transform:none}
 .member-status{position:relative;min-height:22px;margin-top:16px;color:#71869B;font-size:12px}
 
-/* SOBBSTARS 冰晶珍珠橫式會員卡 */
-.member-card-info{position:relative;width:100%;max-width:600px;aspect-ratio:1.68/1;margin:30px auto 0;padding:0;overflow:hidden;text-align:left;border-radius:23px;border:1px solid rgba(255,255,255,.96);background:radial-gradient(ellipse at 15% 12%,rgba(255,255,255,.98),transparent 30%),radial-gradient(ellipse at 83% 85%,rgba(255,255,255,.82),transparent 32%),linear-gradient(128deg,#DDF7FF 0%,#A9DFF4 28%,#EAFBFF 53%,#9BCDE7 78%,#F5FDFF 100%);box-shadow:0 24px 52px rgba(70,139,174,.24),0 5px 15px rgba(78,145,180,.15),inset 0 1px 0 #fff;isolation:isolate;transition:transform .35s ease,box-shadow .35s ease;color:#315F85}
+/* SOBBSTARS 冰晶珍珠會員卡：融合式 SB 金屬字標 */
+.member-card-info{position:relative;width:100%;max-width:620px;aspect-ratio:1.72/1;margin:30px auto 0;padding:0;overflow:hidden;text-align:left;border-radius:23px;border:1px solid rgba(255,255,255,.98);background:radial-gradient(ellipse at 13% 10%,rgba(255,255,255,.98),transparent 32%),radial-gradient(ellipse at 88% 88%,rgba(255,255,255,.82),transparent 34%),linear-gradient(132deg,#DDF7FF 0%,#A9DFF4 27%,#F3FDFF 52%,#A4D5EA 77%,#F8FEFF 100%);box-shadow:0 24px 52px rgba(70,139,174,.22),0 5px 15px rgba(78,145,180,.13),inset 0 1px 0 #fff;isolation:isolate;transition:transform .35s ease,box-shadow .35s ease;color:#52758D}
 .member-card-info[hidden]{display:none}
-.member-card-info:hover{transform:translateY(-4px);box-shadow:0 29px 60px rgba(70,139,174,.3),inset 0 1px 0 #fff}
-.member-card-info:before{content:"";position:absolute;inset:8px;border:1.5px solid rgba(255,255,255,.96);border-radius:16px;box-shadow:inset 0 0 0 1px rgba(105,160,190,.3),0 0 0 1px rgba(115,171,199,.24);pointer-events:none;z-index:5}
-.member-card-info:after{content:"";position:absolute;inset:14px;border:1px solid rgba(112,166,194,.25);border-radius:12px;pointer-events:none;z-index:1}
+.member-card-info:hover{transform:translateY(-3px);box-shadow:0 28px 58px rgba(70,139,174,.27),inset 0 1px 0 #fff}
+.member-card-info:before{content:"";position:absolute;inset:8px;border:1.5px solid rgba(255,255,255,.98);border-radius:16px;box-shadow:inset 0 0 0 1px rgba(105,160,190,.32),0 0 0 1px rgba(115,171,199,.22);pointer-events:none;z-index:5}
+.member-card-info:after{content:"";position:absolute;inset:14px;border:1px solid rgba(112,166,194,.24);border-radius:12px;pointer-events:none;z-index:1}
 .member-card-bubbles{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-.member-card-bubbles span{position:absolute;display:block;border-radius:50%;border:1px solid rgba(255,255,255,.9);background:radial-gradient(circle at 28% 22%,rgba(255,255,255,.98),rgba(255,255,255,.45) 24%,rgba(121,194,225,.18) 62%,rgba(255,255,255,.08) 78%);box-shadow:inset 2px 2px 9px rgba(255,255,255,.9),0 3px 12px rgba(80,155,190,.13)}
-.member-card-bubbles span:nth-child(1){width:78px;height:78px;right:8%;top:12%}
-.member-card-bubbles span:nth-child(2){width:34px;height:34px;right:24%;top:67%}
+.member-card-bubbles span{position:absolute;display:block;border-radius:50%;border:1px solid rgba(255,255,255,.92);background:radial-gradient(circle at 28% 22%,rgba(255,255,255,.98),rgba(255,255,255,.45) 24%,rgba(121,194,225,.18) 62%,rgba(255,255,255,.08) 78%);box-shadow:inset 2px 2px 9px rgba(255,255,255,.9),0 3px 12px rgba(80,155,190,.13)}
+.member-card-bubbles span:nth-child(1){width:76px;height:76px;right:8%;top:12%}
+.member-card-bubbles span:nth-child(2){width:34px;height:34px;right:23%;top:68%}
 .member-card-bubbles span:nth-child(3){width:18px;height:18px;right:12%;top:72%}
 .member-card-bubbles span:nth-child(4){width:48px;height:48px;left:8%;top:17%;opacity:.72}
 .member-card-bubbles span:nth-child(5){width:13px;height:13px;left:25%;top:72%}
-.member-card-content{position:relative;z-index:3;height:100%;padding:22px 29px 18px;display:flex;flex-direction:column;justify-content:space-between}
-.member-card-top{display:flex;justify-content:space-between;align-items:center}
-.member-card-brand{display:flex;align-items:center;gap:9px}
-.member-card-symbol{display:none}
-.member-card-brand>span:last-child{display:none}
-.member-card-type{padding:5px 11px;border:1px solid rgba(112,158,184,.36);border-radius:20px;color:rgba(54,105,137,.8);font-size:8px;letter-spacing:2px;white-space:nowrap;background:rgba(255,255,255,.42)}
-.member-card-middle{position:absolute;left:8%;right:8%;top:49%;transform:translateY(-50%);text-align:left;margin:0;z-index:3}
-.member-card-label{color:#477D9D;font-size:clamp(23px,5vw,35px);letter-spacing:clamp(4px,1.2vw,9px);font-weight:900;text-shadow:0 1px 0 #fff,0 2px 8px rgba(69,132,164,.18)}
-.member-card-name{margin-top:8px;color:#315F85;font-size:clamp(12px,2.5vw,15px);font-weight:700;letter-spacing:2px;text-shadow:0 1px 0 rgba(255,255,255,.8)}
-.member-number-label{display:block;color:rgba(59,111,143,.66);font-size:7px;letter-spacing:1.7px;margin-top:5px}
-.member-number{display:block;color:#315F85;font-size:10px;font-weight:800;letter-spacing:2px;margin-top:1px;text-align:left}
-.member-card-bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding-top:8px;border-top:1px solid rgba(88,145,176,.28)}
-.member-date{color:rgba(49,95,133,.82);font-size:9px;letter-spacing:1px}
-.member-card-footer{color:rgba(49,95,133,.72);font-size:9px;font-weight:800;letter-spacing:2px;white-space:nowrap}
-/* 淚眼蜥銀鋼印徽章 */
-.member-sobble-seal{position:absolute;z-index:2;width:clamp(92px,22%,132px);height:auto;right:9%;top:50%;transform:translateY(-50%);filter:drop-shadow(0 5px 5px rgba(60,111,140,.22));opacity:.94}
-.member-sobble-seal .seal-ring{fill:url(#sealMetal);stroke:#fff;stroke-width:2.2}
-.member-sobble-seal .seal-inner{fill:none;stroke:#8BAFC2;stroke-width:1.1;opacity:.9}
-.member-sobble-seal .seal-mark{fill:url(#sobbleMetal);stroke:#789FB5;stroke-width:1.1;stroke-linejoin:round}
-.member-sobble-seal .seal-detail{fill:none;stroke:#789FB5;stroke-width:1.5;stroke-linecap:round;opacity:.85}
-@media(max-width:480px){.member-card-content{padding:17px 19px 14px}.member-card-middle{left:7%;right:28%;top:49%}.member-card-label{font-size:clamp(19px,5.4vw,26px);letter-spacing:4px}.member-card-name{font-size:11px;margin-top:5px}.member-number-label{font-size:6px}.member-number{font-size:8px}.member-date{font-size:7px}.member-card-footer{font-size:7px}.member-card-type{font-size:6px;padding:4px 8px}.member-sobble-seal{right:8%;width:25%;top:48%}}
+.member-card-content{position:relative;z-index:3;height:100%;padding:18px 34px 17px;display:flex;flex-direction:column;justify-content:center;gap:9px}
+.member-card-middle{position:relative;z-index:3;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:7px}
+.member-card-logo{width:76px;height:48px;display:block;overflow:visible;filter:drop-shadow(0 2px 2px rgba(78,119,145,.28))}
+.member-card-logo .logo-orbit{fill:none;stroke:url(#sbChrome);stroke-width:2.5;stroke-linecap:round;opacity:.88}
+.member-card-logo .logo-letter{fill:none;stroke:url(#sbChrome);stroke-width:5.2;stroke-linecap:round;stroke-linejoin:round}
+.member-card-logo .logo-highlight{fill:none;stroke:rgba(255,255,255,.92);stroke-width:1.15;stroke-linecap:round;stroke-linejoin:round}
+.member-card-label,.member-card-name,.member-number-label,.member-number,.member-date,.member-field-label{background:linear-gradient(180deg,#FFFFFF 0%,#B8C9D3 24%,#FFFFFF 42%,#7899AC 57%,#F8FFFF 76%,#9BB3C1 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-stroke:.35px rgba(103,139,158,.58);text-shadow:0 1px 0 rgba(255,255,255,.95),0 2px 1px rgba(91,126,146,.28),0 3px 5px rgba(76,119,145,.18);filter:drop-shadow(0 1px 1px rgba(255,255,255,.45))}
+.member-card-label{font-family:Georgia,'Times New Roman',serif;font-size:clamp(25px,4.8vw,34px);letter-spacing:clamp(4px,1vw,8px);font-weight:700;line-height:1.12}
+.member-card-divider{width:min(82%,390px);height:1px;background:linear-gradient(90deg,transparent,rgba(104,151,177,.65),rgba(255,255,255,.95),rgba(104,151,177,.65),transparent);margin:2px auto 4px}
+.member-card-details{width:min(100%,440px);display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:end}
+.member-detail{display:flex;flex-direction:column;gap:4px;min-width:0;text-align:left}
+.member-number-label,.member-field-label{font-size:9px;font-weight:800;letter-spacing:2px;opacity:.9}
+.member-card-name,.member-number{font-size:clamp(13px,2.2vw,16px);font-weight:850;letter-spacing:1.8px;overflow-wrap:anywhere}
+.member-card-bottom{display:flex;justify-content:center;align-items:center;padding-top:4px}
+.member-date{font-size:10px;font-weight:800;letter-spacing:1.5px}
+@media(max-width:480px){.member-card-info{aspect-ratio:1.48/1;border-radius:17px}.member-card-content{padding:15px 20px 13px;gap:7px}.member-card-logo{width:58px;height:37px}.member-card-middle{gap:5px}.member-card-label{font-size:clamp(20px,5.7vw,27px);letter-spacing:3px}.member-card-details{gap:12px}.member-number-label,.member-field-label{font-size:7px;letter-spacing:1px}.member-card-name,.member-number{font-size:11px;letter-spacing:1px}.member-date{font-size:8px;letter-spacing:.8px}}
 /* FAQ */
 .faq{max-width:800px;margin:auto}
 details{background:rgba(255,255,255,.82);border:1px solid var(--line);border-radius:14px;padding:17px 20px;margin-bottom:12px}
@@ -214,43 +209,34 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
     </div>
     <div class="member-status" id="member-status" aria-live="polite">尚未登入會員</div>
 
-    <!-- 精品會員卡：保留原本 JS 使用的所有 ID -->
+    <!-- 冰晶珍珠會員卡：保留原本 LINE 登入與會員資料 ID -->
     <div class="member-card-info" id="member-card" hidden>
       <div class="member-card-bubbles" aria-hidden="true">
         <span></span><span></span><span></span><span></span><span></span>
       </div>
-      <svg class="member-sobble-seal" viewBox="0 0 160 160" role="img" aria-label="淚眼蜥銀色鋼印徽章">
-        <defs>
-          <linearGradient id="sealMetal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".22" stop-color="#B8CBD5"/><stop offset=".43" stop-color="#FDFEFF"/><stop offset=".68" stop-color="#9FB8C7"/><stop offset="1" stop-color="#F8FFFF"/></linearGradient>
-          <linearGradient id="sobbleMetal" x1="0" y1="0" x2="0.9" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".5" stop-color="#B8D2DF"/><stop offset="1" stop-color="#789FB5"/></linearGradient>
-          <filter id="sealEmboss" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur in="SourceAlpha" stdDeviation="1.4" result="blur"/><feOffset dy="1.5" result="offset"/><feComposite in="offset" in2="SourceAlpha" operator="out" result="shadow"/><feColorMatrix in="shadow" type="matrix" values="0 0 0 0 .30 0 0 0 0 .48 0 0 0 0 .60 0 0 0 .45 0" result="shade"/><feMerge><feMergeNode in="shade"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-        </defs>
-        <circle cx="80" cy="80" r="74" fill="url(#sealMetal)" stroke="#FFFFFF" stroke-width="2.5"/>
-        <circle cx="80" cy="80" r="67" fill="none" stroke="#8EAFC0" stroke-width="1.2" opacity=".8"/>
-        <circle cx="80" cy="80" r="62" fill="none" stroke="#FFFFFF" stroke-width="1" opacity=".9"/>
-        <g filter="url(#sealEmboss)">
-          <path d="M80 34 C69 43 54 57 51 75 C47 96 60 116 80 122 C100 116 113 96 109 75 C106 57 91 43 80 34Z" fill="url(#sobbleMetal)" stroke="#789FB5" stroke-width="1.8" stroke-linejoin="round"/>
-          <path d="M58 68 C49 56 51 45 62 42 C72 39 78 50 80 57 C83 48 91 40 101 44 C111 48 109 60 101 69" fill="none" stroke="#789FB5" stroke-width="5" stroke-linecap="round"/>
-          <ellipse cx="69" cy="82" rx="4" ry="6" fill="#527F99"/><ellipse cx="91" cy="82" rx="4" ry="6" fill="#527F99"/>
-          <path d="M73 98 Q80 103 87 98" fill="none" stroke="#527F99" stroke-width="2.2" stroke-linecap="round"/>
-          <path d="M58 91 l-5 2 M102 91 l5 2" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" opacity=".9"/>
-        </g>
-        <circle cx="80" cy="80" r="2.5" fill="#FFFFFF" opacity=".9"/>
-      </svg>
       <div class="member-card-content">
-        <div class="member-card-top">
-          <div class="member-card-brand"><span class="member-card-symbol">◈</span><span></span></div>
-
-        </div>
         <div class="member-card-middle">
+          <svg class="member-card-logo" viewBox="0 0 120 76" role="img" aria-label="SB 融合字母標誌">
+            <defs><linearGradient id="sbChrome" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".22" stop-color="#7896A8"/><stop offset=".43" stop-color="#FFFFFF"/><stop offset=".66" stop-color="#7896A8"/><stop offset=".86" stop-color="#F9FFFF"/><stop offset="1" stop-color="#6F8FA3"/></linearGradient></defs>
+            <ellipse class="logo-orbit" cx="60" cy="38" rx="54" ry="19" transform="rotate(-17 60 38)"/>
+            <path class="logo-letter" d="M61 13 C49 4 29 9 29 22 C29 32 43 35 59 38 C76 41 88 45 85 57 C82 70 59 72 43 63 C37 60 33 56 31 52 M58 14 C73 8 91 15 91 27 C91 34 85 38 76 40 M64 14 L64 63 C64 63 75 63 83 58 C95 50 91 39 78 37 C91 32 94 21 84 15"/>
+            <path class="logo-highlight" d="M61 13 C49 4 29 9 29 22 C29 32 43 35 59 38 C76 41 88 45 85 57 M64 14 L64 63 C64 63 75 63 83 58"/>
+          </svg>
           <div class="member-card-label">SOBBSTARS</div>
-          <div class="member-card-name" id="member-name">會員名稱</div>
-          <div class="member-number-label">SB MEMBER NUMBER</div>
-          <div class="member-number" id="member-number">SB000000</div>
+          <div class="member-card-divider" aria-hidden="true"></div>
+          <div class="member-card-details">
+            <div class="member-detail">
+              <span class="member-field-label">會員名稱</span>
+              <span class="member-card-name" id="member-name">會員名稱</span>
+            </div>
+            <div class="member-detail">
+              <span class="member-number-label">SB 會員編號</span>
+              <span class="member-number" id="member-number">SB000000</span>
+            </div>
+          </div>
         </div>
         <div class="member-card-bottom">
           <div class="member-date" id="member-date"></div>
-
         </div>
       </div>
     </div>
