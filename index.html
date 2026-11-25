@@ -75,37 +75,47 @@ section{padding:75px 7%;scroll-margin-top:90px}
 .member-button:disabled{opacity:.6;cursor:wait;transform:none}
 .member-status{position:relative;min-height:22px;margin-top:16px;color:#71869B;font-size:12px}
 
-/* 會員卡面 */
-.member-card-info{position:relative;width:100%;max-width:560px;aspect-ratio:1.68/1;margin:30px auto 0;padding:0;overflow:hidden;text-align:left;border-radius:23px;border:1px solid rgba(255,255,255,.78);background:radial-gradient(ellipse at 50% 48%,rgba(112,190,235,.28),transparent 42%),radial-gradient(ellipse at 0% 0%,rgba(109,171,211,.22),transparent 42%),linear-gradient(128deg,#102B43 0%,#183D59 38%,#0D243A 72%,#244E6A 100%);box-shadow:0 25px 55px rgba(16,43,67,.34),0 8px 18px rgba(49,95,133,.18),inset 0 1px 0 rgba(255,255,255,.55);isolation:isolate;transition:transform .35s ease,box-shadow .35s ease}
+/* SOBBSTARS 冰晶珍珠橫式會員卡 */
+.member-card-info{position:relative;width:100%;max-width:600px;aspect-ratio:1.68/1;margin:30px auto 0;padding:0;overflow:hidden;text-align:left;border-radius:23px;border:1px solid rgba(255,255,255,.96);background:radial-gradient(ellipse at 15% 12%,rgba(255,255,255,.98),transparent 30%),radial-gradient(ellipse at 83% 85%,rgba(255,255,255,.82),transparent 32%),linear-gradient(128deg,#DDF7FF 0%,#A9DFF4 28%,#EAFBFF 53%,#9BCDE7 78%,#F5FDFF 100%);box-shadow:0 24px 52px rgba(70,139,174,.24),0 5px 15px rgba(78,145,180,.15),inset 0 1px 0 #fff;isolation:isolate;transition:transform .35s ease,box-shadow .35s ease;color:#315F85}
 .member-card-info[hidden]{display:none}
-.member-card-info:hover{transform:translateY(-5px);box-shadow:0 30px 65px rgba(16,43,67,.4),0 8px 18px rgba(49,95,133,.2),inset 0 1px 0 rgba(255,255,255,.65)}
-.member-card-info:before{content:"";position:absolute;inset:8px;border:1px solid rgba(211,239,255,.32);border-radius:16px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.06);pointer-events:none;z-index:4}
-.member-card-info:after{content:"";position:absolute;width:330px;height:330px;left:50%;top:48%;transform:translate(-50%,-50%);border-radius:50%;border:1px solid rgba(199,235,255,.25);box-shadow:0 0 0 12px rgba(188,229,255,.035),0 0 0 28px rgba(188,229,255,.035),0 0 0 48px rgba(188,229,255,.025),inset 0 0 35px rgba(135,205,244,.08);pointer-events:none;z-index:0}
+.member-card-info:hover{transform:translateY(-4px);box-shadow:0 29px 60px rgba(70,139,174,.3),inset 0 1px 0 #fff}
+.member-card-info:before{content:"";position:absolute;inset:8px;border:1.5px solid rgba(255,255,255,.96);border-radius:16px;box-shadow:inset 0 0 0 1px rgba(105,160,190,.3),0 0 0 1px rgba(115,171,199,.24);pointer-events:none;z-index:5}
+.member-card-info:after{content:"";position:absolute;inset:14px;border:1px solid rgba(112,166,194,.25);border-radius:12px;pointer-events:none;z-index:1}
 .member-card-bubbles{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:0}
-.member-card-bubbles span{position:absolute;display:block;border-radius:50%;border:1px solid rgba(226,247,255,.62);background:radial-gradient(circle at 28% 24%,rgba(255,255,255,.8),rgba(132,203,240,.16) 58%,rgba(255,255,255,.02) 76%);box-shadow:inset 2px 2px 8px rgba(255,255,255,.35),0 0 18px rgba(120,202,245,.16)}
-.member-card-bubbles span:nth-child(1){width:78px;height:78px;right:9%;top:13%}
-.member-card-bubbles span:nth-child(2){width:34px;height:34px;right:23%;top:68%}
+.member-card-bubbles span{position:absolute;display:block;border-radius:50%;border:1px solid rgba(255,255,255,.9);background:radial-gradient(circle at 28% 22%,rgba(255,255,255,.98),rgba(255,255,255,.45) 24%,rgba(121,194,225,.18) 62%,rgba(255,255,255,.08) 78%);box-shadow:inset 2px 2px 9px rgba(255,255,255,.9),0 3px 12px rgba(80,155,190,.13)}
+.member-card-bubbles span:nth-child(1){width:78px;height:78px;right:8%;top:12%}
+.member-card-bubbles span:nth-child(2){width:34px;height:34px;right:24%;top:67%}
 .member-card-bubbles span:nth-child(3){width:18px;height:18px;right:12%;top:72%}
-.member-card-bubbles span:nth-child(4){width:46px;height:46px;left:8%;top:17%;opacity:.5}
+.member-card-bubbles span:nth-child(4){width:48px;height:48px;left:8%;top:17%;opacity:.72}
 .member-card-bubbles span:nth-child(5){width:13px;height:13px;left:25%;top:72%}
-.member-card-content{position:relative;z-index:2;height:100%;padding:23px 29px 19px;display:flex;flex-direction:column;justify-content:space-between}
-.member-card-top{display:flex;justify-content:flex-end;align-items:center}
+.member-card-content{position:relative;z-index:3;height:100%;padding:22px 29px 18px;display:flex;flex-direction:column;justify-content:space-between}
+.member-card-top{display:flex;justify-content:space-between;align-items:center}
 .member-card-brand{display:flex;align-items:center;gap:9px}
 .member-card-symbol{display:none}
 .member-card-brand>span:last-child{display:none}
-.member-card-type{padding:5px 11px;border:1px solid rgba(207,235,252,.38);border-radius:20px;color:rgba(225,244,255,.82);font-size:8px;letter-spacing:2px;white-space:nowrap;background:rgba(255,255,255,.045)}
-.member-card-middle{position:absolute;left:0;right:0;top:39%;transform:translateY(-50%);text-align:center;margin:0}
-.member-card-label{color:rgba(206,235,251,.62);font-size:clamp(23px,5vw,36px);letter-spacing:clamp(4px,1.2vw,10px);font-weight:800;text-shadow:0 0 18px rgba(131,209,250,.45),0 2px 8px rgba(0,0,0,.25)}
-.member-card-name{margin-top:0;color:#F4FBFF;font-size:clamp(12px,2.5vw,15px);font-weight:600;letter-spacing:2px;text-shadow:0 1px 6px rgba(0,0,0,.25)}
-.member-number-label{display:none}
-.member-number{display:block;color:rgba(221,241,253,.78);font-size:8px;letter-spacing:1.5px;margin-top:2px;text-align:left}
-.member-card-bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding-top:10px;border-top:1px solid rgba(208,237,255,.25)}
-.member-date{color:rgba(221,241,253,.78);font-size:9px;letter-spacing:1px}
-.member-card-footer{color:rgba(221,241,253,.88);font-size:10px;font-weight:800;letter-spacing:2.5px;white-space:nowrap}
+.member-card-type{padding:5px 11px;border:1px solid rgba(112,158,184,.36);border-radius:20px;color:rgba(54,105,137,.8);font-size:8px;letter-spacing:2px;white-space:nowrap;background:rgba(255,255,255,.42)}
+.member-card-middle{position:absolute;left:8%;right:8%;top:49%;transform:translateY(-50%);text-align:left;margin:0;z-index:3}
+.member-card-label{color:#477D9D;font-size:clamp(23px,5vw,35px);letter-spacing:clamp(4px,1.2vw,9px);font-weight:900;text-shadow:0 1px 0 #fff,0 2px 8px rgba(69,132,164,.18)}
+.member-card-name{margin-top:8px;color:#315F85;font-size:clamp(12px,2.5vw,15px);font-weight:700;letter-spacing:2px;text-shadow:0 1px 0 rgba(255,255,255,.8)}
+.member-number-label{display:block;color:rgba(59,111,143,.66);font-size:7px;letter-spacing:1.7px;margin-top:5px}
+.member-number{display:block;color:#315F85;font-size:10px;font-weight:800;letter-spacing:2px;margin-top:1px;text-align:left}
+.member-card-bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding-top:8px;border-top:1px solid rgba(88,145,176,.28)}
+.member-date{color:rgba(49,95,133,.82);font-size:9px;letter-spacing:1px}
+.member-card-footer{color:rgba(49,95,133,.72);font-size:9px;font-weight:800;letter-spacing:2px;white-space:nowrap}
+/* 淚眼蜥銀鋼印徽章 */
+.member-sobble-seal{position:absolute;z-index:2;width:clamp(92px,22%,132px);height:auto;right:9%;top:50%;transform:translateY(-50%);filter:drop-shadow(0 5px 5px rgba(60,111,140,.22));opacity:.94}
+.member-sobble-seal .seal-ring{fill:url(#sealMetal);stroke:#fff;stroke-width:2.2}
+.member-sobble-seal .seal-inner{fill:none;stroke:#8BAFC2;stroke-width:1.1;opacity:.9}
+.member-sobble-seal .seal-mark{fill:url(#sobbleMetal);stroke:#789FB5;stroke-width:1.1;stroke-linejoin:round}
+.member-sobble-seal .seal-detail{fill:none;stroke:#789FB5;stroke-width:1.5;stroke-linecap:round;opacity:.85}
+@media(max-width:480px){.member-card-content{padding:17px 19px 14px}.member-card-middle{left:7%;right:28%;top:49%}.member-card-label{font-size:clamp(19px,5.4vw,26px);letter-spacing:4px}.member-card-name{font-size:11px;margin-top:5px}.member-number-label{font-size:6px}.member-number{font-size:8px}.member-date{font-size:7px}.member-card-footer{font-size:7px}.member-card-type{font-size:6px;padding:4px 8px}.member-sobble-seal{right:8%;width:25%;top:48%}}
+/* FAQ */
 .faq{max-width:800px;margin:auto}
 details{background:rgba(255,255,255,.82);border:1px solid var(--line);border-radius:14px;padding:17px 20px;margin-bottom:12px}
 summary{color:#315F85;font-weight:700;cursor:pointer}
 details p{color:#687F95;font-size:13px;margin-top:12px}
+
+/* 購物車 */
 .cart-area{max-width:850px;margin:auto;background:rgba(255,255,255,.88);border:1px solid white;border-radius:22px;padding:28px;box-shadow:var(--shadow)}
 .cart-empty{color:#71869B;text-align:center;padding:20px}
 .cart-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);font-size:14px}
@@ -139,7 +149,9 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 }
 </style>
 </head>
-<body><!-- 背景泡泡 -->
+<body>
+
+<!-- 背景泡泡 -->
 <div class="bubble-background" aria-hidden="true">
   <span class="bubble" style="left:3%;width:42px;height:42px;animation-duration:72s"></span>
   <span class="bubble" style="left:12%;width:24px;height:24px;animation-duration:88s;animation-delay:3s"></span>
@@ -202,24 +214,39 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
     </div>
     <div class="member-status" id="member-status" aria-live="polite">尚未登入會員</div>
 
+    <!-- 精品會員卡：保留原本 JS 使用的所有 ID -->
     <div class="member-card-info" id="member-card" hidden>
       <div class="member-card-bubbles" aria-hidden="true">
         <span></span><span></span><span></span><span></span><span></span>
       </div>
+      <svg class="member-sobble-seal" viewBox="0 0 160 160" role="img" aria-label="淚眼蜥銀色鋼印徽章">
+        <defs>
+          <linearGradient id="sealMetal" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".28" stop-color="#C9DCE6"/><stop offset=".52" stop-color="#F9FFFF"/><stop offset=".76" stop-color="#A8C2D1"/><stop offset="1" stop-color="#F8FFFF"/></linearGradient>
+          <linearGradient id="sobbleMetal" x1="0" y1="0" x2=".9" y2="1"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".45" stop-color="#AFC9D7"/><stop offset="1" stop-color="#EAF7FC"/></linearGradient>
+        </defs>
+        <circle class="seal-ring" cx="80" cy="80" r="73"/><circle class="seal-inner" cx="80" cy="80" r="64"/>
+        <!-- 原創幾何淚眼蜥浮雕輪廓 -->
+        <path class="seal-mark" d="M48 53 Q43 35 56 29 Q69 24 78 39 Q84 46 86 55 Q101 43 116 52 Q129 61 119 77 L111 91 Q108 101 115 111 Q120 121 109 126 Q95 132 83 119 L72 106 Q62 112 51 106 Q40 100 45 88 Q49 77 48 53Z"/>
+        <path class="seal-mark" d="M51 54 Q35 48 30 58 Q28 68 43 75 L51 78Z"/>
+        <path class="seal-mark" d="M92 52 Q105 34 117 39 Q127 44 117 57 L105 67Z"/>
+        <path class="seal-detail" d="M58 72 Q66 65 75 72 M91 72 Q99 65 107 70 M73 91 Q81 96 90 91 M80 106 Q88 111 96 108"/>
+        <circle cx="67" cy="79" r="3.2" fill="#6F98B0"/><circle cx="101" cy="78" r="3.2" fill="#6F98B0"/>
+        <path class="seal-detail" d="M80 84 Q76 90 82 92"/>
+      </svg>
       <div class="member-card-content">
         <div class="member-card-top">
           <div class="member-card-brand"><span class="member-card-symbol">◈</span><span></span></div>
-          <span class="member-card-type">SOBBSTARS</span>
+          <span class="member-card-type">SOBBLEKING MEMBER</span>
         </div>
         <div class="member-card-middle">
           <div class="member-card-label">SOBBSTARS</div>
           <div class="member-card-name" id="member-name">會員名稱</div>
-          <div class="member-number-label">MEMBER IDENTIFICATION</div>
+          <div class="member-number-label">SB MEMBER NUMBER</div>
           <div class="member-number" id="member-number">SB000000</div>
         </div>
         <div class="member-card-bottom">
           <div class="member-date" id="member-date"></div>
-          <div class="member-card-footer">SOBBSTARS</div>
+          <div class="member-card-footer">ICE CRYSTAL · PEARL</div>
         </div>
       </div>
     </div>
@@ -229,36 +256,40 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 <section id="faq">
   <div class="section-title"><small>Q & A</small><h2>常見問題</h2><p>關於購買與儲值，你可能想知道的事</p></div>
   <div class="faq">
-    <details><summary>下單後多久會完成儲值？</summary><p>完成付款確認後，會依照訂單狀況安排處理，實際時間以客服通知為準。</p></details>
-    <details><summary>可以使用哪些付款方式？</summary><p>付款方式依結帳頁面實際提供的選項為準。</p></details>
-    <details><summary>付款後需要提供什麼資料？</summary><p>請依照訂單流程填寫必要的遊戲登入方式及相關資料。</p></details>
+    <details><summary>如何成為 SOBBSTARS 會員？</summary><p>點選會員專區的「使用 LINE 登入／加入會員」，完成 LINE 授權後即可建立專屬會員資料與會員卡。</p></details>
+    <details><summary>會員編號會改變嗎？</summary><p>會員編號是辨識會員的重要資料，請妥善保存；如需查詢會員資料，可透過官方 LINE 聯絡客服。</p></details>
+    <details><summary>下單後可以查詢訂單進度嗎？</summary><p>可依網站訂單查詢／會員相關頁面查看訂單狀態；若狀態需要協助確認，請提供訂單編號聯絡客服。</p></details>
+    <details><summary>付款完成後就會立即收到商品嗎？</summary><p>付款確認後會依訂單內容安排處理，實際完成時間可能因商品類型與作業狀況不同，請以訂單狀態及客服通知為準。</p></details>
+    <details><summary>儲值資料填錯或訂單有問題怎麼辦？</summary><p>請先不要重複建立相同訂單，盡快透過官方 LINE 提供訂單編號與正確資料，由客服協助確認。</p></details>
+    <details><summary>可以使用會員餘額或優惠券嗎？</summary><p>若帳號已有可用餘額或符合使用條件的優惠券，可在結帳時依頁面顯示選用；每筆訂單可使用的優惠內容以結帳頁面為準。</p></details>
   </div>
 </section>
 
 <section id="cart">
-  <div class="section-title"><small>YOUR CART</small><h2>購物車</h2><p>確認選購商品與金額</p></div>
+  <div class="section-title"><small>YOUR SHOPPING CART</small><h2>購物車</h2><p>確認目前選購的商品</p></div>
   <div class="cart-area">
     <div id="cart-items"><div class="cart-empty">目前還沒有選購商品</div></div>
-    <div class="cart-total"><span>總金額</span><span id="cart-total">NT$0</span></div>
-    <p class="cart-note">如需建立訂單，請透過官方 LINE 客服聯繫。</p>
+    <div class="cart-total"><span>商品總計</span><span id="cart-total">NT$0</span></div>
+    <p class="cart-note">目前已串接商品資料庫；正式訂單建立功能將於下一階段開放。</p>
   </div>
 </section>
 
-<section class="contact" id="contact">
-  <div class="section-title"><small>CONTACT US</small><h2>聯絡我們</h2><p>有任何問題，歡迎透過官方社群聯繫</p></div>
+<section class="contact">
+  <div class="section-title"><small>CONTACT US</small><h2>聯絡我們</h2><p>有任何問題，歡迎透過以下方式找到我們</p></div>
   <div class="contact-links">
-    <a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">LINE 官方客服</a>
+    <a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">官方 LINE 客服</a>
     <a href="https://www.threads.net/@sobble.king" target="_blank" rel="noopener">Threads</a>
   </div>
 </section>
 </main>
 
 <footer>
-  <strong>SOBBLEKING｜淚眼蜥王國</strong>
+  <strong>SOBBLEKING</strong>
   <p>SOBBLE PARADISE</p>
   <p>© 2026 SOBBLEKING. All Rights Reserved.</p>
   <p><a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">LINE 客服</a> | <a href="https://www.threads.net/@sobble.king" target="_blank" rel="noopener">Threads</a></p>
 </footer>
+
 <script>
 /* Supabase 連線設定 */
 const SUPABASE_URL = "https://ksellpcaecuihxjxsolr.supabase.co";
@@ -280,7 +311,6 @@ const PRODUCT_ORDER = [
   "defa3200-2582-4bc1-b070-2bd4b26a3d4c",
   "633be96f-0531-4e3d-babc-6e9a646d7c80"
 ];
-
 const PRODUCT_DESCRIPTIONS = {
   "1286da0d-f4a9-4e5a-a9e0-786dc0bd7a15":"皮幣儲值",
   "67a43987-eb2e-4c5b-8d3e-048096a1886a":"皮幣儲值",
@@ -291,7 +321,6 @@ const PRODUCT_DESCRIPTIONS = {
   "defa3200-2582-4bc1-b070-2bd4b26a3d4c":"通行證",
   "633be96f-0531-4e3d-babc-6e9a646d7c80":"通行證加購"
 };
-
 let products = [];
 let cart = {};
 
@@ -300,19 +329,10 @@ async function loadProducts(){
   const container = document.getElementById("product-list");
   container.innerHTML = '<div class="product-status">正在連線讀取商品⋯</div>';
   try{
-    const {data,error} = await supabaseClient
-      .from("products")
-      .select("id,name,price,is_active")
-      .eq("is_active",true);
-
+    const {data,error} = await supabaseClient.from("products").select("id,name,price,is_active").eq("is_active",true);
     if(error) throw error;
-
     const productMap = new Map((data || []).map(item=>[item.id,item]));
-    products = PRODUCT_ORDER
-      .map(id=>productMap.get(id))
-      .filter(Boolean)
-      .map(item=>({id:item.id,name:item.name,price:Number(item.price)}));
-
+    products = PRODUCT_ORDER.map(id=>productMap.get(id)).filter(Boolean).map(item=>({id:item.id,name:item.name,price:Number(item.price)}));
     if(products.length===0){
       container.innerHTML = '<div class="product-status">目前沒有可購買的商品。</div>';
       return;
@@ -328,27 +348,21 @@ async function loadProducts(){
 function renderProducts(){
   const container = document.getElementById("product-list");
   container.innerHTML = "";
-
   products.forEach(product=>{
     const card = document.createElement("div");
     card.className = "product";
-
     const title = document.createElement("h3");
     title.textContent = product.name;
-
     const desc = document.createElement("p");
     desc.className = "desc";
     desc.textContent = PRODUCT_DESCRIPTIONS[product.id] || "商品";
-
     const price = document.createElement("div");
     price.className = "price";
     price.textContent = "NT$" + product.price.toLocaleString("en-US");
-
     const button = document.createElement("button");
     button.textContent = "加入購物車";
     button.className = "add-to-cart-button";
     button.addEventListener("click",()=>animateAddToCart(button,product.id));
-
     card.append(title,desc,price,button);
     container.appendChild(card);
   });
@@ -357,18 +371,12 @@ function renderProducts(){
 /* 加入購物車泡泡動畫 */
 function animateAddToCart(button,id){
   if(button.disabled) return;
-
   const cartTarget = document.querySelector(".nav-cart");
-  if(!cartTarget){
-    addToCart(id);
-    return;
-  }
-
+  if(!cartTarget){addToCart(id);return;}
   button.disabled = true;
   const startRect = button.getBoundingClientRect();
   const endRect = cartTarget.getBoundingClientRect();
   button.classList.add("is-bubbling");
-
   window.setTimeout(()=>{
     const size = 24;
     const bubble = document.createElement("span");
@@ -378,23 +386,18 @@ function animateAddToCart(button,id){
     bubble.style.left = (startRect.left + startRect.width/2 - size/2) + "px";
     bubble.style.top = (startRect.top + startRect.height/2 - size/2) + "px";
     document.body.appendChild(bubble);
-
     const dx = endRect.left + endRect.width/2 - (startRect.left + startRect.width/2);
     const dy = endRect.top + endRect.height/2 - (startRect.top + startRect.height/2);
-
     const motion = bubble.animate([
       {transform:"translate(0,0) scale(1)",opacity:1},
       {transform:"translate("+(dx*.55)+"px,"+(dy*.55-30)+"px) scale(.8)",opacity:.95,offset:.65},
       {transform:"translate("+dx+"px,"+dy+"px) scale(.15)",opacity:0}
     ],{duration:1200,easing:"cubic-bezier(.22,.75,.25,1)"});
-
     motion.onfinish=()=>bubble.remove();
-
     addToCart(id);
     cartTarget.classList.remove("cart-count-pop");
     void cartTarget.offsetWidth;
     cartTarget.classList.add("cart-count-pop");
-
     window.setTimeout(()=>{
       button.classList.remove("is-bubbling");
       button.disabled = false;
@@ -423,59 +426,42 @@ function renderCart(){
   const container = document.getElementById("cart-items");
   const totalElement = document.getElementById("cart-total");
   const countElement = document.getElementById("cart-count");
-
   let total = 0;
   let count = 0;
   container.innerHTML = "";
-
   products.forEach(product=>{
     const quantity = cart[product.id] || 0;
     if(quantity<=0) return;
-
     const subtotal = product.price * quantity;
     total += subtotal;
     count += quantity;
-
     const item = document.createElement("div");
     item.className = "cart-item";
-
     const info = document.createElement("div");
     const name = document.createElement("strong");
     name.textContent = product.name;
-
     const detail = document.createElement("div");
     detail.textContent = "NT$" + product.price.toLocaleString("en-US") + " × " + quantity;
     info.append(name,detail);
-
     const controls = document.createElement("div");
     controls.className = "cart-controls";
-
     const minus = document.createElement("button");
     minus.textContent = "−";
     minus.setAttribute("aria-label","減少數量");
     minus.addEventListener("click",()=>changeQuantity(product.id,-1));
-
     const quantityText = document.createElement("span");
     quantityText.textContent = quantity;
-
     const plus = document.createElement("button");
     plus.textContent = "＋";
     plus.setAttribute("aria-label","增加數量");
     plus.addEventListener("click",()=>changeQuantity(product.id,1));
-
     controls.append(minus,quantityText,plus);
-
     const subtotalText = document.createElement("strong");
     subtotalText.textContent = "NT$" + subtotal.toLocaleString("en-US");
-
     item.append(info,controls,subtotalText);
     container.appendChild(item);
   });
-
-  if(count===0){
-    container.innerHTML = '<div class="cart-empty">目前還沒有選購商品</div>';
-  }
-
+  if(count===0) container.innerHTML = '<div class="cart-empty">目前還沒有選購商品</div>';
   totalElement.textContent = "NT$" + total.toLocaleString("en-US");
   countElement.textContent = count;
 }
@@ -491,20 +477,14 @@ function setMemberStatus(message){
 }
 
 function showMember(member){
-  document.getElementById("member-name").textContent =
-    member.line_display_name || "SOBBSTARS 會員";
-
-  document.getElementById("member-number").textContent =
-    member.member_no || "會員編號讀取中";
-
+  document.getElementById("member-name").textContent = member.line_display_name || "SOBBSTARS 會員";
+  document.getElementById("member-number").textContent = member.member_no || "會員編號讀取中";
   if(member.created_at){
     const date = new Date(member.created_at);
-    document.getElementById("member-date").textContent =
-      "加入日期：" + date.toLocaleDateString("zh-TW");
+    document.getElementById("member-date").textContent = "加入日期：" + date.toLocaleDateString("zh-TW");
   }else{
-    document.getElementById("member-date").textContent = "";
+    document.getElementById("member-date").textContent = "SOBBLEKING SOBBSTARS";
   }
-
   memberCard.hidden = false;
   loginButton.hidden = true;
   logoutButton.hidden = false;
@@ -515,12 +495,8 @@ function showMember(member){
 async function registerOrLoginMember(){
   try{
     setMemberStatus("正在確認 LINE 會員資料⋯");
-
     const accessToken = liff.getAccessToken();
-    if(!accessToken){
-      throw new Error("無法取得 LINE 登入憑證，請重新登入。");
-    }
-
+    if(!accessToken) throw new Error("無法取得 LINE 登入憑證，請重新登入。");
     const response = await fetch(MEMBER_LOGIN_URL,{
       method:"POST",
       headers:{
@@ -530,13 +506,8 @@ async function registerOrLoginMember(){
       },
       body:JSON.stringify({access_token:accessToken})
     });
-
     const result = await response.json();
-
-    if(!response.ok || !result.success){
-      throw new Error(result.error || "會員登入失敗，請稍後再試。");
-    }
-
+    if(!response.ok || !result.success) throw new Error(result.error || "會員登入失敗，請稍後再試。");
     showMember(result.member);
   }catch(error){
     console.error("LINE 會員登入錯誤：",error);
@@ -548,10 +519,8 @@ async function registerOrLoginMember(){
 async function initializeLIFF(){
   loginButton.disabled = true;
   setMemberStatus("正在初始化 LINE 會員系統⋯");
-
   try{
     await liff.init({liffId:LIFF_ID});
-
     if(liff.isLoggedIn()){
       setMemberStatus("已偵測到 LINE 登入，正在讀取會員資料⋯");
       await registerOrLoginMember();
@@ -572,7 +541,6 @@ loginButton.addEventListener("click",()=>{
     setMemberStatus("LINE 登入元件尚未載入，請重新整理頁面。");
     return;
   }
-
   if(!liff.isLoggedIn()){
     liff.login({redirectUri:window.location.href});
   }else{
@@ -583,7 +551,6 @@ loginButton.addEventListener("click",()=>{
 /* 登出 LINE 會員 */
 logoutButton.addEventListener("click",()=>{
   if(!window.liff || !liff.isLoggedIn()) return;
-
   liff.logout();
   memberCard.hidden = true;
   logoutButton.hidden = true;
