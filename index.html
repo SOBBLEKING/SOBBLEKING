@@ -100,9 +100,11 @@ nav a:hover{background:#E5F3FC;color:#315F85}
 .nav-cart{background:linear-gradient(135deg,#477FAF,#78B5E2);color:white}
 .nav-cart:hover{background:#315F85;color:white}
 
-/* 首頁 */
+/* 首頁：佔滿首屏，不露出商品區 */
 .hero{
-  min-height:570px;padding:110px 20px 100px;
+  min-height:calc(100vh - 68px);
+  min-height:calc(100svh - 68px);
+  padding:100px 20px 110px;
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;
 }
@@ -122,14 +124,31 @@ nav a:hover{background:#E5F3FC;color:#315F85}
 }
 .btn:hover{transform:translateY(-3px);background:linear-gradient(135deg,#315F85,#659CC8)}
 
-/* 區塊標題 */
+/* 區塊標題全部置中 */
 section{padding:75px 7%;scroll-margin-top:90px}
-.section-title{text-align:center;margin-bottom:38px}
+.section-title{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  margin:0 auto 45px;
+}
+.section-title small,
+.section-title h2,
+.section-title p{
+  width:100%;
+  text-align:center;
+}
 .section-title small{color:#9184B9;font-size:12px;letter-spacing:3px;font-weight:700}
 .section-title h2{color:#315F85;font-size:27px;font-weight:800;letter-spacing:2px;margin-top:5px}
 .section-title p{color:#71869B;font-size:13px;margin-top:8px}
 
-/* 商品 */
+/* 商品區 */
+#products{padding-top:90px}
+#products .section-title{margin-bottom:45px}
+
 .products{
   display:grid;grid-template-columns:repeat(4,1fr);
   gap:20px;max-width:1100px;margin:auto;
@@ -144,10 +163,24 @@ section{padding:75px 7%;scroll-margin-top:90px}
 .product h3{color:#405F7C;font-size:16px;font-weight:800}
 .product .desc{color:#8799AA;font-size:12px;margin:7px 0 13px}
 .price{color:#477FAF;font-size:21px;font-weight:900}
+
+/* 加入購物車按鈕文字置中 */
 .product button{
-  width:100%;margin-top:19px;padding:10px;border-radius:30px;
+  width:100%;
+  height:44px;
+  min-height:44px;
+  margin-top:19px;
+  padding:0 12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  line-height:1;
+  border-radius:30px;
   background:linear-gradient(135deg,#477FAF,#78B5E2);
-  color:white;font-weight:700;box-shadow:0 5px 13px rgba(71,127,175,.2);
+  color:white;
+  font-weight:700;
+  box-shadow:0 5px 13px rgba(71,127,175,.2);
   transition:.2s;
 }
 .product button:hover{background:linear-gradient(135deg,#315F85,#659CC8)}
@@ -159,9 +192,13 @@ section{padding:75px 7%;scroll-margin-top:90px}
   transform-origin:center;
 }
 .product button.add-to-cart-button.is-bubbling{
+  display:flex;
+  align-items:center;
+  justify-content:center;
   width:44px;
   height:44px;
   min-width:44px;
+  min-height:44px;
   padding:0;
   margin-left:auto;
   margin-right:auto;
@@ -250,14 +287,81 @@ section{padding:75px 7%;scroll-margin-top:90px}
 .step h3{color:#315F85;font-size:16px;margin-bottom:8px}
 .step p{color:#687F95;font-size:13px}
 
-/* 會員 */
+/* SOBBSTARS 精緻會員區 */
 .member{
-  max-width:900px;margin:auto;text-align:center;padding:55px 25px;
-  border-radius:28px;background:linear-gradient(135deg,#DCEFFC,#F1F8FD);
-  border:1px solid white;box-shadow:var(--shadow);
+  max-width:900px;
+  margin:auto;
+  position:relative;
+  overflow:hidden;
+  text-align:center;
+  padding:65px 25px;
+  border-radius:30px;
+  background:
+    radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.95),transparent 65%),
+    linear-gradient(135deg,#D8ECF9 0%,#F5FAFE 48%,#DDEFFA 100%);
+  border:1px solid rgba(255,255,255,.98);
+  box-shadow:0 18px 45px rgba(49,95,133,.12),inset 0 1px 0 rgba(255,255,255,.95);
 }
-.member h2{color:#315F85;font-size:30px;letter-spacing:3px}
-.member p{color:#58738D;font-size:14px;margin-top:12px}
+.member::before{
+  content:"";
+  position:absolute;
+  width:220px;
+  height:220px;
+  top:-125px;
+  right:-65px;
+  border-radius:50%;
+  border:1px solid rgba(118,169,208,.22);
+  box-shadow:0 0 0 18px rgba(255,255,255,.12),0 0 0 38px rgba(118,169,208,.07);
+  pointer-events:none;
+}
+.member::after{
+  content:"";
+  position:absolute;
+  width:170px;
+  height:170px;
+  bottom:-110px;
+  left:-55px;
+  border-radius:50%;
+  border:1px solid rgba(118,169,208,.22);
+  box-shadow:0 0 0 18px rgba(255,255,255,.15),0 0 0 38px rgba(118,169,208,.07);
+  pointer-events:none;
+}
+.member h2{
+  position:relative;
+  display:inline-block;
+  color:#315F85;
+  font-size:clamp(30px,6vw,43px);
+  font-weight:900;
+  letter-spacing:7px;
+  line-height:1.3;
+  background:linear-gradient(120deg,#315F85 0%,#639AC2 35%,#A5CDE9 52%,#477FAF 72%,#315F85 100%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  -webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 3px 5px rgba(49,95,133,.12));
+}
+.member h2::after{
+  content:"";
+  position:absolute;
+  left:12%;
+  right:12%;
+  bottom:-12px;
+  height:1px;
+  background:linear-gradient(90deg,transparent,rgba(71,127,175,.65),transparent);
+}
+.member p{
+  position:relative;
+  color:#58738D;
+  font-size:14px;
+  margin-top:25px;
+  letter-spacing:1px;
+}
+.member p+p{
+  color:#8299AD;
+  font-size:12px;
+  margin-top:9px;
+  letter-spacing:.5px;
+}
 
 /* FAQ */
 .faq{max-width:800px;margin:auto}
@@ -323,7 +427,17 @@ footer a{margin:0 7px}
   nav::-webkit-scrollbar{display:none}
   nav a{font-size:10px;padding:7px 7px}
   .nav-cart{padding:7px 9px}
-  .hero{min-height:520px;padding:90px 15px}
+
+  .hero{
+    min-height:calc(100vh - 52px);
+    min-height:calc(100svh - 52px);
+    padding:75px 15px 90px;
+  }
+
+  #products{padding-top:75px}
+  #products .section-title{margin-bottom:35px}
+  .section-title{margin-bottom:35px}
+
   .hero .brand-cn{font-size:16px;letter-spacing:5px}
   .hero .subtitle{letter-spacing:4px}
   section{padding:60px 5%}
