@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
@@ -8,418 +7,177 @@
 <title>SOBBLEKING｜淚眼蜥王國</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 
 <style>
 :root{
-  --sky:#E5F3FC;
-  --water:#A9D2ED;
-  --blue:#76A9D0;
-  --deep:#315F85;
-  --white:#F8FBFE;
-  --text:#405D76;
-  --purple:#A99BCF;
-  --muted:#71869B;
-  --line:rgba(80,130,170,.16);
-  --shadow:0 12px 35px rgba(49,95,133,.10);
+  --sky:#E5F3FC;--water:#A9D2ED;--blue:#76A9D0;--deep:#315F85;
+  --white:#F8FBFE;--text:#405D76;--purple:#A99BCF;--muted:#71869B;
+  --line:rgba(80,130,170,.16);--shadow:0 12px 35px rgba(49,95,133,.10);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
 body{
   font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif;
   color:var(--text);
-  background:
-    radial-gradient(ellipse at 15% 10%,#FFFFFF 0%,transparent 38%),
-    linear-gradient(180deg,#DDEFFA 0%,#F5FAFE 48%,#E5F2FB 100%);
-  overflow-x:hidden;
-  line-height:1.7;
+  background:radial-gradient(ellipse at 15% 10%,#FFFFFF 0%,transparent 38%),linear-gradient(180deg,#DDEFFA 0%,#F5FAFE 48%,#E5F2FB 100%);
+  overflow-x:hidden;line-height:1.7
 }
-a{color:inherit;text-decoration:none}
-button{font:inherit;cursor:pointer;border:0}
+a{color:inherit;text-decoration:none}button{font:inherit;cursor:pointer;border:0}
 header,main,section,footer{position:relative;z-index:1}
 
-/* 背景泡泡 */
-.bubble-background{
-  position:fixed;inset:0;overflow:hidden;
-  pointer-events:none;z-index:0;
-}
+/* 背景泡泡：一進首頁就看得到 */
+.bubble-background{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:0}
 .bubble{
-  position:absolute;bottom:-120px;border-radius:50%;
-  border:1.5px solid rgba(255,255,255,.95);
-  background:radial-gradient(circle at 28% 23%,
-    rgba(255,255,255,.95) 0%,
-    rgba(255,255,255,.48) 13%,
-    rgba(190,225,247,.32) 42%,
-    rgba(255,255,255,.08) 72%);
-  box-shadow:
-    inset 3px 3px 10px rgba(255,255,255,.9),
-    inset -5px -7px 14px rgba(110,173,215,.16),
-    0 0 18px rgba(255,255,255,.55),
-    0 0 30px rgba(120,181,226,.20);
-  animation:bubbleFloat linear infinite;
+  position:absolute;top:var(--bubble-top,45%);bottom:auto;border-radius:50%;border:1.5px solid rgba(255,255,255,.95);
+  background:radial-gradient(circle at 28% 23%,rgba(255,255,255,.95) 0%,rgba(255,255,255,.48) 13%,rgba(190,225,247,.32) 42%,rgba(255,255,255,.08) 72%);
+  box-shadow:inset 3px 3px 10px rgba(255,255,255,.9),inset -5px -7px 14px rgba(110,173,215,.16),0 0 18px rgba(255,255,255,.55),0 0 30px rgba(120,181,226,.20);
+  animation:bubbleFloat linear infinite
 }
-.bubble::before{
-  content:"";position:absolute;width:32%;height:32%;
-  top:15%;left:20%;border-radius:50%;
-  background:rgba(255,255,255,.98);filter:blur(1px);
-}
-.bubble::after{
-  content:"";position:absolute;width:12%;height:12%;
-  bottom:22%;right:22%;border-radius:50%;
-  background:rgba(255,255,255,.65);filter:blur(2px);
-}
+.bubble::before{content:"";position:absolute;width:32%;height:32%;top:15%;left:20%;border-radius:50%;background:rgba(255,255,255,.98);filter:blur(1px)}
+.bubble::after{content:"";position:absolute;width:12%;height:12%;bottom:22%;right:22%;border-radius:50%;background:rgba(255,255,255,.65);filter:blur(2px)}
 @keyframes bubbleFloat{
-  0%{transform:translate3d(0,0,0) scale(.75);opacity:0}
-  12%{opacity:.85}
-  35%{transform:translate3d(25px,-35vh,0) scale(.95);opacity:.9}
-  65%{transform:translate3d(-20px,-75vh,0) scale(1.1);opacity:.75}
-  100%{transform:translate3d(30px,-125vh,0) scale(1.2);opacity:0}
+  0%{transform:translate3d(0,0,0) scale(.82);opacity:.62}
+  12%{opacity:.78}
+  35%{transform:translate3d(25px,-18vh,0) scale(.95);opacity:.9}
+  65%{transform:translate3d(-20px,-38vh,0) scale(1.1);opacity:.75}
+  100%{transform:translate3d(30px,-65vh,0) scale(1.2);opacity:0}
 }
+.bubble:nth-child(1){--bubble-top:12%}
+.bubble:nth-child(2){--bubble-top:58%}
+.bubble:nth-child(3){--bubble-top:28%}
+.bubble:nth-child(4){--bubble-top:76%}
+.bubble:nth-child(5){--bubble-top:43%}
+.bubble:nth-child(6){--bubble-top:18%}
+.bubble:nth-child(7){--bubble-top:67%}
+.bubble:nth-child(8){--bubble-top:34%}
+.bubble:nth-child(9){--bubble-top:82%}
+.bubble:nth-child(10){--bubble-top:48%}
+.bubble:nth-child(11){--bubble-top:8%}
+.bubble:nth-child(12){--bubble-top:62%}
+.bubble:nth-child(13){--bubble-top:25%}
+.bubble:nth-child(14){--bubble-top:72%}
 @media(prefers-reduced-motion:reduce){
-  .bubble{animation:none;display:none}
+  .bubble{animation:none;opacity:.58}
 }
 
-/* 導覽列 */
 header{
-  width:100%;padding:16px 5%;
-  display:flex;justify-content:space-between;align-items:center;gap:18px;
-  border-bottom:1px solid var(--line);
-  background:rgba(248,251,254,.86);
-  backdrop-filter:blur(16px);
-  position:sticky;top:0;z-index:10;
+  width:100%;padding:16px 5%;display:flex;justify-content:space-between;align-items:center;gap:18px;
+  border-bottom:1px solid var(--line);background:rgba(248,251,254,.86);backdrop-filter:blur(16px);
+  position:sticky;top:0;z-index:10
 }
-.logo{
-  color:#315F85;font-weight:900;letter-spacing:2px;
-  font-size:20px;white-space:nowrap;text-shadow:0 1px 0 #fff;
-}
+.logo{color:#315F85;font-weight:900;letter-spacing:2px;font-size:20px;white-space:nowrap;text-shadow:0 1px 0 #fff}
 nav{display:flex;gap:10px;align-items:center;justify-content:flex-end;white-space:nowrap}
-nav a{
-  color:#58738D;font-size:13px;padding:8px 13px;
-  border-radius:30px;transition:.2s;
-}
+nav a{color:#58738D;font-size:13px;padding:8px 13px;border-radius:30px;transition:.2s}
 nav a:hover{background:#E5F3FC;color:#315F85}
 .nav-cart{background:linear-gradient(135deg,#477FAF,#78B5E2);color:white}
 .nav-cart:hover{background:#315F85;color:white}
 
-/* 首頁：佔滿首屏，不露出商品區 */
 .hero{
-  min-height:calc(100vh - 68px);
-  min-height:calc(100svh - 68px);
-  padding:100px 20px 110px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  text-align:center;
+  min-height:calc(100vh - 68px);min-height:calc(100svh - 68px);padding:100px 20px 110px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center
 }
 .hero .welcome{color:#7189A2;font-size:15px;letter-spacing:5px;font-weight:600;margin-bottom:16px}
-.hero h1{
-  color:#315F85;font-size:clamp(43px,9vw,76px);
-  font-weight:900;letter-spacing:5px;line-height:1.25;
-  text-shadow:0 3px 12px rgba(49,95,133,.12);
-}
+.hero h1{color:#315F85;font-size:clamp(43px,9vw,76px);font-weight:900;letter-spacing:5px;line-height:1.25;text-shadow:0 3px 12px rgba(49,95,133,.12)}
 .hero .brand-cn{color:#587B9D;font-size:19px;font-weight:600;letter-spacing:8px;margin-top:14px}
 .hero .subtitle{color:#8999B5;font-size:12px;font-weight:600;letter-spacing:7px;margin-top:12px}
 .hero p{color:#58738D;margin-top:28px;font-size:14px}
-.btn{
-  display:inline-block;margin-top:32px;padding:13px 35px;border-radius:40px;
-  background:linear-gradient(135deg,#477FAF,#78B5E2);color:white;font-weight:700;
-  box-shadow:0 5px 18px rgba(71,127,175,.22);transition:.25s;
-}
+.btn{display:inline-block;margin-top:32px;padding:13px 35px;border-radius:40px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:white;font-weight:700;box-shadow:0 5px 18px rgba(71,127,175,.22);transition:.25s}
 .btn:hover{transform:translateY(-3px);background:linear-gradient(135deg,#315F85,#659CC8)}
 
-/* 區塊標題全部置中 */
 section{padding:75px 7%;scroll-margin-top:90px}
-.section-title{
-  width:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  margin:0 auto 45px;
-}
-.section-title small,
-.section-title h2,
-.section-title p{
-  width:100%;
-  text-align:center;
-}
+.section-title{width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;margin:0 auto 45px}
+.section-title small,.section-title h2,.section-title p{width:100%;text-align:center}
 .section-title small{color:#9184B9;font-size:12px;letter-spacing:3px;font-weight:700}
 .section-title h2{color:#315F85;font-size:27px;font-weight:800;letter-spacing:2px;margin-top:5px}
 .section-title p{color:#71869B;font-size:13px;margin-top:8px}
-
-/* 商品區 */
 #products{padding-top:90px}
 #products .section-title{margin-bottom:45px}
-
-.products{
-  display:grid;grid-template-columns:repeat(4,1fr);
-  gap:20px;max-width:1100px;margin:auto;
-}
-.product{
-  background:rgba(255,255,255,.82);
-  border:1px solid rgba(255,255,255,.95);
-  border-radius:20px;padding:29px 17px;text-align:center;
-  box-shadow:var(--shadow);backdrop-filter:blur(10px);transition:.25s;
-}
+.products{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;max-width:1100px;margin:auto}
+.product{background:rgba(255,255,255,.82);border:1px solid rgba(255,255,255,.95);border-radius:20px;padding:29px 17px;text-align:center;box-shadow:var(--shadow);backdrop-filter:blur(10px);transition:.25s}
 .product:hover{transform:translateY(-5px);box-shadow:0 16px 35px rgba(49,95,133,.15)}
 .product h3{color:#405F7C;font-size:16px;font-weight:800}
 .product .desc{color:#8799AA;font-size:12px;margin:7px 0 13px}
 .price{color:#477FAF;font-size:21px;font-weight:900}
-
-/* 加入購物車按鈕文字置中 */
-.product button{
-  width:100%;
-  height:44px;
-  min-height:44px;
-  margin-top:19px;
-  padding:0 12px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  text-align:center;
-  line-height:1;
-  border-radius:30px;
-  background:linear-gradient(135deg,#477FAF,#78B5E2);
-  color:white;
-  font-weight:700;
-  box-shadow:0 5px 13px rgba(71,127,175,.2);
-  transition:.2s;
-}
+.product button{width:100%;height:44px;min-height:44px;margin-top:19px;padding:0 12px;display:flex;align-items:center;justify-content:center;text-align:center;line-height:1;border-radius:30px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:white;font-weight:700;box-shadow:0 5px 13px rgba(71,127,175,.2);transition:.2s}
 .product button:hover{background:linear-gradient(135deg,#315F85,#659CC8)}
 .product button:disabled{opacity:1;cursor:default}
-
-/* 加入購物車：按鈕變成泡泡 */
-.product button.add-to-cart-button{
-  position:relative;
-  transform-origin:center;
-}
+.product button.add-to-cart-button{position:relative;transform-origin:center}
 .product button.add-to-cart-button.is-bubbling{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  width:44px;
-  height:44px;
-  min-width:44px;
-  min-height:44px;
-  padding:0;
-  margin-left:auto;
-  margin-right:auto;
-  border-radius:50%;
-  color:transparent;
-  font-size:0;
-  background:radial-gradient(circle at 28% 23%,
-    rgba(255,255,255,.98) 0 8%,
-    rgba(220,243,255,.9) 18%,
-    rgba(117,183,225,.72) 48%,
-    rgba(255,255,255,.25) 75%);
-  border:1.5px solid rgba(255,255,255,.98);
-  box-shadow:
-    inset 3px 3px 9px rgba(255,255,255,.95),
-    inset -4px -5px 10px rgba(64,130,180,.22),
-    0 0 18px rgba(135,199,239,.65);
-  animation:buttonBubble 650ms ease-out forwards;
+  display:flex;align-items:center;justify-content:center;width:44px;height:44px;min-width:44px;min-height:44px;
+  padding:0;margin-left:auto;margin-right:auto;border-radius:50%;color:transparent;font-size:0;
+  background:radial-gradient(circle at 28% 23%,rgba(255,255,255,.98) 0 8%,rgba(220,243,255,.9) 18%,rgba(117,183,225,.72) 48%,rgba(255,255,255,.25) 75%);
+  border:1.5px solid rgba(255,255,255,.98);box-shadow:inset 3px 3px 9px rgba(255,255,255,.95),inset -4px -5px 10px rgba(64,130,180,.22),0 0 18px rgba(135,199,239,.65);
+  animation:buttonBubble 650ms ease-out forwards
 }
-.product button.add-to-cart-button.is-bubbling::before{
-  content:"";
-  position:absolute;
-  width:30%;
-  height:30%;
-  top:15%;
-  left:20%;
-  border-radius:50%;
-  background:rgba(255,255,255,.98);
-  filter:blur(1px);
-}
-@keyframes buttonBubble{
-  0%{transform:scale(1);border-radius:30px}
-  65%{transform:scale(.78);border-radius:50%}
-  100%{transform:scale(1);border-radius:50%}
-}
-
-/* 飛向購物車的泡泡 */
+.product button.add-to-cart-button.is-bubbling::before{content:"";position:absolute;width:30%;height:30%;top:15%;left:20%;border-radius:50%;background:rgba(255,255,255,.98);filter:blur(1px)}
+@keyframes buttonBubble{0%{transform:scale(1);border-radius:30px}65%{transform:scale(.78);border-radius:50%}100%{transform:scale(1);border-radius:50%}}
 .flying-cart-bubble{
-  position:fixed;
-  z-index:9999;
-  pointer-events:none;
-  border-radius:50%;
-  border:1.5px solid rgba(255,255,255,.98);
-  background:radial-gradient(circle at 28% 23%,
-    rgba(255,255,255,.98) 0 8%,
-    rgba(220,243,255,.9) 18%,
-    rgba(117,183,225,.72) 48%,
-    rgba(255,255,255,.25) 75%);
-  box-shadow:
-    inset 3px 3px 9px rgba(255,255,255,.95),
-    inset -4px -5px 10px rgba(64,130,180,.22),
-    0 0 18px rgba(135,199,239,.65);
+  position:fixed;z-index:9999;pointer-events:none;border-radius:50%;border:1.5px solid rgba(255,255,255,.98);
+  background:radial-gradient(circle at 28% 23%,rgba(255,255,255,.98) 0 8%,rgba(220,243,255,.9) 18%,rgba(117,183,225,.72) 48%,rgba(255,255,255,.25) 75%);
+  box-shadow:inset 3px 3px 9px rgba(255,255,255,.95),inset -4px -5px 10px rgba(64,130,180,.22),0 0 18px rgba(135,199,239,.65)
 }
-.flying-cart-bubble::after{
-  content:"";
-  position:absolute;
-  width:28%;
-  height:28%;
-  top:15%;
-  left:20%;
-  border-radius:50%;
-  background:rgba(255,255,255,.98);
-  filter:blur(1px);
-}
+.flying-cart-bubble::after{content:"";position:absolute;width:28%;height:28%;top:15%;left:20%;border-radius:50%;background:rgba(255,255,255,.98);filter:blur(1px)}
 .cart-count-pop{animation:cartCountPop .45s ease}
-@keyframes cartCountPop{
-  0%{transform:scale(1)}
-  45%{transform:scale(1.45)}
-  100%{transform:scale(1)}
-}
-.product-status{
-  text-align:center;color:#71869B;font-size:13px;
-  padding:30px 10px;grid-column:1/-1;
-}
+@keyframes cartCountPop{0%{transform:scale(1)}45%{transform:scale(1.45)}100%{transform:scale(1)}}
+.product-status{text-align:center;color:#71869B;font-size:13px;padding:30px 10px;grid-column:1/-1}
 
-/* 儲值流程 */
 .steps{max-width:900px;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.step{
-  text-align:center;padding:28px 18px;border-radius:20px;
-  background:rgba(255,255,255,.78);box-shadow:var(--shadow);border:1px solid white;
-}
-.step-number{
-  width:42px;height:42px;border-radius:50%;margin:0 auto 13px;
-  display:flex;align-items:center;justify-content:center;
-  background:#D9ECF9;color:#315F85;font-weight:900;
-}
+.step{text-align:center;padding:28px 18px;border-radius:20px;background:rgba(255,255,255,.78);box-shadow:var(--shadow);border:1px solid white}
+.step-number{width:42px;height:42px;border-radius:50%;margin:0 auto 13px;display:flex;align-items:center;justify-content:center;background:#D9ECF9;color:#315F85;font-weight:900}
 .step h3{color:#315F85;font-size:16px;margin-bottom:8px}
 .step p{color:#687F95;font-size:13px}
 
-/* SOBBSTARS 精緻會員區 */
+/* SOBBSTARS 會員卡與 LINE 登入 */
 .member{
-  max-width:900px;
-  margin:auto;
-  position:relative;
-  overflow:hidden;
-  text-align:center;
-  padding:65px 25px;
-  border-radius:30px;
-  background:
-    radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.95),transparent 65%),
-    linear-gradient(135deg,#D8ECF9 0%,#F5FAFE 48%,#DDEFFA 100%);
-  border:1px solid rgba(255,255,255,.98);
-  box-shadow:0 18px 45px rgba(49,95,133,.12),inset 0 1px 0 rgba(255,255,255,.95);
+  max-width:900px;margin:auto;position:relative;overflow:hidden;text-align:center;padding:65px 25px;border-radius:30px;
+  background:radial-gradient(ellipse at 50% 0%,rgba(255,255,255,.95),transparent 65%),linear-gradient(135deg,#D8ECF9 0%,#F5FAFE 48%,#DDEFFA 100%);
+  border:1px solid rgba(255,255,255,.98);box-shadow:0 18px 45px rgba(49,95,133,.12),inset 0 1px 0 rgba(255,255,255,.95)
 }
-.member::before{
-  content:"";
-  position:absolute;
-  width:220px;
-  height:220px;
-  top:-125px;
-  right:-65px;
-  border-radius:50%;
-  border:1px solid rgba(118,169,208,.22);
-  box-shadow:0 0 0 18px rgba(255,255,255,.12),0 0 0 38px rgba(118,169,208,.07);
-  pointer-events:none;
-}
-.member::after{
-  content:"";
-  position:absolute;
-  width:170px;
-  height:170px;
-  bottom:-110px;
-  left:-55px;
-  border-radius:50%;
-  border:1px solid rgba(118,169,208,.22);
-  box-shadow:0 0 0 18px rgba(255,255,255,.15),0 0 0 38px rgba(118,169,208,.07);
-  pointer-events:none;
-}
-.member h2{
-  position:relative;
-  display:inline-block;
-  color:#315F85;
-  font-size:clamp(30px,6vw,43px);
-  font-weight:900;
-  letter-spacing:7px;
-  line-height:1.3;
-  background:linear-gradient(120deg,#315F85 0%,#639AC2 35%,#A5CDE9 52%,#477FAF 72%,#315F85 100%);
-  -webkit-background-clip:text;
-  background-clip:text;
-  -webkit-text-fill-color:transparent;
-  filter:drop-shadow(0 3px 5px rgba(49,95,133,.12));
-}
-.member h2::after{
-  content:"";
-  position:absolute;
-  left:12%;
-  right:12%;
-  bottom:-12px;
-  height:1px;
-  background:linear-gradient(90deg,transparent,rgba(71,127,175,.65),transparent);
-}
-.member p{
-  position:relative;
-  color:#58738D;
-  font-size:14px;
-  margin-top:25px;
-  letter-spacing:1px;
-}
-.member p+p{
-  color:#8299AD;
-  font-size:12px;
-  margin-top:9px;
-  letter-spacing:.5px;
-}
+.member::before{content:"";position:absolute;width:220px;height:220px;top:-125px;right:-65px;border-radius:50%;border:1px solid rgba(118,169,208,.22);box-shadow:0 0 0 18px rgba(255,255,255,.12),0 0 0 38px rgba(118,169,208,.07);pointer-events:none}
+.member::after{content:"";position:absolute;width:170px;height:170px;bottom:-110px;left:-55px;border-radius:50%;border:1px solid rgba(118,169,208,.22);box-shadow:0 0 0 18px rgba(255,255,255,.15),0 0 0 38px rgba(118,169,208,.07);pointer-events:none}
+.member h2{position:relative;display:inline-block;color:#315F85;font-size:clamp(30px,6vw,43px);font-weight:900;letter-spacing:7px;line-height:1.3;background:linear-gradient(120deg,#315F85 0%,#639AC2 35%,#A5CDE9 52%,#477FAF 72%,#315F85 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;filter:drop-shadow(0 3px 5px rgba(49,95,133,.12))}
+.member h2::after{content:"";position:absolute;left:12%;right:12%;bottom:-12px;height:1px;background:linear-gradient(90deg,transparent,rgba(71,127,175,.65),transparent)}
+.member-intro{position:relative;color:#58738D;font-size:14px;margin-top:25px;letter-spacing:1px}
+.member-sub{position:relative;color:#8299AD;font-size:12px;margin-top:9px;letter-spacing:.5px}
+.member-actions{position:relative;display:flex;justify-content:center;flex-wrap:wrap;gap:12px;margin-top:25px}
+.member-button{border-radius:30px;padding:12px 25px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:#fff;font-weight:700;box-shadow:0 5px 15px rgba(71,127,175,.18);transition:.2s}
+.member-button:hover{transform:translateY(-2px);background:linear-gradient(135deg,#315F85,#659CC8)}
+.member-button.secondary{background:rgba(255,255,255,.75);color:#477FAF;border:1px solid rgba(71,127,175,.22);box-shadow:none}
+.member-button:disabled{opacity:.6;cursor:wait;transform:none}
+.member-status{position:relative;min-height:22px;margin-top:16px;color:#71869B;font-size:12px}
+.member-card-info{position:relative;max-width:470px;margin:25px auto 0;padding:22px 20px;border:1px solid rgba(255,255,255,.95);border-radius:20px;background:rgba(255,255,255,.62);box-shadow:inset 0 1px 0 #fff}
+.member-card-info[hidden]{display:none}
+.member-card-top{display:flex;justify-content:space-between;align-items:center;gap:10px;color:#71869B;font-size:11px;letter-spacing:2px}
+.member-card-name{margin-top:12px;color:#315F85;font-size:17px;font-weight:800}
+.member-number{margin-top:4px;color:#477FAF;font-size:25px;font-weight:900;letter-spacing:2px}
+.member-date{margin-top:8px;color:#8799AA;font-size:11px}
 
-/* FAQ */
 .faq{max-width:800px;margin:auto}
-details{
-  background:rgba(255,255,255,.82);border:1px solid var(--line);
-  border-radius:14px;padding:17px 20px;margin-bottom:12px;
-}
+details{background:rgba(255,255,255,.82);border:1px solid var(--line);border-radius:14px;padding:17px 20px;margin-bottom:12px}
 summary{color:#315F85;font-weight:700;cursor:pointer}
 details p{color:#687F95;font-size:13px;margin-top:12px}
-
-/* 購物車 */
-.cart-area{
-  max-width:850px;margin:auto;background:rgba(255,255,255,.88);
-  border:1px solid white;border-radius:22px;padding:28px;box-shadow:var(--shadow);
-}
+.cart-area{max-width:850px;margin:auto;background:rgba(255,255,255,.88);border:1px solid white;border-radius:22px;padding:28px;box-shadow:var(--shadow)}
 .cart-empty{color:#71869B;text-align:center;padding:20px}
-.cart-item{
-  display:flex;justify-content:space-between;align-items:center;
-  gap:12px;padding:14px 0;border-bottom:1px solid var(--line);font-size:14px;
-}
+.cart-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);font-size:14px}
 .cart-controls{display:flex;align-items:center;gap:10px}
-.cart-controls button{
-  width:27px;height:27px;border-radius:50%;
-  background:#E5F3FC;color:#315F85;font-weight:900;
-}
-.cart-total{
-  display:flex;justify-content:space-between;
-  margin-top:22px;font-size:18px;font-weight:900;color:#315F85;
-}
+.cart-controls button{width:27px;height:27px;border-radius:50%;background:#E5F3FC;color:#315F85;font-weight:900}
+.cart-total{display:flex;justify-content:space-between;margin-top:22px;font-size:18px;font-weight:900;color:#315F85}
 .cart-note{color:#8799AA;font-size:12px;margin-top:15px;text-align:center}
-
-/* 聯絡方式 */
 .contact{text-align:center}
 .contact-links{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin-top:25px}
-.contact-links a{
-  padding:11px 24px;border-radius:30px;
-  background:linear-gradient(135deg,#477FAF,#78B5E2);
-  color:white;font-size:13px;font-weight:700;transition:.2s;
-}
+.contact-links a{padding:11px 24px;border-radius:30px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:white;font-size:13px;font-weight:700;transition:.2s}
 .contact-links a:hover{background:#315F85;transform:translateY(-2px)}
-
-/* 頁尾 */
-footer{
-  position:relative;z-index:1;text-align:center;padding:35px 15px;
-  background:rgba(220,239,250,.85);color:#607D98;font-size:12px;
-}
+footer{position:relative;z-index:1;text-align:center;padding:35px 15px;background:rgba(220,239,250,.85);color:#607D98;font-size:12px}
 footer strong{color:#315F85;letter-spacing:2px}
 footer a{margin:0 7px}
 
-/* 平板 */
 @media(max-width:850px){
   .products{grid-template-columns:repeat(2,1fr)}
   header{padding:14px 3%;gap:8px}
   nav{gap:4px}
   nav a{padding:8px 9px;font-size:12px}
 }
-
-/* 手機 */
 @media(max-width:600px){
   header{padding:12px 10px;gap:5px}
   .logo{font-size:14px;letter-spacing:1px}
@@ -427,17 +185,10 @@ footer a{margin:0 7px}
   nav::-webkit-scrollbar{display:none}
   nav a{font-size:10px;padding:7px 7px}
   .nav-cart{padding:7px 9px}
-
-  .hero{
-    min-height:calc(100vh - 52px);
-    min-height:calc(100svh - 52px);
-    padding:75px 15px 90px;
-  }
-
+  .hero{min-height:calc(100vh - 52px);min-height:calc(100svh - 52px);padding:75px 15px 90px}
   #products{padding-top:75px}
   #products .section-title{margin-bottom:35px}
   .section-title{margin-bottom:35px}
-
   .hero .brand-cn{font-size:16px;letter-spacing:5px}
   .hero .subtitle{letter-spacing:4px}
   section{padding:60px 5%}
@@ -448,12 +199,15 @@ footer a{margin:0 7px}
   .steps{grid-template-columns:1fr}
   .cart-area{padding:20px 15px}
   .cart-item{font-size:12px;flex-wrap:wrap}
+  .member{padding:52px 18px}
+  .member-number{font-size:22px}
 }
 </style>
 </head>
 
 <body>
 
+<!-- 背景泡泡 -->
 <div class="bubble-background" aria-hidden="true">
   <span class="bubble" style="left:3%;width:42px;height:42px;animation-duration:72s"></span>
   <span class="bubble" style="left:12%;width:24px;height:24px;animation-duration:88s;animation-delay:3s"></span>
@@ -482,6 +236,7 @@ footer a{margin:0 7px}
 </header>
 
 <main>
+
 <section class="hero">
   <div class="welcome">歡迎來到</div>
   <h1>SOBBLEKING</h1>
@@ -530,8 +285,25 @@ footer a{margin:0 7px}
 <section id="member">
   <div class="member">
     <h2>SOBBSTARS</h2>
-    <p>歡迎加入淚眼蜥王國會員行列。</p>
-    <p>會員專屬服務與錢包功能，將依網站實際開放項目提供。</p>
+    <p class="member-intro">歡迎加入淚眼蜥王國會員行列。</p>
+    <p class="member-sub">使用 LINE 登入，即可建立並查看你的專屬會員卡。</p>
+
+    <div class="member-actions">
+      <button type="button" class="member-button" id="line-login-button" disabled>正在連線 LINE⋯</button>
+      <button type="button" class="member-button secondary" id="line-logout-button" hidden>登出會員</button>
+    </div>
+
+    <div class="member-status" id="member-status" role="status" aria-live="polite">正在準備會員服務⋯</div>
+
+    <div class="member-card-info" id="member-card-info" hidden>
+      <div class="member-card-top">
+        <span>SOBBLEKING MEMBER</span>
+        <span>SOBBSTARS</span>
+      </div>
+      <div class="member-card-name" id="member-display-name">會員</div>
+      <div class="member-number" id="member-number">SB000000</div>
+      <div class="member-date" id="member-created-at"></div>
+    </div>
   </div>
 </section>
 
@@ -575,9 +347,7 @@ footer a{margin:0 7px}
       <span>商品總計</span>
       <span id="cart-total">NT$0</span>
     </div>
-    <p class="cart-note">
-      目前已串接商品資料庫；正式訂單建立功能將於下一階段開放。
-    </p>
+    <p class="cart-note">目前已串接商品資料庫；正式訂單建立功能將於下一階段開放。</p>
   </div>
 </section>
 
@@ -592,6 +362,7 @@ footer a{margin:0 7px}
     <a href="https://www.threads.net/@sobble.king" target="_blank" rel="noopener">Threads</a>
   </div>
 </section>
+
 </main>
 
 <footer>
@@ -599,8 +370,7 @@ footer a{margin:0 7px}
   <p>SOBBLE PARADISE</p>
   <p>© 2026 SOBBLEKING. All Rights Reserved.</p>
   <p>
-    <a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">LINE 客服</a>
-    |
+    <a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">LINE 客服</a> |
     <a href="https://www.threads.net/@sobble.king" target="_blank" rel="noopener">Threads</a>
   </p>
 </footer>
@@ -609,11 +379,10 @@ footer a{margin:0 7px}
 /* Supabase 連線設定 */
 const SUPABASE_URL = "https://ksellpcaecuihxjxsolr.supabase.co";
 const SUPABASE_KEY = "sb_publishable_a9RhpMmIROPkSD6Vp0bVvg_rcRYGE_s";
+const MEMBER_FUNCTION_URL = "https://ksellpcaecuihxjxsolr.supabase.co/functions/v1/line-member-login";
+const LIFF_ID = "2012790935-6gudcqo6";
 
-const supabaseClient = window.supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_KEY
-);
+const supabaseClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 
 /* 商品資料庫 ID 與顯示順序 */
 const PRODUCT_ORDER = [
@@ -641,7 +410,7 @@ const PRODUCT_DESCRIPTIONS = {
 let products = [];
 let cart = {};
 
-/* 從 Supabase 讀取啟用中的商品 */
+/* 讀取啟用中的商品 */
 async function loadProducts(){
   const container = document.getElementById("product-list");
   container.innerHTML = '<div class="product-status">正在連線讀取商品⋯</div>';
@@ -666,42 +435,40 @@ async function loadProducts(){
       }));
 
     if(products.length===0){
-      container.innerHTML =
-        '<div class="product-status">目前沒有可購買的商品。</div>';
+      container.innerHTML='<div class="product-status">目前沒有可購買的商品。</div>';
       return;
     }
 
     renderProducts();
+
   }catch(error){
     console.error("商品讀取失敗：",error);
-    container.innerHTML =
-      '<div class="product-status">商品載入失敗，請稍後重新整理頁面。<br>若持續發生，請聯絡客服。</div>';
+    container.innerHTML='<div class="product-status">商品載入失敗，請稍後重新整理頁面。<br>若持續發生，請聯絡客服。</div>';
   }
 }
 
-/* 顯示商品卡片 */
 function renderProducts(){
   const container = document.getElementById("product-list");
   container.innerHTML = "";
 
   products.forEach(product=>{
-    const card = document.createElement("div");
-    card.className = "product";
+    const card=document.createElement("div");
+    card.className="product";
 
-    const title = document.createElement("h3");
-    title.textContent = product.name;
+    const title=document.createElement("h3");
+    title.textContent=product.name;
 
-    const desc = document.createElement("p");
-    desc.className = "desc";
-    desc.textContent = PRODUCT_DESCRIPTIONS[product.id] || "商品";
+    const desc=document.createElement("p");
+    desc.className="desc";
+    desc.textContent=PRODUCT_DESCRIPTIONS[product.id]||"商品";
 
-    const price = document.createElement("div");
-    price.className = "price";
-    price.textContent = "NT$" + product.price.toLocaleString("en-US");
+    const price=document.createElement("div");
+    price.className="price";
+    price.textContent="NT$"+product.price.toLocaleString("en-US");
 
-    const button = document.createElement("button");
-    button.textContent = "加入購物車";
-    button.className = "add-to-cart-button";
+    const button=document.createElement("button");
+    button.textContent="加入購物車";
+    button.className="add-to-cart-button";
     button.addEventListener("click",()=>animateAddToCart(button,product.id));
 
     card.append(title,desc,price,button);
@@ -711,60 +478,39 @@ function renderProducts(){
 
 /* 加入購物車泡泡動畫 */
 function animateAddToCart(button,id){
-  if(button.disabled) return;
+  if(button.disabled)return;
 
-  const cartTarget = document.querySelector(".nav-cart");
-
+  const cartTarget=document.querySelector(".nav-cart");
   if(!cartTarget){
     addToCart(id);
     return;
   }
 
-  button.disabled = true;
+  button.disabled=true;
 
-  const startRect = button.getBoundingClientRect();
-  const endRect = cartTarget.getBoundingClientRect();
+  const startRect=button.getBoundingClientRect();
+  const endRect=cartTarget.getBoundingClientRect();
 
   button.classList.add("is-bubbling");
 
   window.setTimeout(()=>{
-    const size = 24;
-    const bubble = document.createElement("span");
-
-    bubble.className = "flying-cart-bubble";
-    bubble.style.width = size + "px";
-    bubble.style.height = size + "px";
-    bubble.style.left =
-      (startRect.left + startRect.width/2 - size/2) + "px";
-    bubble.style.top =
-      (startRect.top + startRect.height/2 - size/2) + "px";
+    const size=24;
+    const bubble=document.createElement("span");
+    bubble.className="flying-cart-bubble";
+    bubble.style.width=size+"px";
+    bubble.style.height=size+"px";
+    bubble.style.left=(startRect.left+startRect.width/2-size/2)+"px";
+    bubble.style.top=(startRect.top+startRect.height/2-size/2)+"px";
 
     document.body.appendChild(bubble);
 
-    const dx =
-      endRect.left + endRect.width/2 -
-      (startRect.left + startRect.width/2);
+    const dx=endRect.left+endRect.width/2-(startRect.left+startRect.width/2);
+    const dy=endRect.top+endRect.height/2-(startRect.top+startRect.height/2);
 
-    const dy =
-      endRect.top + endRect.height/2 -
-      (startRect.top + startRect.height/2);
-
-    const motion = bubble.animate([
-      {
-        transform:"translate(0,0) scale(1)",
-        opacity:1
-      },
-      {
-        transform:
-          "translate("+(dx*.55)+"px,"+(dy*.55-30)+"px) scale(.8)",
-        opacity:.95,
-        offset:.65
-      },
-      {
-        transform:
-          "translate("+dx+"px,"+dy+"px) scale(.15)",
-        opacity:0
-      }
+    const motion=bubble.animate([
+      {transform:"translate(0,0) scale(1)",opacity:1},
+      {transform:"translate("+(dx*.55)+"px,"+(dy*.55-30)+"px) scale(.8)",opacity:.95,offset:.65},
+      {transform:"translate("+dx+"px,"+dy+"px) scale(.15)",opacity:0}
     ],{
       duration:1200,
       easing:"cubic-bezier(.22,.75,.25,1)"
@@ -780,102 +526,218 @@ function animateAddToCart(button,id){
 
     window.setTimeout(()=>{
       button.classList.remove("is-bubbling");
-      button.disabled = false;
+      button.disabled=false;
     },500);
 
   },650);
 }
 
-/* 加入購物車 */
 function addToCart(id){
-  const product = products.find(item=>item.id===id);
-  if(!product) return;
+  const product=products.find(item=>item.id===id);
+  if(!product)return;
 
-  cart[id] = (cart[id] || 0) + 1;
+  cart[id]=(cart[id]||0)+1;
   renderCart();
 }
 
-/* 調整商品數量 */
 function changeQuantity(id,amount){
-  if(!cart[id]) return;
+  if(!cart[id])return;
 
-  cart[id] += amount;
-
-  if(cart[id]<=0){
-    delete cart[id];
-  }
+  cart[id]+=amount;
+  if(cart[id]<=0)delete cart[id];
 
   renderCart();
 }
 
-/* 更新購物車 */
 function renderCart(){
-  const container = document.getElementById("cart-items");
-  const totalElement = document.getElementById("cart-total");
-  const countElement = document.getElementById("cart-count");
+  const container=document.getElementById("cart-items");
+  const totalElement=document.getElementById("cart-total");
+  const countElement=document.getElementById("cart-count");
 
-  let total = 0;
-  let count = 0;
-
-  container.innerHTML = "";
+  let total=0,count=0;
+  container.innerHTML="";
 
   products.forEach(product=>{
-    const quantity = cart[product.id] || 0;
-    if(quantity<=0) return;
+    const quantity=cart[product.id]||0;
+    if(quantity<=0)return;
 
-    const subtotal = product.price * quantity;
-    total += subtotal;
-    count += quantity;
+    const subtotal=product.price*quantity;
+    total+=subtotal;
+    count+=quantity;
 
-    const item = document.createElement("div");
-    item.className = "cart-item";
+    const item=document.createElement("div");
+    item.className="cart-item";
 
-    const info = document.createElement("div");
-    const name = document.createElement("strong");
-    name.textContent = product.name;
+    const info=document.createElement("div");
 
-    const detail = document.createElement("div");
-    detail.textContent =
-      "NT$" + product.price.toLocaleString("en-US") + " × " + quantity;
+    const name=document.createElement("strong");
+    name.textContent=product.name;
+
+    const detail=document.createElement("div");
+    detail.textContent="NT$"+product.price.toLocaleString("en-US")+" × "+quantity;
 
     info.append(name,detail);
 
-    const controls = document.createElement("div");
-    controls.className = "cart-controls";
+    const controls=document.createElement("div");
+    controls.className="cart-controls";
 
-    const minus = document.createElement("button");
-    minus.textContent = "−";
+    const minus=document.createElement("button");
+    minus.textContent="−";
     minus.setAttribute("aria-label","減少數量");
     minus.addEventListener("click",()=>changeQuantity(product.id,-1));
 
-    const quantityText = document.createElement("span");
-    quantityText.textContent = quantity;
+    const quantityText=document.createElement("span");
+    quantityText.textContent=quantity;
 
-    const plus = document.createElement("button");
-    plus.textContent = "＋";
+    const plus=document.createElement("button");
+    plus.textContent="＋";
     plus.setAttribute("aria-label","增加數量");
     plus.addEventListener("click",()=>changeQuantity(product.id,1));
 
     controls.append(minus,quantityText,plus);
 
-    const subtotalText = document.createElement("strong");
-    subtotalText.textContent = "NT$" + subtotal.toLocaleString("en-US");
+    const subtotalText=document.createElement("strong");
+    subtotalText.textContent="NT$"+subtotal.toLocaleString("en-US");
 
     item.append(info,controls,subtotalText);
     container.appendChild(item);
   });
 
   if(count===0){
-    container.innerHTML =
-      '<div class="cart-empty">目前還沒有選購商品</div>';
+    container.innerHTML='<div class="cart-empty">目前還沒有選購商品</div>';
   }
 
-  totalElement.textContent = "NT$" + total.toLocaleString("en-US");
-  countElement.textContent = count;
+  totalElement.textContent="NT$"+total.toLocaleString("en-US");
+  countElement.textContent=count;
 }
 
-/* 網頁載入後讀取商品 */
+/* SOBBSTARS LINE 會員登入 */
+const loginButton=document.getElementById("line-login-button");
+const logoutButton=document.getElementById("line-logout-button");
+const memberStatus=document.getElementById("member-status");
+const memberCard=document.getElementById("member-card-info");
+
+function setMemberStatus(message){
+  memberStatus.textContent=message;
+}
+
+function showMember(member){
+  document.getElementById("member-display-name").textContent=member.line_display_name||"SOBBSTARS 會員";
+  document.getElementById("member-number").textContent=member.member_no||"會員編號讀取中";
+
+  const created=member.created_at?new Date(member.created_at):null;
+
+  document.getElementById("member-created-at").textContent=
+    created&&!Number.isNaN(created.getTime())
+      ?"加入日期："+created.toLocaleDateString("zh-TW")
+      :"SOBBLEKING OFFICIAL MEMBER";
+
+  memberCard.hidden=false;
+  loginButton.hidden=true;
+  logoutButton.hidden=false;
+}
+
+function clearMember(){
+  memberCard.hidden=true;
+  loginButton.hidden=false;
+  logoutButton.hidden=true;
+}
+
+async function requestMemberLogin(){
+  const accessToken=window.liff.getAccessToken();
+
+  if(!accessToken){
+    throw new Error("無法取得 LINE 登入憑證，請重新登入。");
+  }
+
+  const response=await fetch(MEMBER_FUNCTION_URL,{
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "apikey":SUPABASE_KEY,
+      "Authorization":"Bearer "+accessToken
+    },
+    body:JSON.stringify({access_token:accessToken})
+  });
+
+  let result={};
+  try{
+    result=await response.json();
+  }catch(_){}
+
+  if(!response.ok||!result.success||!result.member){
+    throw new Error(result.error||"會員登入失敗，請稍後再試。");
+  }
+
+  showMember(result.member);
+  setMemberStatus("LINE 登入成功，歡迎來到 SOBBSTARS。");
+}
+
+async function initLineMember(){
+  loginButton.disabled=true;
+  loginButton.textContent="正在連線 LINE⋯";
+  setMemberStatus("正在初始化 LINE 會員服務⋯");
+
+  try{
+    await liff.init({liffId:LIFF_ID});
+
+    if(liff.isLoggedIn()){
+      loginButton.textContent="LINE 登入中⋯";
+      setMemberStatus("正在確認會員資料⋯");
+      await requestMemberLogin();
+
+    }else{
+      clearMember();
+      loginButton.disabled=false;
+      loginButton.textContent="使用 LINE 登入 / 加入會員";
+      setMemberStatus("登入 LINE 後即可自動建立或讀取 SOBBSTARS 會員。");
+    }
+
+  }catch(error){
+    console.error("LINE 會員初始化失敗：",error);
+
+    clearMember();
+    loginButton.disabled=false;
+    loginButton.textContent="重新連線 LINE 會員";
+
+    setMemberStatus(error.message||"LINE 會員服務暫時無法使用，請稍後再試。");
+  }
+}
+
+loginButton.addEventListener("click",()=>{
+  if(!window.liff||!liff.isLoggedIn()){
+    try{
+      liff.login({redirectUri:window.location.href});
+    }catch(error){
+      console.error(error);
+      setMemberStatus("無法開啟 LINE 登入，請重新整理頁面。");
+    }
+
+  }else{
+    loginButton.disabled=true;
+    setMemberStatus("正在讀取會員資料⋯");
+
+    requestMemberLogin().catch(error=>{
+      console.error(error);
+      setMemberStatus(error.message||"會員登入失敗。");
+      loginButton.disabled=false;
+    });
+  }
+});
+
+logoutButton.addEventListener("click",()=>{
+  if(window.liff&&liff.isLoggedIn()){
+    liff.logout();
+    clearMember();
+    setMemberStatus("已登出 LINE 會員。");
+    loginButton.disabled=false;
+    loginButton.textContent="使用 LINE 登入 / 加入會員";
+  }
+});
+
+/* 網頁載入後讀取商品及初始化會員 */
 loadProducts();
+initLineMember();
 </script>
 
 </body>
