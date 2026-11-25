@@ -34,8 +34,8 @@ body{
   "Microsoft JhengHei",sans-serif;
   color:var(--text);
   background:
-    radial-gradient(circle at 15% 10%,#FFFFFF 0,transparent 35%),
-    linear-gradient(180deg,#EAF6FD 0%,#F8FBFE 48%,#EAF5FC 100%);
+    radial-gradient(ellipse at 15% 10%,#FFFFFF 0%,transparent 38%),
+    linear-gradient(180deg,#DDEFFA 0%,#F5FAFE 48%,#E5F2FB 100%);
   overflow-x:hidden;
   line-height:1.7;
 }
@@ -56,7 +56,8 @@ header,main,section,footer{
   z-index:1;
 }
 
-/* 漂浮泡泡背景 */
+/* 背景泡泡 */
+
 .bubble-background{
   position:fixed;
   inset:0;
@@ -67,45 +68,65 @@ header,main,section,footer{
 
 .bubble{
   position:absolute;
-  bottom:-100px;
+  bottom:-120px;
   border-radius:50%;
-  border:1px solid rgba(255,255,255,.9);
-  background:linear-gradient(
-    135deg,
-    rgba(255,255,255,.55),
-    rgba(169,216,245,.08)
-  );
+  border:1.5px solid rgba(255,255,255,.95);
+  background:
+    radial-gradient(
+      circle at 28% 23%,
+      rgba(255,255,255,.95) 0%,
+      rgba(255,255,255,.48) 13%,
+      rgba(190,225,247,.32) 42%,
+      rgba(255,255,255,.08) 72%
+    );
   box-shadow:
-    inset -5px -5px 12px rgba(120,181,226,.10),
-    0 0 14px rgba(255,255,255,.35);
+    inset 3px 3px 10px rgba(255,255,255,.9),
+    inset -5px -7px 14px rgba(110,173,215,.16),
+    0 0 18px rgba(255,255,255,.55),
+    0 0 30px rgba(120,181,226,.20);
   animation:bubbleFloat linear infinite;
+}
+
+.bubble::before{
+  content:"";
+  position:absolute;
+  width:32%;
+  height:32%;
+  top:15%;
+  left:20%;
+  border-radius:50%;
+  background:rgba(255,255,255,.98);
+  filter:blur(1px);
 }
 
 .bubble::after{
   content:"";
   position:absolute;
-  width:25%;
-  height:25%;
-  top:20%;
-  left:22%;
+  width:12%;
+  height:12%;
+  bottom:22%;
+  right:22%;
   border-radius:50%;
-  background:rgba(255,255,255,.9);
-  filter:blur(1px);
+  background:rgba(255,255,255,.65);
+  filter:blur(2px);
 }
 
 @keyframes bubbleFloat{
   0%{
-    transform:translate3d(0,0,0) scale(.8);
+    transform:translate3d(0,0,0) scale(.75);
     opacity:0;
   }
-  15%{opacity:.65}
-  50%{
-    transform:translate3d(25px,-50vh,0) scale(1);
-    opacity:.55;
+  12%{opacity:.85}
+  35%{
+    transform:translate3d(25px,-35vh,0) scale(.95);
+    opacity:.9;
   }
-  85%{opacity:.35}
+  65%{
+    transform:translate3d(-20px,-75vh,0) scale(1.1);
+    opacity:.75;
+  }
   100%{
-    transform:translate3d(-20px,-115vh,0) scale(1.15);
+    transform:translate3d(30px,-125vh,0) scale(1.2);
     opacity:0;
   }
 }
@@ -115,46 +136,64 @@ header,main,section,footer{
 }
 
 /* 導覽列 */
+
 header{
   width:100%;
-  padding:18px 7%;
+  padding:16px 5%;
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:18px;
   border-bottom:1px solid var(--line);
-  background:rgba(248,251,254,.72);
-  backdrop-filter:blur(14px);
+  background:rgba(248,251,254,.86);
+  backdrop-filter:blur(16px);
   position:sticky;
   top:0;
   z-index:10;
 }
 
 .logo{
-  color:var(--deep);
+  color:#315F85;
   font-weight:900;
-  letter-spacing:2.5px;
+  letter-spacing:2px;
   font-size:20px;
+  white-space:nowrap;
   text-shadow:0 1px 0 #fff;
 }
 
 nav{
   display:flex;
-  gap:22px;
+  gap:10px;
   align-items:center;
-  font-size:13px;
-  color:#58738D;
+  justify-content:flex-end;
+  white-space:nowrap;
 }
 
-nav a:hover{color:var(--deep)}
+nav a{
+  color:#58738D;
+  font-size:13px;
+  padding:8px 13px;
+  border-radius:30px;
+  transition:.2s;
+}
+
+nav a:hover{
+  background:#E5F3FC;
+  color:#315F85;
+}
 
 .nav-cart{
-  background:#477FAF;
+  background:linear-gradient(135deg,#477FAF,#78B5E2);
   color:white;
-  padding:8px 17px;
-  border-radius:30px;
+}
+
+.nav-cart:hover{
+  background:#315F85;
+  color:white;
 }
 
 /* 首頁 */
+
 .hero{
   min-height:570px;
   padding:110px 20px 100px;
@@ -221,9 +260,11 @@ nav a:hover{color:var(--deep)}
   background:linear-gradient(135deg,#315F85,#659CC8);
 }
 
-/* 通用區塊 */
+/* 區塊標題 */
+
 section{
   padding:75px 7%;
+  scroll-margin-top:90px;
 }
 
 .section-title{
@@ -253,6 +294,7 @@ section{
 }
 
 /* 商品 */
+
 .products{
   display:grid;
   grid-template-columns:repeat(4,1fr);
@@ -265,27 +307,16 @@ section{
   background:rgba(255,255,255,.82);
   border:1px solid rgba(255,255,255,.95);
   border-radius:20px;
-  padding:25px 17px;
+  padding:29px 17px;
   text-align:center;
   box-shadow:var(--shadow);
+  backdrop-filter:blur(10px);
   transition:.25s;
 }
 
 .product:hover{
   transform:translateY(-5px);
   box-shadow:0 16px 35px rgba(49,95,133,.15);
-}
-
-.product-icon{
-  width:68px;
-  height:68px;
-  margin:0 auto 16px;
-  border-radius:22px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:30px;
-  background:linear-gradient(145deg,#E5F4FD,#C8E4F6);
 }
 
 .product h3{
@@ -297,19 +328,18 @@ section{
 .product .desc{
   color:#8799AA;
   font-size:12px;
-  margin:5px 0 12px;
+  margin:7px 0 13px;
 }
 
 .price{
   color:#477FAF;
   font-size:21px;
   font-weight:900;
-  text-shadow:0 1px 0 rgba(255,255,255,.8);
 }
 
 .product button{
   width:100%;
-  margin-top:17px;
+  margin-top:19px;
   padding:10px;
   border-radius:30px;
   background:linear-gradient(135deg,#477FAF,#78B5E2);
@@ -323,7 +353,8 @@ section{
   background:linear-gradient(135deg,#315F85,#659CC8);
 }
 
-/* 流程 */
+/* 儲值流程 */
+
 .steps{
   max-width:900px;
   margin:auto;
@@ -336,8 +367,9 @@ section{
   text-align:center;
   padding:28px 18px;
   border-radius:20px;
-  background:rgba(255,255,255,.75);
+  background:rgba(255,255,255,.78);
   box-shadow:var(--shadow);
+  border:1px solid white;
 }
 
 .step-number{
@@ -365,6 +397,7 @@ section{
 }
 
 /* 會員 */
+
 .member{
   max-width:900px;
   margin:auto;
@@ -389,6 +422,7 @@ section{
 }
 
 /* FAQ */
+
 .faq{
   max-width:800px;
   margin:auto;
@@ -415,6 +449,7 @@ details p{
 }
 
 /* 購物車 */
+
 .cart-area{
   max-width:850px;
   margin:auto;
@@ -472,7 +507,8 @@ details p{
   text-align:center;
 }
 
-/* 聯絡 */
+/* 聯絡方式 */
+
 .contact{
   text-align:center;
 }
@@ -488,7 +524,7 @@ details p{
 .contact-links a{
   padding:11px 24px;
   border-radius:30px;
-  background:#477FAF;
+  background:linear-gradient(135deg,#477FAF,#78B5E2);
   color:white;
   font-size:13px;
   font-weight:700;
@@ -501,12 +537,13 @@ details p{
 }
 
 /* 頁尾 */
+
 footer{
   position:relative;
   z-index:1;
   text-align:center;
   padding:35px 15px;
-  background:rgba(220,239,250,.75);
+  background:rgba(220,239,250,.85);
   color:#607D98;
   font-size:12px;
 }
@@ -520,59 +557,149 @@ footer a{
   margin:0 7px;
 }
 
+/* 平板 */
+
 @media(max-width:850px){
-  .products{grid-template-columns:repeat(2,1fr)}
-  nav{gap:12px}
+  .products{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  header{
+    padding:14px 3%;
+    gap:8px;
+  }
+
+  nav{
+    gap:4px;
+  }
+
+  nav a{
+    padding:8px 9px;
+    font-size:12px;
+  }
 }
 
+/* 手機 */
+
 @media(max-width:600px){
-  header{padding:15px 5%}
-  .logo{font-size:17px}
-  nav{gap:10px;font-size:11px}
-  nav a:nth-child(2),
-  nav a:nth-child(3){display:none}
-  .hero{min-height:520px;padding:90px 15px}
-  .hero .brand-cn{font-size:16px;letter-spacing:5px}
-  .hero .subtitle{letter-spacing:4px}
-  section{padding:60px 5%}
-  .products{gap:12px}
-  .product{padding:20px 12px}
-  .product h3{font-size:14px}
-  .price{font-size:19px}
-  .steps{grid-template-columns:1fr}
-  .cart-area{padding:20px 15px}
-  .cart-item{font-size:12px}
+  header{
+    padding:12px 10px;
+    gap:5px;
+  }
+
+  .logo{
+    font-size:14px;
+    letter-spacing:1px;
+  }
+
+  nav{
+    flex:1;
+    justify-content:flex-end;
+    gap:2px;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+
+  nav::-webkit-scrollbar{
+    display:none;
+  }
+
+  nav a{
+    font-size:10px;
+    padding:7px 7px;
+  }
+
+  .nav-cart{
+    padding:7px 9px;
+  }
+
+  .hero{
+    min-height:520px;
+    padding:90px 15px;
+  }
+
+  .hero .brand-cn{
+    font-size:16px;
+    letter-spacing:5px;
+  }
+
+  .hero .subtitle{
+    letter-spacing:4px;
+  }
+
+  section{
+    padding:60px 5%;
+  }
+
+  .products{
+    gap:12px;
+  }
+
+  .product{
+    padding:24px 12px;
+  }
+
+  .product h3{
+    font-size:14px;
+  }
+
+  .price{
+    font-size:19px;
+  }
+
+  .steps{
+    grid-template-columns:1fr;
+  }
+
+  .cart-area{
+    padding:20px 15px;
+  }
+
+  .cart-item{
+    font-size:12px;
+    flex-wrap:wrap;
+  }
 }
 </style>
 </head>
 
 <body>
 
-<!-- 泡泡背景 -->
+<!-- 背景泡泡 -->
 <div class="bubble-background" aria-hidden="true">
-  <span class="bubble" style="left:5%;width:25px;height:25px;animation-duration:16s"></span>
-  <span class="bubble" style="left:18%;width:13px;height:13px;animation-duration:21s;animation-delay:4s"></span>
-  <span class="bubble" style="left:35%;width:38px;height:38px;animation-duration:24s;animation-delay:2s"></span>
-  <span class="bubble" style="left:55%;width:18px;height:18px;animation-duration:18s;animation-delay:7s"></span>
-  <span class="bubble" style="left:72%;width:30px;height:30px;animation-duration:22s;animation-delay:3s"></span>
-  <span class="bubble" style="left:90%;width:16px;height:16px;animation-duration:19s;animation-delay:9s"></span>
-  <span class="bubble" style="left:45%;width:11px;height:11px;animation-duration:20s;animation-delay:10s"></span>
-  <span class="bubble" style="left:82%;width:22px;height:22px;animation-duration:25s;animation-delay:6s"></span>
+  <span class="bubble" style="left:3%;width:42px;height:42px;animation-duration:18s"></span>
+  <span class="bubble" style="left:12%;width:24px;height:24px;animation-duration:22s;animation-delay:3s"></span>
+  <span class="bubble" style="left:22%;width:65px;height:65px;animation-duration:27s;animation-delay:7s"></span>
+  <span class="bubble" style="left:33%;width:30px;height:30px;animation-duration:19s;animation-delay:2s"></span>
+  <span class="bubble" style="left:44%;width:52px;height:52px;animation-duration:24s;animation-delay:9s"></span>
+  <span class="bubble" style="left:56%;width:23px;height:23px;animation-duration:20s;animation-delay:5s"></span>
+  <span class="bubble" style="left:67%;width:72px;height:72px;animation-duration:29s;animation-delay:1s"></span>
+  <span class="bubble" style="left:79%;width:35px;height:35px;animation-duration:21s;animation-delay:6s"></span>
+  <span class="bubble" style="left:91%;width:55px;height:55px;animation-duration:26s;animation-delay:11s"></span>
+  <span class="bubble" style="left:8%;width:16px;height:16px;animation-duration:17s;animation-delay:10s"></span>
+  <span class="bubble" style="left:51%;width:18px;height:18px;animation-duration:23s;animation-delay:12s"></span>
+  <span class="bubble" style="left:85%;width:20px;height:20px;animation-duration:19s;animation-delay:8s"></span>
+  <span class="bubble" style="left:28%;width:27px;height:27px;animation-duration:25s;animation-delay:13s"></span>
+  <span class="bubble" style="left:73%;width:31px;height:31px;animation-duration:22s;animation-delay:15s"></span>
 </div>
 
+<!-- 導覽列 -->
 <header>
   <a class="logo" href="#">SOBBLEKING</a>
+
   <nav>
-    <a href="#products">商品選購</a>
-    <a href="#process">儲值流程</a>
+    <a href="#products">商品</a>
+    <a href="#member">會員</a>
     <a href="#faq">常見問題</a>
-    <a href="#cart" class="nav-cart">購物車 <span id="cart-count">0</span></a>
+    <a href="#cart" class="nav-cart">
+      購物車 <span id="cart-count">0</span>
+    </a>
   </nav>
 </header>
 
 <main>
 
-<!-- 首頁主視覺 -->
+<!-- 首頁 -->
 <section class="hero">
   <div class="welcome">歡迎來到</div>
   <h1>SOBBLEKING</h1>
@@ -593,7 +720,6 @@ footer a{
   <div class="products">
 
     <div class="product">
-      <div class="product-icon">💧</div>
       <h3>1,300 皮幣</h3>
       <p class="desc">皮幣儲值</p>
       <div class="price">NT$150</div>
@@ -601,7 +727,6 @@ footer a{
     </div>
 
     <div class="product">
-      <div class="product-icon">🫧</div>
       <h3>2,700 皮幣</h3>
       <p class="desc">皮幣儲值</p>
       <div class="price">NT$250</div>
@@ -609,7 +734,6 @@ footer a{
     </div>
 
     <div class="product">
-      <div class="product-icon">🐚</div>
       <h3>5,600 皮幣</h3>
       <p class="desc">皮幣儲值</p>
       <div class="price">NT$450</div>
@@ -617,7 +741,6 @@ footer a{
     </div>
 
     <div class="product">
-      <div class="product-icon">🌊</div>
       <h3>15,500 皮幣</h3>
       <p class="desc">皮幣儲值</p>
       <div class="price">NT$1,000</div>
@@ -625,7 +748,6 @@ footer a{
     </div>
 
     <div class="product">
-      <div class="product-icon">🪸</div>
       <h3>46,500 皮幣</h3>
       <p class="desc">皮幣儲值</p>
       <div class="price">NT$2,950</div>
@@ -633,7 +755,6 @@ footer a{
     </div>
 
     <div class="product">
-      <div class="product-icon">🐬</div>
       <h3>77,500 皮幣</h3>
       <p class="desc">皮幣儲值</p>
       <div class="price">NT$4,900</div>
@@ -641,7 +762,6 @@ footer a{
     </div>
 
     <div class="product">
-      <div class="product-icon">🎫</div>
       <h3>當月 GO Pass</h3>
       <p class="desc">通行證</p>
       <div class="price">NT$130</div>
@@ -649,7 +769,6 @@ footer a{
     </div>
 
     <div class="product">
-      <div class="product-icon">⭐</div>
       <h3>GO Pass＋10 等級</h3>
       <p class="desc">通行證加購</p>
       <div class="price">NT$150</div>
@@ -697,7 +816,7 @@ footer a{
   </div>
 </section>
 
-<!-- FAQ -->
+<!-- 常見問題 -->
 <section id="faq">
   <div class="section-title">
     <small>Q & A</small>
@@ -738,7 +857,7 @@ footer a{
 
   <div class="cart-area">
     <div id="cart-items">
-      <div class="cart-empty">目前還沒有選購商品 🫧</div>
+      <div class="cart-empty">目前還沒有選購商品</div>
     </div>
 
     <div class="cart-total">
@@ -768,6 +887,7 @@ footer a{
 
 </main>
 
+<!-- 頁尾 -->
 <footer>
   <strong>SOBBLEKING</strong>
   <p>SOBBLE PARADISE</p>
@@ -799,14 +919,17 @@ function addToCart(id){
   }else{
     cart[id]++;
   }
+
   renderCart();
 }
 
 function changeQuantity(id,amount){
   cart[id]+=amount;
+
   if(cart[id]<=0){
     delete cart[id];
   }
+
   renderCart();
 }
 
@@ -824,6 +947,7 @@ function renderCart(){
 
     if(quantity>0){
       const subtotal=product.price*quantity;
+
       total+=subtotal;
       count+=quantity;
 
@@ -833,11 +957,13 @@ function renderCart(){
             <strong>${product.name}</strong>
             <div>NT$${product.price.toLocaleString()} × ${quantity}</div>
           </div>
+
           <div class="cart-controls">
             <button onclick="changeQuantity(${product.id},-1)">−</button>
             <span>${quantity}</span>
             <button onclick="changeQuantity(${product.id},1)">＋</button>
           </div>
+
           <strong>NT$${subtotal.toLocaleString()}</strong>
         </div>
       `;
@@ -845,7 +971,7 @@ function renderCart(){
   });
 
   if(count===0){
-    html='<div class="cart-empty">目前還沒有選購商品 🫧</div>';
+    html='<div class="cart-empty">目前還沒有選購商品</div>';
   }
 
   container.innerHTML=html;
