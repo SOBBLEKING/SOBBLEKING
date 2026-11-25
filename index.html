@@ -102,6 +102,11 @@ section{padding:75px 7%;scroll-margin-top:90px}
 .member-date{color:#718DA5;font-size:9px;letter-spacing:.7px}
 .member-card-footer{color:#7D9AB0;font-size:8px;font-weight:800;letter-spacing:2px;white-space:nowrap}
 
+/* 右下角 SK 冰晶銀藍標誌 */
+.member-card-signature{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;flex-shrink:0;min-width:76px;margin-left:auto}
+.member-card-sk-logo{width:76px;height:34px;display:block;overflow:visible;filter:drop-shadow(0 2px 2px rgba(49,95,133,.16))}
+.member-card-signature .member-card-footer{margin-top:-2px;font-size:7px;letter-spacing:1.5px;color:#6386A3}
+
 /* FAQ */
 .faq{max-width:800px;margin:auto}
 details{background:rgba(255,255,255,.82);border:1px solid var(--line);border-radius:14px;padding:17px 20px;margin-bottom:12px}
@@ -138,6 +143,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
  .member-card-symbol{width:25px;height:25px;font-size:14px}.member-card-type{font-size:7px;padding:4px 7px}
  .member-card-label{font-size:8px}.member-card-name{font-size:20px}.member-number-label{font-size:7px;margin-top:7px}
  .member-number{font-size:17px;letter-spacing:1.5px}.member-date{font-size:8px}.member-card-footer{font-size:7px;letter-spacing:1px}
+ .member-card-sk-logo{width:66px;height:30px}.member-card-signature{min-width:66px}
 }
 </style>
 </head>
@@ -227,7 +233,23 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
         </div>
         <div class="member-card-bottom">
           <div class="member-date" id="member-date"></div>
-          <div class="member-card-footer">WATER KINGDOM</div>
+          <div class="member-card-signature">
+            <svg class="member-card-sk-logo" viewBox="0 0 120 52" xmlns="http://www.w3.org/2000/svg" aria-label="SK Logo">
+              <defs>
+                <linearGradient id="skSilverBlue" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#FFFFFF"/>
+                  <stop offset="25%" stop-color="#A9D5F2"/>
+                  <stop offset="50%" stop-color="#477FAF"/>
+                  <stop offset="75%" stop-color="#D9F0FF"/>
+                  <stop offset="100%" stop-color="#527FA4"/>
+                </linearGradient>
+              </defs>
+              <path d="M48 10 C37 1 13 4 13 19 C13 31 42 28 42 38 C42 49 17 50 7 40" fill="none" stroke="url(#skSilverBlue)" stroke-width="7" stroke-linecap="round"/>
+              <path d="M57 5 V46 M57 28 L91 5 M57 28 L94 47" fill="none" stroke="url(#skSilverBlue)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M99 5 L102 12 L109 15 L102 18 L99 25 L96 18 L89 15 L96 12 Z" fill="#8FC8EB" stroke="#FFFFFF" stroke-width="1"/>
+            </svg>
+            <div class="member-card-footer">WATER KINGDOM</div>
+          </div>
         </div>
       </div>
     </div>
