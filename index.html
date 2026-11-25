@@ -7,6 +7,8 @@
 <meta name="theme-color" content="#E5F3FC">
 <title>SOBBLEKING｜淚眼蜥王國</title>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
 :root{
   --sky:#E5F3FC;
@@ -20,18 +22,10 @@
   --line:rgba(80,130,170,.16);
   --shadow:0 12px 35px rgba(49,95,133,.10);
 }
-
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
-}
-
+*{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
-
 body{
-  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC",
-  "Microsoft JhengHei",sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif;
   color:var(--text);
   background:
     radial-gradient(ellipse at 15% 10%,#FFFFFF 0%,transparent 38%),
@@ -39,46 +33,23 @@ body{
   overflow-x:hidden;
   line-height:1.7;
 }
-
-a{
-  color:inherit;
-  text-decoration:none;
-}
-
-button{
-  font:inherit;
-  cursor:pointer;
-  border:0;
-}
-
-header,main,section,footer{
-  position:relative;
-  z-index:1;
-}
+a{color:inherit;text-decoration:none}
+button{font:inherit;cursor:pointer;border:0}
+header,main,section,footer{position:relative;z-index:1}
 
 /* 背景泡泡 */
-
 .bubble-background{
-  position:fixed;
-  inset:0;
-  overflow:hidden;
-  pointer-events:none;
-  z-index:0;
+  position:fixed;inset:0;overflow:hidden;
+  pointer-events:none;z-index:0;
 }
-
 .bubble{
-  position:absolute;
-  bottom:-120px;
-  border-radius:50%;
+  position:absolute;bottom:-120px;border-radius:50%;
   border:1.5px solid rgba(255,255,255,.95);
-  background:
-    radial-gradient(
-      circle at 28% 23%,
-      rgba(255,255,255,.95) 0%,
-      rgba(255,255,255,.48) 13%,
-      rgba(190,225,247,.32) 42%,
-      rgba(255,255,255,.08) 72%
-    );
+  background:radial-gradient(circle at 28% 23%,
+    rgba(255,255,255,.95) 0%,
+    rgba(255,255,255,.48) 13%,
+    rgba(190,225,247,.32) 42%,
+    rgba(255,255,255,.08) 72%);
   box-shadow:
     inset 3px 3px 10px rgba(255,255,255,.9),
     inset -5px -7px 14px rgba(110,173,215,.16),
@@ -86,586 +57,210 @@ header,main,section,footer{
     0 0 30px rgba(120,181,226,.20);
   animation:bubbleFloat linear infinite;
 }
-
 .bubble::before{
-  content:"";
-  position:absolute;
-  width:32%;
-  height:32%;
-  top:15%;
-  left:20%;
-  border-radius:50%;
-  background:rgba(255,255,255,.98);
-  filter:blur(1px);
+  content:"";position:absolute;width:32%;height:32%;
+  top:15%;left:20%;border-radius:50%;
+  background:rgba(255,255,255,.98);filter:blur(1px);
 }
-
 .bubble::after{
-  content:"";
-  position:absolute;
-  width:12%;
-  height:12%;
-  bottom:22%;
-  right:22%;
-  border-radius:50%;
-  background:rgba(255,255,255,.65);
-  filter:blur(2px);
+  content:"";position:absolute;width:12%;height:12%;
+  bottom:22%;right:22%;border-radius:50%;
+  background:rgba(255,255,255,.65);filter:blur(2px);
 }
-
 @keyframes bubbleFloat{
-  0%{
-    transform:translate3d(0,0,0) scale(.75);
-    opacity:0;
-  }
+  0%{transform:translate3d(0,0,0) scale(.75);opacity:0}
   12%{opacity:.85}
-  35%{
-    transform:translate3d(25px,-35vh,0) scale(.95);
-    opacity:.9;
-  }
-  65%{
-    transform:translate3d(-20px,-75vh,0) scale(1.1);
-    opacity:.75;
-  }
-  100%{
-    transform:translate3d(30px,-125vh,0) scale(1.2);
-    opacity:0;
-  }
+  35%{transform:translate3d(25px,-35vh,0) scale(.95);opacity:.9}
+  65%{transform:translate3d(-20px,-75vh,0) scale(1.1);opacity:.75}
+  100%{transform:translate3d(30px,-125vh,0) scale(1.2);opacity:0}
 }
-
 @media(prefers-reduced-motion:reduce){
   .bubble{animation:none;display:none}
 }
 
 /* 導覽列 */
-
 header{
-  width:100%;
-  padding:16px 5%;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:18px;
+  width:100%;padding:16px 5%;
+  display:flex;justify-content:space-between;align-items:center;gap:18px;
   border-bottom:1px solid var(--line);
   background:rgba(248,251,254,.86);
   backdrop-filter:blur(16px);
-  position:sticky;
-  top:0;
-  z-index:10;
+  position:sticky;top:0;z-index:10;
 }
-
 .logo{
-  color:#315F85;
-  font-weight:900;
-  letter-spacing:2px;
-  font-size:20px;
-  white-space:nowrap;
-  text-shadow:0 1px 0 #fff;
+  color:#315F85;font-weight:900;letter-spacing:2px;
+  font-size:20px;white-space:nowrap;text-shadow:0 1px 0 #fff;
 }
-
-nav{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  justify-content:flex-end;
-  white-space:nowrap;
-}
-
+nav{display:flex;gap:10px;align-items:center;justify-content:flex-end;white-space:nowrap}
 nav a{
-  color:#58738D;
-  font-size:13px;
-  padding:8px 13px;
-  border-radius:30px;
-  transition:.2s;
+  color:#58738D;font-size:13px;padding:8px 13px;
+  border-radius:30px;transition:.2s;
 }
-
-nav a:hover{
-  background:#E5F3FC;
-  color:#315F85;
-}
-
-.nav-cart{
-  background:linear-gradient(135deg,#477FAF,#78B5E2);
-  color:white;
-}
-
-.nav-cart:hover{
-  background:#315F85;
-  color:white;
-}
+nav a:hover{background:#E5F3FC;color:#315F85}
+.nav-cart{background:linear-gradient(135deg,#477FAF,#78B5E2);color:white}
+.nav-cart:hover{background:#315F85;color:white}
 
 /* 首頁 */
-
 .hero{
-  min-height:570px;
-  padding:110px 20px 100px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
+  min-height:570px;padding:110px 20px 100px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
   text-align:center;
 }
-
-.hero .welcome{
-  color:#7189A2;
-  font-size:15px;
-  letter-spacing:5px;
-  font-weight:600;
-  margin-bottom:16px;
-}
-
+.hero .welcome{color:#7189A2;font-size:15px;letter-spacing:5px;font-weight:600;margin-bottom:16px}
 .hero h1{
-  color:#315F85;
-  font-size:clamp(43px,9vw,76px);
-  font-weight:900;
-  letter-spacing:5px;
-  line-height:1.25;
+  color:#315F85;font-size:clamp(43px,9vw,76px);
+  font-weight:900;letter-spacing:5px;line-height:1.25;
   text-shadow:0 3px 12px rgba(49,95,133,.12);
 }
-
-.hero .brand-cn{
-  color:#587B9D;
-  font-size:19px;
-  font-weight:600;
-  letter-spacing:8px;
-  margin-top:14px;
-}
-
-.hero .subtitle{
-  color:#8999B5;
-  font-size:12px;
-  font-weight:600;
-  letter-spacing:7px;
-  margin-top:12px;
-}
-
-.hero p{
-  color:#58738D;
-  margin-top:28px;
-  font-size:14px;
-}
-
+.hero .brand-cn{color:#587B9D;font-size:19px;font-weight:600;letter-spacing:8px;margin-top:14px}
+.hero .subtitle{color:#8999B5;font-size:12px;font-weight:600;letter-spacing:7px;margin-top:12px}
+.hero p{color:#58738D;margin-top:28px;font-size:14px}
 .btn{
-  display:inline-block;
-  margin-top:32px;
-  padding:13px 35px;
-  border-radius:40px;
-  background:linear-gradient(135deg,#477FAF,#78B5E2);
-  color:white;
-  font-weight:700;
-  box-shadow:0 5px 18px rgba(71,127,175,.22);
-  transition:.25s;
+  display:inline-block;margin-top:32px;padding:13px 35px;border-radius:40px;
+  background:linear-gradient(135deg,#477FAF,#78B5E2);color:white;font-weight:700;
+  box-shadow:0 5px 18px rgba(71,127,175,.22);transition:.25s;
 }
-
-.btn:hover{
-  transform:translateY(-3px);
-  background:linear-gradient(135deg,#315F85,#659CC8);
-}
+.btn:hover{transform:translateY(-3px);background:linear-gradient(135deg,#315F85,#659CC8)}
 
 /* 區塊標題 */
-
-section{
-  padding:75px 7%;
-  scroll-margin-top:90px;
-}
-
-.section-title{
-  text-align:center;
-  margin-bottom:38px;
-}
-
-.section-title small{
-  color:#9184B9;
-  font-size:12px;
-  letter-spacing:3px;
-  font-weight:700;
-}
-
-.section-title h2{
-  color:#315F85;
-  font-size:27px;
-  font-weight:800;
-  letter-spacing:2px;
-  margin-top:5px;
-}
-
-.section-title p{
-  color:#71869B;
-  font-size:13px;
-  margin-top:8px;
-}
+section{padding:75px 7%;scroll-margin-top:90px}
+.section-title{text-align:center;margin-bottom:38px}
+.section-title small{color:#9184B9;font-size:12px;letter-spacing:3px;font-weight:700}
+.section-title h2{color:#315F85;font-size:27px;font-weight:800;letter-spacing:2px;margin-top:5px}
+.section-title p{color:#71869B;font-size:13px;margin-top:8px}
 
 /* 商品 */
-
 .products{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:20px;
-  max-width:1100px;
-  margin:auto;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:20px;max-width:1100px;margin:auto;
 }
-
 .product{
   background:rgba(255,255,255,.82);
   border:1px solid rgba(255,255,255,.95);
-  border-radius:20px;
-  padding:29px 17px;
-  text-align:center;
-  box-shadow:var(--shadow);
-  backdrop-filter:blur(10px);
-  transition:.25s;
+  border-radius:20px;padding:29px 17px;text-align:center;
+  box-shadow:var(--shadow);backdrop-filter:blur(10px);transition:.25s;
 }
-
-.product:hover{
-  transform:translateY(-5px);
-  box-shadow:0 16px 35px rgba(49,95,133,.15);
-}
-
-.product h3{
-  color:#405F7C;
-  font-size:16px;
-  font-weight:800;
-}
-
-.product .desc{
-  color:#8799AA;
-  font-size:12px;
-  margin:7px 0 13px;
-}
-
-.price{
-  color:#477FAF;
-  font-size:21px;
-  font-weight:900;
-}
-
+.product:hover{transform:translateY(-5px);box-shadow:0 16px 35px rgba(49,95,133,.15)}
+.product h3{color:#405F7C;font-size:16px;font-weight:800}
+.product .desc{color:#8799AA;font-size:12px;margin:7px 0 13px}
+.price{color:#477FAF;font-size:21px;font-weight:900}
 .product button{
-  width:100%;
-  margin-top:19px;
-  padding:10px;
-  border-radius:30px;
+  width:100%;margin-top:19px;padding:10px;border-radius:30px;
   background:linear-gradient(135deg,#477FAF,#78B5E2);
-  color:white;
-  font-weight:700;
-  box-shadow:0 5px 13px rgba(71,127,175,.2);
+  color:white;font-weight:700;box-shadow:0 5px 13px rgba(71,127,175,.2);
   transition:.2s;
 }
-
-.product button:hover{
-  background:linear-gradient(135deg,#315F85,#659CC8);
+.product button:hover{background:linear-gradient(135deg,#315F85,#659CC8)}
+.product button:disabled{opacity:.5;cursor:not-allowed}
+.product-status{
+  text-align:center;color:#71869B;font-size:13px;
+  padding:30px 10px;grid-column:1/-1;
 }
 
 /* 儲值流程 */
-
-.steps{
-  max-width:900px;
-  margin:auto;
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:20px;
-}
-
+.steps{max-width:900px;margin:auto;display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
 .step{
-  text-align:center;
-  padding:28px 18px;
-  border-radius:20px;
-  background:rgba(255,255,255,.78);
-  box-shadow:var(--shadow);
-  border:1px solid white;
+  text-align:center;padding:28px 18px;border-radius:20px;
+  background:rgba(255,255,255,.78);box-shadow:var(--shadow);border:1px solid white;
 }
-
 .step-number{
-  width:42px;
-  height:42px;
-  border-radius:50%;
-  margin:0 auto 13px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:#D9ECF9;
-  color:#315F85;
-  font-weight:900;
+  width:42px;height:42px;border-radius:50%;margin:0 auto 13px;
+  display:flex;align-items:center;justify-content:center;
+  background:#D9ECF9;color:#315F85;font-weight:900;
 }
-
-.step h3{
-  color:#315F85;
-  font-size:16px;
-  margin-bottom:8px;
-}
-
-.step p{
-  color:#687F95;
-  font-size:13px;
-}
+.step h3{color:#315F85;font-size:16px;margin-bottom:8px}
+.step p{color:#687F95;font-size:13px}
 
 /* 會員 */
-
 .member{
-  max-width:900px;
-  margin:auto;
-  text-align:center;
-  padding:55px 25px;
-  border-radius:28px;
-  background:linear-gradient(135deg,#DCEFFC,#F1F8FD);
-  border:1px solid white;
-  box-shadow:var(--shadow);
+  max-width:900px;margin:auto;text-align:center;padding:55px 25px;
+  border-radius:28px;background:linear-gradient(135deg,#DCEFFC,#F1F8FD);
+  border:1px solid white;box-shadow:var(--shadow);
 }
-
-.member h2{
-  color:#315F85;
-  font-size:30px;
-  letter-spacing:3px;
-}
-
-.member p{
-  color:#58738D;
-  font-size:14px;
-  margin-top:12px;
-}
+.member h2{color:#315F85;font-size:30px;letter-spacing:3px}
+.member p{color:#58738D;font-size:14px;margin-top:12px}
 
 /* FAQ */
-
-.faq{
-  max-width:800px;
-  margin:auto;
-}
-
+.faq{max-width:800px;margin:auto}
 details{
-  background:rgba(255,255,255,.82);
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:17px 20px;
-  margin-bottom:12px;
+  background:rgba(255,255,255,.82);border:1px solid var(--line);
+  border-radius:14px;padding:17px 20px;margin-bottom:12px;
 }
-
-summary{
-  color:#315F85;
-  font-weight:700;
-  cursor:pointer;
-}
-
-details p{
-  color:#687F95;
-  font-size:13px;
-  margin-top:12px;
-}
+summary{color:#315F85;font-weight:700;cursor:pointer}
+details p{color:#687F95;font-size:13px;margin-top:12px}
 
 /* 購物車 */
-
 .cart-area{
-  max-width:850px;
-  margin:auto;
-  background:rgba(255,255,255,.88);
-  border:1px solid white;
-  border-radius:22px;
-  padding:28px;
-  box-shadow:var(--shadow);
+  max-width:850px;margin:auto;background:rgba(255,255,255,.88);
+  border:1px solid white;border-radius:22px;padding:28px;box-shadow:var(--shadow);
 }
-
-.cart-empty{
-  color:#71869B;
-  text-align:center;
-  padding:20px;
-}
-
+.cart-empty{color:#71869B;text-align:center;padding:20px}
 .cart-item{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  gap:12px;
-  padding:14px 0;
-  border-bottom:1px solid var(--line);
-  font-size:14px;
+  display:flex;justify-content:space-between;align-items:center;
+  gap:12px;padding:14px 0;border-bottom:1px solid var(--line);font-size:14px;
 }
-
-.cart-controls{
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-
+.cart-controls{display:flex;align-items:center;gap:10px}
 .cart-controls button{
-  width:27px;
-  height:27px;
-  border-radius:50%;
-  background:#E5F3FC;
-  color:#315F85;
-  font-weight:900;
+  width:27px;height:27px;border-radius:50%;
+  background:#E5F3FC;color:#315F85;font-weight:900;
 }
-
 .cart-total{
-  display:flex;
-  justify-content:space-between;
-  margin-top:22px;
-  font-size:18px;
-  font-weight:900;
-  color:#315F85;
+  display:flex;justify-content:space-between;
+  margin-top:22px;font-size:18px;font-weight:900;color:#315F85;
 }
-
-.cart-note{
-  color:#8799AA;
-  font-size:12px;
-  margin-top:15px;
-  text-align:center;
-}
+.cart-note{color:#8799AA;font-size:12px;margin-top:15px;text-align:center}
 
 /* 聯絡方式 */
-
-.contact{
-  text-align:center;
-}
-
-.contact-links{
-  display:flex;
-  justify-content:center;
-  flex-wrap:wrap;
-  gap:14px;
-  margin-top:25px;
-}
-
+.contact{text-align:center}
+.contact-links{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin-top:25px}
 .contact-links a{
-  padding:11px 24px;
-  border-radius:30px;
+  padding:11px 24px;border-radius:30px;
   background:linear-gradient(135deg,#477FAF,#78B5E2);
-  color:white;
-  font-size:13px;
-  font-weight:700;
-  transition:.2s;
+  color:white;font-size:13px;font-weight:700;transition:.2s;
 }
-
-.contact-links a:hover{
-  background:#315F85;
-  transform:translateY(-2px);
-}
+.contact-links a:hover{background:#315F85;transform:translateY(-2px)}
 
 /* 頁尾 */
-
 footer{
-  position:relative;
-  z-index:1;
-  text-align:center;
-  padding:35px 15px;
-  background:rgba(220,239,250,.85);
-  color:#607D98;
-  font-size:12px;
+  position:relative;z-index:1;text-align:center;padding:35px 15px;
+  background:rgba(220,239,250,.85);color:#607D98;font-size:12px;
 }
-
-footer strong{
-  color:#315F85;
-  letter-spacing:2px;
-}
-
-footer a{
-  margin:0 7px;
-}
+footer strong{color:#315F85;letter-spacing:2px}
+footer a{margin:0 7px}
 
 /* 平板 */
-
 @media(max-width:850px){
-  .products{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  header{
-    padding:14px 3%;
-    gap:8px;
-  }
-
-  nav{
-    gap:4px;
-  }
-
-  nav a{
-    padding:8px 9px;
-    font-size:12px;
-  }
+  .products{grid-template-columns:repeat(2,1fr)}
+  header{padding:14px 3%;gap:8px}
+  nav{gap:4px}
+  nav a{padding:8px 9px;font-size:12px}
 }
 
 /* 手機 */
-
 @media(max-width:600px){
-  header{
-    padding:12px 10px;
-    gap:5px;
-  }
-
-  .logo{
-    font-size:14px;
-    letter-spacing:1px;
-  }
-
-  nav{
-    flex:1;
-    justify-content:flex-end;
-    gap:2px;
-    overflow-x:auto;
-    scrollbar-width:none;
-  }
-
-  nav::-webkit-scrollbar{
-    display:none;
-  }
-
-  nav a{
-    font-size:10px;
-    padding:7px 7px;
-  }
-
-  .nav-cart{
-    padding:7px 9px;
-  }
-
-  .hero{
-    min-height:520px;
-    padding:90px 15px;
-  }
-
-  .hero .brand-cn{
-    font-size:16px;
-    letter-spacing:5px;
-  }
-
-  .hero .subtitle{
-    letter-spacing:4px;
-  }
-
-  section{
-    padding:60px 5%;
-  }
-
-  .products{
-    gap:12px;
-  }
-
-  .product{
-    padding:24px 12px;
-  }
-
-  .product h3{
-    font-size:14px;
-  }
-
-  .price{
-    font-size:19px;
-  }
-
-  .steps{
-    grid-template-columns:1fr;
-  }
-
-  .cart-area{
-    padding:20px 15px;
-  }
-
-  .cart-item{
-    font-size:12px;
-    flex-wrap:wrap;
-  }
+  header{padding:12px 10px;gap:5px}
+  .logo{font-size:14px;letter-spacing:1px}
+  nav{flex:1;justify-content:flex-end;gap:2px;overflow-x:auto;scrollbar-width:none}
+  nav::-webkit-scrollbar{display:none}
+  nav a{font-size:10px;padding:7px 7px}
+  .nav-cart{padding:7px 9px}
+  .hero{min-height:520px;padding:90px 15px}
+  .hero .brand-cn{font-size:16px;letter-spacing:5px}
+  .hero .subtitle{letter-spacing:4px}
+  section{padding:60px 5%}
+  .products{gap:12px}
+  .product{padding:24px 12px}
+  .product h3{font-size:14px}
+  .price{font-size:19px}
+  .steps{grid-template-columns:1fr}
+  .cart-area{padding:20px 15px}
+  .cart-item{font-size:12px;flex-wrap:wrap}
 }
 </style>
 </head>
 
 <body>
 
-<!-- 背景泡泡 -->
 <div class="bubble-background" aria-hidden="true">
   <span class="bubble" style="left:3%;width:42px;height:42px;animation-duration:18s"></span>
   <span class="bubble" style="left:12%;width:24px;height:24px;animation-duration:22s;animation-delay:3s"></span>
@@ -683,23 +278,17 @@ footer a{
   <span class="bubble" style="left:73%;width:31px;height:31px;animation-duration:22s;animation-delay:15s"></span>
 </div>
 
-<!-- 導覽列 -->
 <header>
   <a class="logo" href="#">SOBBLEKING</a>
-
   <nav>
     <a href="#products">商品</a>
     <a href="#member">會員</a>
     <a href="#faq">常見問題</a>
-    <a href="#cart" class="nav-cart">
-      購物車 <span id="cart-count">0</span>
-    </a>
+    <a href="#cart" class="nav-cart">購物車 <span id="cart-count">0</span></a>
   </nav>
 </header>
 
 <main>
-
-<!-- 首頁 -->
 <section class="hero">
   <div class="welcome">歡迎來到</div>
   <h1>SOBBLEKING</h1>
@@ -709,96 +298,34 @@ footer a{
   <a href="#products" class="btn">前往商品選購</a>
 </section>
 
-<!-- 商品 -->
 <section id="products">
   <div class="section-title">
     <small>OUR PRODUCTS</small>
     <h2>商品選購</h2>
     <p>選擇你需要的商品，開始選購吧</p>
   </div>
-
-  <div class="products">
-
-    <div class="product">
-      <h3>1,300 皮幣</h3>
-      <p class="desc">皮幣儲值</p>
-      <div class="price">NT$150</div>
-      <button onclick="addToCart(1)">加入購物車</button>
-    </div>
-
-    <div class="product">
-      <h3>2,700 皮幣</h3>
-      <p class="desc">皮幣儲值</p>
-      <div class="price">NT$250</div>
-      <button onclick="addToCart(2)">加入購物車</button>
-    </div>
-
-    <div class="product">
-      <h3>5,600 皮幣</h3>
-      <p class="desc">皮幣儲值</p>
-      <div class="price">NT$450</div>
-      <button onclick="addToCart(3)">加入購物車</button>
-    </div>
-
-    <div class="product">
-      <h3>15,500 皮幣</h3>
-      <p class="desc">皮幣儲值</p>
-      <div class="price">NT$1,000</div>
-      <button onclick="addToCart(4)">加入購物車</button>
-    </div>
-
-    <div class="product">
-      <h3>46,500 皮幣</h3>
-      <p class="desc">皮幣儲值</p>
-      <div class="price">NT$2,950</div>
-      <button onclick="addToCart(5)">加入購物車</button>
-    </div>
-
-    <div class="product">
-      <h3>77,500 皮幣</h3>
-      <p class="desc">皮幣儲值</p>
-      <div class="price">NT$4,900</div>
-      <button onclick="addToCart(6)">加入購物車</button>
-    </div>
-
-    <div class="product">
-      <h3>當月 GO Pass</h3>
-      <p class="desc">通行證</p>
-      <div class="price">NT$130</div>
-      <button onclick="addToCart(7)">加入購物車</button>
-    </div>
-
-    <div class="product">
-      <h3>GO Pass＋10 等級</h3>
-      <p class="desc">通行證加購</p>
-      <div class="price">NT$150</div>
-      <button onclick="addToCart(8)">加入購物車</button>
-    </div>
-
+  <div class="products" id="product-list">
+    <div class="product-status">商品載入中，請稍候⋯</div>
   </div>
 </section>
 
-<!-- 儲值流程 -->
 <section id="process">
   <div class="section-title">
     <small>HOW TO ORDER</small>
     <h2>儲值流程</h2>
     <p>簡單幾個步驟，完成你的訂單</p>
   </div>
-
   <div class="steps">
     <div class="step">
       <div class="step-number">01</div>
       <h3>選擇商品</h3>
       <p>挑選需要的皮幣或通行證商品，加入購物車。</p>
     </div>
-
     <div class="step">
       <div class="step-number">02</div>
       <h3>建立訂單</h3>
       <p>依照訂單流程填寫必要資料及選擇付款方式。</p>
     </div>
-
     <div class="step">
       <div class="step-number">03</div>
       <h3>完成儲值</h3>
@@ -807,7 +334,6 @@ footer a{
   </div>
 </section>
 
-<!-- 會員 -->
 <section id="member">
   <div class="member">
     <h2>SOBBSTARS</h2>
@@ -816,30 +342,25 @@ footer a{
   </div>
 </section>
 
-<!-- 常見問題 -->
 <section id="faq">
   <div class="section-title">
     <small>Q & A</small>
     <h2>常見問題</h2>
     <p>關於購買與儲值，你可能想知道的事</p>
   </div>
-
   <div class="faq">
     <details>
       <summary>下單後多久會完成儲值？</summary>
       <p>完成付款確認後，會依照訂單狀況安排處理，實際時間以客服通知為準。</p>
     </details>
-
     <details>
       <summary>可以使用哪些付款方式？</summary>
       <p>付款方式依結帳頁面實際提供的選項為準。</p>
     </details>
-
     <details>
       <summary>付款後需要提供什麼資料？</summary>
       <p>請依照訂單流程填寫必要的遊戲登入方式及相關資料。</p>
     </details>
-
     <details>
       <summary>有問題可以聯絡客服嗎？</summary>
       <p>可以透過官方 LINE 聯絡客服，我們會協助處理訂單相關問題。</p>
@@ -847,47 +368,39 @@ footer a{
   </div>
 </section>
 
-<!-- 購物車 -->
 <section id="cart">
   <div class="section-title">
     <small>YOUR SHOPPING CART</small>
     <h2>購物車</h2>
     <p>確認目前選購的商品</p>
   </div>
-
   <div class="cart-area">
     <div id="cart-items">
       <div class="cart-empty">目前還沒有選購商品</div>
     </div>
-
     <div class="cart-total">
       <span>商品總計</span>
       <span id="cart-total">NT$0</span>
     </div>
-
     <p class="cart-note">
-      目前為商品選購預覽，正式訂單請以網站結帳功能開放後的流程為準。
+      目前已串接商品資料庫；正式訂單建立功能將於下一階段開放。
     </p>
   </div>
 </section>
 
-<!-- 聯絡方式 -->
 <section class="contact">
   <div class="section-title">
     <small>CONTACT US</small>
     <h2>聯絡我們</h2>
     <p>有任何問題，歡迎透過以下方式找到我們</p>
   </div>
-
   <div class="contact-links">
     <a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">官方 LINE 客服</a>
     <a href="https://www.threads.net/@sobble.king" target="_blank" rel="noopener">Threads</a>
   </div>
 </section>
-
 </main>
 
-<!-- 頁尾 -->
 <footer>
   <strong>SOBBLEKING</strong>
   <p>SOBBLE PARADISE</p>
@@ -900,31 +413,122 @@ footer a{
 </footer>
 
 <script>
-const products = [
-  {id:1,name:"1,300 皮幣",price:150},
-  {id:2,name:"2,700 皮幣",price:250},
-  {id:3,name:"5,600 皮幣",price:450},
-  {id:4,name:"15,500 皮幣",price:1000},
-  {id:5,name:"46,500 皮幣",price:2950},
-  {id:6,name:"77,500 皮幣",price:4900},
-  {id:7,name:"當月 GO Pass",price:130},
-  {id:8,name:"GO Pass＋10 等級",price:150}
+/* Supabase 連線設定 */
+const SUPABASE_URL = "https://ksellpcaecuihxjxsolr.supabase.co";
+const SUPABASE_KEY = "sb_publishable_a9RhpMmIROPkSD6Vp0bVvg_rcRYGE_s";
+
+const supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+/* 商品資料庫 ID 與顯示順序 */
+const PRODUCT_ORDER = [
+  "1286da0d-f4a9-4e5a-a9e0-786dc0bd7a15",
+  "67a43987-eb2e-4c5b-8d3e-048096a1886a",
+  "56a8a843-3c62-41ea-b5e5-06095126e174",
+  "f2834df7-1133-4682-9e50-6ba35f046bbc",
+  "c78f7bcd-b742-4cf9-9a97-9defc47d50d5",
+  "d968722b-643a-4069-9b42-5ff3cc2e3781",
+  "defa3200-2582-4bc1-b070-2bd4b26a3d4c",
+  "633be96f-0531-4e3d-babc-6e9a646d7c80"
 ];
 
+const PRODUCT_DESCRIPTIONS = {
+  "1286da0d-f4a9-4e5a-a9e0-786dc0bd7a15":"皮幣儲值",
+  "67a43987-eb2e-4c5b-8d3e-048096a1886a":"皮幣儲值",
+  "56a8a843-3c62-41ea-b5e5-06095126e174":"皮幣儲值",
+  "f2834df7-1133-4682-9e50-6ba35f046bbc":"皮幣儲值",
+  "c78f7bcd-b742-4cf9-9a97-9defc47d50d5":"皮幣儲值",
+  "d968722b-643a-4069-9b42-5ff3cc2e3781":"皮幣儲值",
+  "defa3200-2582-4bc1-b070-2bd4b26a3d4c":"通行證",
+  "633be96f-0531-4e3d-babc-6e9a646d7c80":"通行證加購"
+};
+
+let products = [];
 let cart = {};
 
-function addToCart(id){
-  if(!cart[id]){
-    cart[id]=1;
-  }else{
-    cart[id]++;
-  }
+/* 從 Supabase 讀取啟用中的商品 */
+async function loadProducts(){
+  const container = document.getElementById("product-list");
+  container.innerHTML = '<div class="product-status">正在連線讀取商品⋯</div>';
 
+  try{
+    const {data,error} = await supabaseClient
+      .from("products")
+      .select("id,name,price,is_active")
+      .eq("is_active",true);
+
+    if(error) throw error;
+
+    const productMap = new Map((data || []).map(item=>[item.id,item]));
+
+    products = PRODUCT_ORDER
+      .map(id=>productMap.get(id))
+      .filter(Boolean)
+      .map(item=>({
+        id:item.id,
+        name:item.name,
+        price:Number(item.price)
+      }));
+
+    if(products.length===0){
+      container.innerHTML =
+        '<div class="product-status">目前沒有可購買的商品。</div>';
+      return;
+    }
+
+    renderProducts();
+  }catch(error){
+    console.error("商品讀取失敗：",error);
+    container.innerHTML =
+      '<div class="product-status">商品載入失敗，請稍後重新整理頁面。<br>若持續發生，請聯絡客服。</div>';
+  }
+}
+
+/* 顯示商品卡片 */
+function renderProducts(){
+  const container = document.getElementById("product-list");
+  container.innerHTML = "";
+
+  products.forEach(product=>{
+    const card = document.createElement("div");
+    card.className = "product";
+
+    const title = document.createElement("h3");
+    title.textContent = product.name;
+
+    const desc = document.createElement("p");
+    desc.className = "desc";
+    desc.textContent = PRODUCT_DESCRIPTIONS[product.id] || "商品";
+
+    const price = document.createElement("div");
+    price.className = "price";
+    price.textContent = "NT$" + product.price.toLocaleString("en-US");
+
+    const button = document.createElement("button");
+    button.textContent = "加入購物車";
+    button.addEventListener("click",()=>addToCart(product.id));
+
+    card.append(title,desc,price,button);
+    container.appendChild(card);
+  });
+}
+
+/* 加入購物車 */
+function addToCart(id){
+  const product = products.find(item=>item.id===id);
+  if(!product) return;
+
+  cart[id] = (cart[id] || 0) + 1;
   renderCart();
 }
 
+/* 調整商品數量 */
 function changeQuantity(id,amount){
-  cart[id]+=amount;
+  if(!cart[id]) return;
+
+  cart[id] += amount;
 
   if(cart[id]<=0){
     delete cart[id];
@@ -933,51 +537,74 @@ function changeQuantity(id,amount){
   renderCart();
 }
 
+/* 更新購物車 */
 function renderCart(){
-  const container=document.getElementById("cart-items");
-  const totalElement=document.getElementById("cart-total");
-  const countElement=document.getElementById("cart-count");
+  const container = document.getElementById("cart-items");
+  const totalElement = document.getElementById("cart-total");
+  const countElement = document.getElementById("cart-count");
 
-  let total=0;
-  let count=0;
-  let html="";
+  let total = 0;
+  let count = 0;
+
+  container.innerHTML = "";
 
   products.forEach(product=>{
-    const quantity=cart[product.id]||0;
+    const quantity = cart[product.id] || 0;
+    if(quantity<=0) return;
 
-    if(quantity>0){
-      const subtotal=product.price*quantity;
+    const subtotal = product.price * quantity;
+    total += subtotal;
+    count += quantity;
 
-      total+=subtotal;
-      count+=quantity;
+    const item = document.createElement("div");
+    item.className = "cart-item";
 
-      html+=`
-        <div class="cart-item">
-          <div>
-            <strong>${product.name}</strong>
-            <div>NT$${product.price.toLocaleString()} × ${quantity}</div>
-          </div>
+    const info = document.createElement("div");
+    const name = document.createElement("strong");
+    name.textContent = product.name;
 
-          <div class="cart-controls">
-            <button onclick="changeQuantity(${product.id},-1)">−</button>
-            <span>${quantity}</span>
-            <button onclick="changeQuantity(${product.id},1)">＋</button>
-          </div>
+    const detail = document.createElement("div");
+    detail.textContent =
+      "NT$" + product.price.toLocaleString("en-US") + " × " + quantity;
 
-          <strong>NT$${subtotal.toLocaleString()}</strong>
-        </div>
-      `;
-    }
+    info.append(name,detail);
+
+    const controls = document.createElement("div");
+    controls.className = "cart-controls";
+
+    const minus = document.createElement("button");
+    minus.textContent = "−";
+    minus.setAttribute("aria-label","減少數量");
+    minus.addEventListener("click",()=>changeQuantity(product.id,-1));
+
+    const quantityText = document.createElement("span");
+    quantityText.textContent = quantity;
+
+    const plus = document.createElement("button");
+    plus.textContent = "＋";
+    plus.setAttribute("aria-label","增加數量");
+    plus.addEventListener("click",()=>changeQuantity(product.id,1));
+
+    controls.append(minus,quantityText,plus);
+
+    const subtotalText = document.createElement("strong");
+    subtotalText.textContent = "NT$" + subtotal.toLocaleString("en-US");
+
+    item.append(info,controls,subtotalText);
+    container.appendChild(item);
   });
 
   if(count===0){
-    html='<div class="cart-empty">目前還沒有選購商品</div>';
+    container.innerHTML =
+      '<div class="cart-empty">目前還沒有選購商品</div>';
   }
 
-  container.innerHTML=html;
-  totalElement.textContent="NT$"+total.toLocaleString();
-  countElement.textContent=count;
+  totalElement.textContent = "NT$" + total.toLocaleString("en-US");
+  countElement.textContent = count;
 }
+
+/* 網頁載入後讀取商品 */
+loadProducts();
 </script>
 
 </body>
