@@ -118,8 +118,8 @@ details p{color:#687F95;font-size:13px;margin-top:12px}
 .cart-note{color:#8799AA;font-size:12px;margin-top:15px;text-align:center}
 .contact{text-align:center}
 .contact-links{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin-top:25px}
-.contact-links a{padding:11px 24px;border-radius:30px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:white;font-size:13px;font-weight:700;transition:.2s;box-shadow:0 5px 13px rgba(71,127,175,.2)}
-.contact-links a:hover{background:linear-gradient(135deg,#315F85,#659CC8);transform:translateY(-2px)}
+.contact-links a{padding:11px 24px;border-radius:30px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:white;font-size:13px;font-weight:700;transition:.2s}
+.contact-links a:hover{background:#315F85;transform:translateY(-2px)}
 footer{position:relative;z-index:1;text-align:center;padding:35px 15px;background:rgba(220,239,250,.85);color:#607D98;font-size:12px}
 footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 @media(max-width:850px){.products{grid-template-columns:repeat(2,1fr)}header{padding:14px 3%;gap:8px}nav{gap:4px}nav a{padding:8px 9px;font-size:12px}}
@@ -192,12 +192,6 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 .premium-card-name{color:#194D6D;font-size:clamp(18px,3vw,23px);text-shadow:0 1px 0 rgba(255,255,255,.95),0 2px 5px rgba(43,100,136,.10)}
 .premium-card-foot{border-top:1px solid rgba(58,121,160,.25);padding-top:14px;align-items:flex-end}
 .premium-number-value{color:#205B82;text-shadow:0 1px 0 rgba(255,255,255,.95);letter-spacing:1.8px}
-.premium-number-line{display:flex;align-items:center;gap:8px;flex-wrap:nowrap;margin-top:1px}
-.copy-number-button{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;min-width:22px;padding:0;border:1px solid rgba(71,127,175,.28);border-radius:50%;background:linear-gradient(135deg,rgba(255,255,255,.96),rgba(218,239,251,.94));color:#326F99;box-shadow:0 2px 7px rgba(54,116,157,.10);transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
-.copy-number-button:hover{transform:translateY(-1px);box-shadow:0 4px 11px rgba(54,116,157,.17);background:linear-gradient(135deg,#fff,#CDEBFC)}
-.copy-number-button:active{transform:scale(.96)}
-.copy-number-button svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.copy-number-button.is-copied{background:linear-gradient(135deg,#DDF5FF,#B9E5FA);color:#174F78}
-@media(max-width:600px){.premium-number-line{gap:5px}.copy-number-button{width:20px;height:20px;min-width:20px}.copy-number-button svg{width:10px;height:10px}}
 .premium-card-date{margin-left:auto;color:#326B8F;font-size:9px;font-weight:800;letter-spacing:.7px;text-align:right;white-space:nowrap;padding:0 1px 2px 12px}
 /* 珍珠泡泡與細緻星芒，作為背景層，不遮擋會員資料 */
 .premium-card-decor{position:absolute;inset:0;z-index:1;overflow:hidden;pointer-events:none}
@@ -213,30 +207,69 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 @media(max-width:600px){.premium-card-inner{padding:22px 23px 18px}.premium-card-title{font-size:clamp(26px,7vw,33px);letter-spacing:4px}.premium-card-name{font-size:18px}.premium-number-value{font-size:13px}.premium-card-date{font-size:8px;padding-left:8px}.premium-card-decor .bubble-one{width:48px;height:48px}.premium-card-decor .bubble-four{width:30px;height:30px}}
 @media(max-width:380px){.premium-card-inner{padding:19px 18px 16px}.premium-card-date{font-size:7px;letter-spacing:.2px}}
 
-/* 會員卡專屬柔和動態：泡泡緩慢漂浮、星星輕柔閃爍 */
-.premium-card-decor .decor-bubble{will-change:transform;animation:memberBubbleDrift 8s ease-in-out infinite}
-.premium-card-decor .bubble-one{animation-duration:9s;animation-delay:-1.5s}
-.premium-card-decor .bubble-two{animation-duration:7s;animation-delay:-3s}
-.premium-card-decor .bubble-three{animation-duration:8.5s;animation-delay:-2s}
-.premium-card-decor .bubble-four{animation-duration:10s;animation-delay:-4s}
-.premium-card-decor .decor-star{transform-origin:center;will-change:transform,opacity;animation:memberStarTwinkle 3.8s ease-in-out infinite}
-.premium-card-decor .star-one{animation-delay:-.8s}
-.premium-card-decor .star-two{animation-duration:4.6s;animation-delay:-2.1s}
-.premium-card-decor .star-three{animation-duration:3.3s;animation-delay:-1.4s}
-@keyframes memberBubbleDrift{
-  0%,100%{transform:translate3d(0,0,0) scale(1)}
-  25%{transform:translate3d(5px,-7px,0) scale(1.035)}
-  55%{transform:translate3d(-4px,-13px,0) scale(.98)}
-  78%{transform:translate3d(3px,-5px,0) scale(1.02)}
+
+
+
+/* SOBBSTARS 會員卡 3D 翻面 */
+.member-card-info{
+  perspective:1400px;
+  cursor:pointer;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  overflow:visible;
+  background:transparent;
+  border:0;
+  box-shadow:none;
 }
-@keyframes memberStarTwinkle{
-  0%,100%{opacity:.58;transform:scale(.82) rotate(-8deg)}
-  45%{opacity:1;transform:scale(1.18) rotate(8deg)}
-  70%{opacity:.82;transform:scale(1) rotate(0deg)}
+.member-card-info:before,.member-card-info:after{display:none}
+.member-card-info:hover{transform:none;box-shadow:none}
+.member-card-flipper{
+  position:relative;width:100%;height:100%;min-height:0;
+  aspect-ratio:1.72/1;
+  transform-style:preserve-3d;
+  transition:transform .78s cubic-bezier(.2,.72,.2,1);
+  border-radius:25px;
 }
-@media(prefers-reduced-motion:reduce){
-  .premium-card-decor .decor-bubble,.premium-card-decor .decor-star{animation:none!important;will-change:auto}
+.member-card-info.is-flipped .member-card-flipper{transform:rotateY(180deg)}
+.member-card-face{
+  position:absolute;inset:0;overflow:hidden;border-radius:25px;
+  backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  border:1px solid rgba(255,255,255,.98);
+  box-shadow:0 25px 58px rgba(38,103,151,.23),0 5px 16px rgba(61,131,178,.13),inset 0 1px 0 #fff;
 }
+.member-card-front{background:linear-gradient(132deg,#EAF8FF 0%,#B9E2F7 26%,#D8F0FC 52%,#8FC6E8 78%,#DDF3FF 100%)}
+.member-card-back{
+  transform:rotateY(180deg);
+  background:radial-gradient(ellipse at 12% 8%,rgba(255,255,255,.98),transparent 42%),linear-gradient(135deg,#F8FDFF 0%,#DDF1FB 48%,#B9DFF3 100%);
+  color:#285F86;
+}
+.member-card-front .premium-card-inner{height:100%}
+.member-card-back-inner{position:relative;z-index:2;height:100%;padding:24px 32px 20px;display:flex;flex-direction:column;justify-content:space-between}
+.wallet-back-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.wallet-back-brand{font-size:10px;font-weight:950;letter-spacing:2.5px;color:#315F85}
+.wallet-back-label{font-size:8px;font-weight:850;letter-spacing:2px;color:#6794B1}
+.wallet-back-balance{padding:12px 18px 13px;border-radius:16px;border:1px solid rgba(255,255,255,.95);background:linear-gradient(120deg,rgba(255,255,255,.82),rgba(188,226,246,.78));box-shadow:inset 0 1px 0 #fff,0 7px 18px rgba(57,119,158,.08)}
+.wallet-back-caption{display:block;font-size:8px;font-weight:850;letter-spacing:2px;color:#6C9AB6}
+.wallet-back-amount{display:block;margin-top:2px;font-size:clamp(25px,5vw,34px);line-height:1.25;font-weight:950;letter-spacing:.5px;color:#174F78;text-shadow:0 1px 0 #fff}
+.wallet-back-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:8px;border-top:1px solid rgba(67,130,169,.22);font-size:9px;color:#527F9B}
+.wallet-back-hint{font-weight:800;letter-spacing:.5px}
+.wallet-history-note{font-size:9px;color:#6F91A8;text-align:right}
+.member-card-hint{position:absolute;right:27px;bottom:22px;z-index:4;font-size:8px;letter-spacing:1px;color:#477895;opacity:.85;pointer-events:none}
+.member-card-back .member-card-hint{color:#477895}
+.member-card-info:focus-visible{outline:3px solid #477FAF;outline-offset:5px;border-radius:25px}
+@media(max-width:600px){
+ .member-card-flipper{aspect-ratio:1.48/1}
+ .member-card-face{border-radius:19px}
+ .member-card-back-inner{padding:18px 20px 15px}
+ .wallet-back-brand{font-size:8px;letter-spacing:1.7px}
+ .wallet-back-label,.wallet-back-caption{font-size:7px;letter-spacing:1.3px}
+ .wallet-back-balance{padding:10px 13px;border-radius:13px}
+ .wallet-back-amount{font-size:clamp(23px,7vw,29px)}
+ .wallet-back-foot{font-size:8px;gap:6px}
+ .wallet-history-note{font-size:7px}
+ .member-card-hint{right:20px;bottom:15px;font-size:7px}
+}
+@media(prefers-reduced-motion:reduce){.member-card-flipper{transition:none}}
 
 </style>
 </head>
@@ -306,7 +339,9 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
     <div class="member-status" id="member-status" aria-live="polite">尚未登入會員</div>
 
     <!-- SOBBSTARS 冰晶珍珠會員卡：保留原本動態會員資料 ID -->
-    <div class="member-card-info" id="member-card" hidden>
+    <div class="member-card-info" id="member-card" role="button" tabindex="0" aria-label="會員卡，點擊翻面查看錢包餘額" aria-pressed="false" hidden>
+      <div class="member-card-flipper">
+      <div class="member-card-face member-card-front">
       <div class="premium-card-glow" aria-hidden="true"></div>
       <div class="premium-card-decor" aria-hidden="true">
         <span class="decor-bubble bubble-one"></span>
@@ -327,24 +362,34 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
         <div class="premium-card-main">
           <div class="premium-card-title">SOBBSTARS</div>
           <div class="premium-card-name-label">MEMBER NAME</div>
-          <div class="premium-wallet">
-  <span>WALLET BALANCE</span>
-  <strong id="member-wallet-balance">讀取中...</strong>
-</div>
           <div class="premium-card-name" id="member-name">會員名稱</div>
         </div>
         <div class="premium-card-foot">
           <div class="premium-member-number">
             <span class="premium-meta-label">MEMBER ID</span>
-            <div class="premium-number-line">
-              <span class="premium-number-value" id="member-number">SKM00000000</span>
-              <button class="copy-number-button" type="button" data-copy-target="member-number" aria-label="複製會員編號">
-                <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="5" y="5" width="9" height="10" rx="1.5"></rect><path d="M11 3V2.5A1.5 1.5 0 0 0 9.5 1h-7A1.5 1.5 0 0 0 1 2.5v8A1.5 1.5 0 0 0 2.5 12H4"></path></svg>
-              </button>
-            </div>
+            <span class="premium-number-value" id="member-number">SK000000</span>
           </div>
           <div class="premium-card-date" id="member-date">加入日期：—</div>
         </div>
+      <span class="member-card-hint">點擊卡片・查看錢包 ↻</span>
+      </div>
+      <div class="member-card-face member-card-back">
+        <div class="premium-card-glow" aria-hidden="true"></div>
+        <div class="member-card-back-inner">
+          <div class="wallet-back-head">
+            <span class="wallet-back-brand">SOBBLEKING</span>
+            <span class="wallet-back-label">SOBBSTARS WALLET</span>
+          </div>
+          <div class="wallet-back-balance">
+            <span class="wallet-back-caption">AVAILABLE BALANCE</span>
+            <strong class="wallet-back-amount" id="member-wallet-balance">讀取中⋯</strong>
+          </div>
+          <div class="wallet-back-foot">
+            <span class="wallet-back-hint">✧ 再點一下翻回會員卡</span>
+            <span class="wallet-history-note" id="wallet-history-note">交易明細尚未載入</span>
+          </div>
+        </div>
+      </div>
       </div>
     </div>
   </div>
@@ -382,7 +427,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 
 <footer>
   <strong>SOBBLEKING</strong>
-  <p><a href="mailto:sobblekinggg@gmail.com">sobblekinggg@gmail.com</a></p>
+  <p>SOBBLE PARADISE</p>
   <p>© 2026 SOBBLEKING. All Rights Reserved.</p>
   <p><a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">LINE 客服</a> | <a href="https://www.threads.net/@sobble.king" target="_blank" rel="noopener">Threads</a></p>
 </footer>
@@ -569,23 +614,46 @@ const logoutButton = document.getElementById("line-logout-button");
 const memberStatus = document.getElementById("member-status");
 const memberCard = document.getElementById("member-card");
 
+function toggleMemberCard(){
+  if(memberCard.hidden) return;
+  const flipped = memberCard.classList.toggle("is-flipped");
+  memberCard.setAttribute("aria-pressed",String(flipped));
+  memberCard.setAttribute("aria-label",flipped ? "會員卡背面，點擊翻回正面" : "會員卡正面，點擊翻面查看錢包餘額");
+}
+memberCard.addEventListener("click",toggleMemberCard);
+memberCard.addEventListener("keydown",event=>{
+  if(event.key === "Enter" || event.key === " "){
+    event.preventDefault();
+    toggleMemberCard();
+  }
+});
+
 function setMemberStatus(message){
   memberStatus.textContent = message;
 }
 
-function showMember(member){
+function showMember(member,wallet){
   document.getElementById("member-name").textContent = member.line_display_name || "SOBBSTARS 會員";
   const rawMemberNo = member.member_no || "會員編號讀取中";
-  const displayMemberNo = rawMemberNo
-    .replace(/^SB(?=[0-9-])/, "SKM")
-    .replace(/^SK(?=[0-9-])/, "SKM");
-  document.getElementById("member-number").textContent = displayMemberNo;
+  document.getElementById("member-number").textContent = rawMemberNo.replace(/^SB(?=[0-9-])/, "SK");
   if(member.created_at){
     const date = new Date(member.created_at);
     document.getElementById("member-date").textContent = "加入日期：" + date.toLocaleDateString("zh-TW");
   }else{
     document.getElementById("member-date").textContent = "加入日期：—";
   }
+  const walletBalanceElement = document.getElementById("member-wallet-balance");
+  const walletHistoryNote = document.getElementById("wallet-history-note");
+  const balance = wallet && wallet.balance !== undefined && wallet.balance !== null ? Number(wallet.balance) : NaN;
+  if(Number.isFinite(balance)){
+    walletBalanceElement.textContent = "NT$" + balance.toLocaleString("en-US");
+  }else{
+    walletBalanceElement.textContent = "暫無資料";
+  }
+  /* 目前登入 API 僅回傳錢包餘額；不虛構儲值或交易紀錄。 */
+  walletHistoryNote.textContent = "交易明細請洽官方 LINE";
+  memberCard.classList.remove("is-flipped");
+  memberCard.setAttribute("aria-pressed","false");
   memberCard.hidden = false;
   loginButton.hidden = true;
   logoutButton.hidden = false;
@@ -609,7 +677,7 @@ async function registerOrLoginMember(){
     });
     const result = await response.json();
     if(!response.ok || !result.success) throw new Error(result.error || "會員登入失敗，請稍後再試。");
-    showMember(result.member);
+    showMember(result.member,result.wallet);
   }catch(error){
     console.error("LINE 會員登入錯誤：",error);
     setMemberStatus(error.message || "會員登入失敗，請稍後再試。");
@@ -654,49 +722,12 @@ logoutButton.addEventListener("click",()=>{
   if(!window.liff || !liff.isLoggedIn()) return;
   liff.logout();
   memberCard.hidden = true;
+  memberCard.classList.remove("is-flipped");
+  memberCard.setAttribute("aria-pressed","false");
   logoutButton.hidden = true;
   loginButton.hidden = false;
   loginButton.disabled = false;
   setMemberStatus("已登出會員。");
-});
-
-/* 一鍵複製會員／訂單編號：透過 data-copy-target 指向編號元素 */
-async function copyNumberFromButton(button){
-  const target = document.getElementById(button.dataset.copyTarget || "");
-  if(!target) return;
-  const value = (target.textContent || "").trim();
-  if(!value || /讀取中|尚未/.test(value)) return;
-  try{
-    if(navigator.clipboard && window.isSecureContext){
-      await navigator.clipboard.writeText(value);
-    }else{
-      const input = document.createElement("textarea");
-      input.value = value;
-      input.setAttribute("readonly", "");
-      input.style.position = "fixed";
-      input.style.opacity = "0";
-      document.body.appendChild(input);
-      input.select();
-      const copied = document.execCommand("copy");
-      input.remove();
-      if(!copied) throw new Error("copy failed");
-    }
-    button.classList.add("is-copied");
-    button.setAttribute("aria-label", "已複製會員編號");
-    window.setTimeout(()=>{
-      button.classList.remove("is-copied");
-      button.setAttribute("aria-label", "複製會員編號");
-    }, 1500);
-  }catch(error){
-    console.error("複製編號失敗：", error);
-    button.setAttribute("aria-label", "複製失敗，請長按編號");
-    window.setTimeout(()=>{ button.setAttribute("aria-label", "複製會員編號"); }, 1800);
-  }
-}
-
-document.addEventListener("click", event=>{
-  const button = event.target.closest(".copy-number-button");
-  if(button) copyNumberFromButton(button);
 });
 
 /* 網頁載入後執行 */
