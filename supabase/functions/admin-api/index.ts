@@ -219,6 +219,53 @@ Deno.serve(async (req) => {
       return reply({ success: true, data: safe });
     }
 
+    if (action === "topup_campaigns") {
+      const { data, error } = await db.from("sk_topup_campaigns")
+        .select("id,name,min_amount,bonus_amount,starts_at,ends_at,is_active,created_at,updated_at")
+        .order("created_at", { ascending: false }).limit(limit);
+      if (error) throw error;
+      return reply({ success: true, data: data || [] });
+    }
+
+    if (action === "save_topup_campaign") {
+      const campaignId = typeof body.campaign_id === "string" ? body.campaign_id : "";
+      const name = typeof body.name === "string" ? body.name.trim().slice(0, 100) : "";
+      const minAmount = Number(body.min_amount);
+      const bonusAmount = Number(body.bonus_amount);
+      const startsAt = typeof body.starts_at === "string" && body.starts_at ? body.starts_at : null;
+      const endsAt = typeof body.ends_at === "string" && body.ends_at ? body.ends_at : null;
+      const isActive = body.is_active === true;
+      if (!name || !Number.isSafeInteger(minAmount) || minAmount < 500 || minAmount % 500 !== 0 ||
+          !Number.isSafeInteger(bonusAmount) || bonusAmount < 0 || (startsAt && endsAt && new Date(endsAt) <= new Date(startsAt))) {
+        return reply({ success: false, error: "invalid_campaign_fields" }, 400);
+      }
+      const values = { name, min_amount: minAmount, bonus_amount: bonusAmount, starts_at: startsAt, ends_at: endsAt, is_active: isActive, updated_at: new Date().toISOString() };
+      const result = campaignId
+        ? await db.from("sk_topup_campaigns").update(values).eq("id", campaignId).select("id,name,min_amount,bonus_amount,starts_at,ends_at,is_active").single()
+        : await db.from("sk_topup_campaigns").insert(values).select("id,name,min_amount,bonus_amount,starts_at,ends_at,is_active").single();
+      if (result.error) throw result.error;
+      await db.from("sk_admin_audit_logs").insert({
+        admin_email: email, action: campaignId ? "update_topup_campaign" : "create_topup_campaign",
+        target_type: "topup_campaign", target_id: result.data.id,
+        details: { name, min_amount: minAmount, bonus_amount: bonusAmount, is_active: isActive },
+      });
+      return reply({ success: true, data: result.data });
+    }
+
+    if (action === "toggle_topup_campaign") {
+      const campaignId = typeof body.campaign_id === "string" ? body.campaign_id : "";
+      if (!campaignId || typeof body.is_active !== "boolean") return reply({ success: false, error: "invalid_campaign_toggle" }, 400);
+      const { data, error } = await db.from("sk_topup_campaigns")
+        .update({ is_active: body.is_active, updated_at: new Date().toISOString() })
+        .eq("id", campaignId).select("id,name,is_active").single();
+      if (error) throw error;
+      await db.from("sk_admin_audit_logs").insert({
+        admin_email: email, action: body.is_active ? "enable_topup_campaign" : "disable_topup_campaign",
+        target_type: "topup_campaign", target_id: campaignId, details: { is_active: body.is_active },
+      });
+      return reply({ success: true, data });
+    }
+
     if (action === "topup_detail") {
       const requestId = typeof body.request_id === "string" ? body.request_id : "";
       if (!requestId) return reply({ success: false, error: "request_id_required" }, 400);
