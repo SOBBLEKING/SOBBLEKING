@@ -856,7 +856,7 @@ function showPaymentModal(data,payment){
   }else if(payment.method==="銀行匯款"){
     info="<strong>銀行匯款｜郵局（700）</strong><br>銀行代碼：700<br>匯款帳號：<strong>"+paymentBankAccounts["郵局（700）"]+"</strong>";
   }else{
-    info="<strong>LINE Pay 手機轉帳</strong><br>請使用 LINE 加入手機號碼：<strong>0905302886</strong><br>再依畫面指示完成轉帳。";
+    info="<strong>LINE Pay 手機轉帳</strong><br>請使用 LINE 搜尋名稱：<strong>Wei.</strong>（手機號碼：0905302886）<br>加入後再依畫面指示完成轉帳。";
   }
   document.getElementById("payment-method-info").innerHTML=info+
     "<br><br>完成付款後，請將付款截圖傳給官方 LINE 客服，並附上訂單編號。";
