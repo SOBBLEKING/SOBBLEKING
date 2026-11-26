@@ -922,7 +922,7 @@ async function registerOrLoginMember(){
     });
     const result = await response.json();
     if(!response.ok || !result.success) throw new Error(result.error || "會員登入失敗，請稍後再試。");
-    currentCustomerId = result.customer_id || null;
+    currentCustomerId = result.customer_id || result.wallet?.customer_id || null;
     if(!currentCustomerId) throw new Error("會員資料缺少客戶識別碼，請重新登入或聯絡客服。");
     showMember(result.member,result.wallet,result.topup_history,result.transaction_history);
   }catch(error){
