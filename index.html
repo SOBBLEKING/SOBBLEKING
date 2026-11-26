@@ -608,7 +608,8 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
     <div id="checkout-member-state" class="checkout-hint">會員登入狀態確認中⋯</div>
     <div id="checkout-summary" class="checkout-summary"></div>
     <div class="checkout-grand-total"><span>訂單總額</span><span id="checkout-total">NT$0</span></div>
-    <div class="checkout-field">
+    <div id="wallet-checkout-summary" class="checkout-hint" style="margin-top:10px;padding:13px 15px;border:1px solid #cfe1ee;border-radius:13px;background:#f2f9fd;line-height:1.8">會員卡餘額：登入後讀取</div>
+    <div class="checkout-field" id="checkout-payment-field">
       <span>選擇付款方式</span>
       <div class="payment-methods">
         <label class="payment-method-option"><input type="radio" name="payment-method" value="無卡存款" checked><span>無卡存款</span></label>
@@ -763,6 +764,7 @@ const PRODUCT_DESCRIPTIONS = {
 let products = [];
 let cart = {};
 let currentCustomerId = null;
+let currentWalletBalance = 0;
 let checkoutRequestId = null;
 let orderWasCreated = false;
 let savedPaymentDetails = null;
@@ -936,21 +938,27 @@ function getSelectedPayment(){
 }
 function showPaymentModal(data,payment){
   const amount="NT$"+Number(data.total_amount).toLocaleString("en-US");
+  const walletUsed=Number(data.wallet_amount_used||0);
+  const externalDue=Number(data.external_due??data.total_amount);
   document.getElementById("payment-order-info").innerHTML =
     "<strong>訂單編號：</strong>"+data.order_number+
-    "<br><strong>應付金額：</strong>"+amount+
+    "<br><strong>訂單總額：</strong>"+amount+
+    "<br><strong>會員卡扣款：</strong>NT$"+walletUsed.toLocaleString("en-US")+
+    "<br><strong>剩餘應付：</strong>NT$"+externalDue.toLocaleString("en-US") +
     (data.verification_code ? "<br><strong>驗證碼：</strong>"+data.verification_code : "");
   let info="";
-  if(payment.method==="無卡存款"){
+  if(externalDue<=0){
+    info="<strong>✓ 會員卡餘額付款成功</strong><br>本筆訂單已由會員卡餘額全額支付，無須另外轉帳。";
+  }else if(payment.method==="無卡存款"){
     info="<strong>無卡存款｜"+payment.bank+"</strong><br>請使用 ATM 選擇無卡存款，輸入以下帳號：<br><strong class=\"payment-account-number\">"+String(paymentBankAccounts[payment.bank]).replace(/[,，\s]/g,"")+"</strong>";
   }else if(payment.method==="銀行匯款"){
     info="<strong>銀行匯款｜郵局（700）</strong><br>銀行代碼：700<br>匯款帳號：<br><strong class=\"payment-account-number\">"+String(paymentBankAccounts["郵局（700）"]).replace(/[,，\s]/g,"")+"</strong>";
   }else{
     info="<strong>LINE Pay 手機轉帳</strong><br>請在 LINE 搜尋手機號碼：<br><strong class=\"payment-account-number\">0905302886</strong><br>找到帳號後加入好友，再依畫面指示完成轉帳。";
   }
-  document.getElementById("payment-method-info").innerHTML=info+
-    "<br><br>完成付款後，請將付款截圖傳給官方 LINE 客服，並附上訂單編號。"+
-    "<br><br><strong>儲值入帳提醒</strong><br>若於非營業時間完成匯款，請耐心等待客服確認收款並為您儲值，感謝您的理解與配合。";
+  document.getElementById("payment-method-info").innerHTML=info+(externalDue>0 ?
+    "<br><br>完成剩餘款項付款後，請將付款截圖傳給官方 LINE 客服，並附上訂單編號。"+
+    "<br><br><strong>付款提醒</strong><br>若於非營業時間匯款，請耐心等待客服確認收款，感謝您的理解與配合。" : "");
   savedPaymentDetails={data,payment};
   try{sessionStorage.setItem("sobbleking_payment_details",JSON.stringify(savedPaymentDetails));}catch(error){console.warn("付款資訊暫存失敗",error);}
   document.getElementById("reopen-payment-button").hidden=false;
@@ -965,7 +973,7 @@ function showPaymentModal(data,payment){
     credentialButton.textContent="✓ 遊戲資料已送出";
     credentialButton.disabled=true;
   }else{
-    credentialButton.textContent="已完成付款，填寫遊戲資料";
+    credentialButton.textContent=externalDue<=0 ? "已完成付款，填寫遊戲資料" : "完成付款後，填寫遊戲資料";
   }
   document.getElementById("payment-modal").hidden=false;
 }
@@ -1150,8 +1158,12 @@ async function submitOrder(){
     resultBox.textContent = "無法取得 LINE 登入憑證，請重新登入後再試。";
     return;
   }
-  const payment = getSelectedPayment();
-  if(!payment.method){ resultBox.textContent="請先選擇付款方式。"; return; }
+  const totalAmount = products.reduce((sum,product)=>sum+(cart[product.id]||0)*product.price,0);
+  const estimatedWalletUse = Math.min(currentWalletBalance,totalAmount);
+  const estimatedExternalDue = Math.max(0,totalAmount-estimatedWalletUse);
+  const selectedPayment = getSelectedPayment();
+  const payment = estimatedExternalDue>0 ? selectedPayment : {method:"會員卡餘額",bank:""};
+  if(estimatedExternalDue>0 && !payment.method){ resultBox.textContent="請先選擇剩餘款項的付款方式。"; return; }
   const items = products
     .filter(product=>(cart[product.id] || 0)>0)
     .map(product=>({product_id:product.id,quantity:cart[product.id]}));
@@ -1174,18 +1186,24 @@ async function submitOrder(){
         access_token:accessToken,
         items,
         note:document.getElementById("checkout-note").value,
-        payment_method:payment.method,
-        payment_bank:payment.bank,
+        payment_method:estimatedExternalDue>0 ? payment.method : "無卡存款",
+        payment_bank:estimatedExternalDue>0 ? payment.bank : "國泰世華（013）",
+        use_wallet:true,
         client_request_id:checkoutRequestId
       })
     });
     const data = await response.json();
     if(!response.ok || !data.success) throw new Error(data.error || "訂單建立失敗，請稍後再試。");
     orderWasCreated = true;
+    if(data.wallet_balance_after!==undefined){
+      currentWalletBalance=Number(data.wallet_balance_after)||0;
+      document.getElementById("member-wallet-balance").textContent="NT$"+currentWalletBalance.toLocaleString("en-US");
+    }
     button.textContent = "訂單已建立";
     resultBox.classList.add("order-success");
-    resultBox.textContent = "訂單已建立，付款資訊請見彈出視窗。";
-    showPaymentModal(data,payment);
+    resultBox.textContent = Number(data.external_due||0)<=0 ? "訂單已建立，會員卡餘額已全額付款。" : "訂單已建立，會員卡已優先扣款，請支付剩餘款項。";
+    const finalPayment={method:data.payment_method||payment.method,bank:data.payment_method==="無卡存款"?payment.bank:""};
+    showPaymentModal(data,finalPayment);
   }catch(error){
     console.error("正式下單失敗：",error);
     resultBox.textContent = error.message === "member_record_not_found"
@@ -1194,6 +1212,17 @@ async function submitOrder(){
     button.disabled = false;
     button.textContent = "重新送出訂單";
   }
+}
+
+
+function updateWalletCheckoutPreview(total){
+  const box=document.getElementById("wallet-checkout-summary");
+  const paymentField=document.getElementById("checkout-payment-field");
+  const balance=Number.isFinite(currentWalletBalance)?Math.max(0,currentWalletBalance):0;
+  const used=Math.min(balance,total);
+  const due=Math.max(0,total-used);
+  box.textContent="會員卡目前餘額：NT$"+balance.toLocaleString("en-US")+"\n本筆自動使用：NT$"+used.toLocaleString("en-US")+"\n"+(due>0?"剩餘應付：NT$"+due.toLocaleString("en-US")+"（請選擇付款方式）":"剩餘應付：NT$0（會員卡全額付款）");
+  paymentField.hidden=due<=0;
 }
 
 function goToCheckout(){
@@ -1220,6 +1249,7 @@ function goToCheckout(){
     summary.appendChild(row);
   });
   document.getElementById("checkout-total").textContent = "NT$" + total.toLocaleString("en-US");
+  updateWalletCheckoutPreview(total);
   document.getElementById("checkout-member-state").textContent = window.liff && liff.isLoggedIn()
     ? "LINE 會員已登入，可以送出訂單。"
     : "尚未登入 LINE 會員，請先完成登入。";
@@ -1321,6 +1351,7 @@ function showMember(member,wallet,topupHistory,transactionHistory){
   // 沒有錢包資料或尚未儲值時，預設餘額為 NT$0；不顯示「暫無資料」。
   const parsedBalance = wallet && wallet.balance !== undefined && wallet.balance !== null ? Number(wallet.balance) : 0;
   const balance = Number.isFinite(parsedBalance) ? parsedBalance : 0;
+  currentWalletBalance = balance;
   walletBalanceElement.textContent = "NT$" + balance.toLocaleString("en-US");
   renderWalletHistory(topupHistory,transactionHistory);
   const topupCount = Array.isArray(topupHistory) ? topupHistory.length : 0;
