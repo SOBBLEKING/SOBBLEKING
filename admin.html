@@ -127,7 +127,7 @@ let orderPollReady=false;
 let adminSession=null;
 const labels={orders:"訂單管理",topups:"儲值管理",members:"會員管理",wallet_transactions:"錢包交易紀錄",audit_logs:"管理員操作紀錄"};
 const columns={
- orders:[["order_number","訂單編號"],["total_amount","金額"],["payment_method","付款方式"],["payment_status","付款狀態"],["order_status","訂單狀態"],["created_at","建立時間"]],
+ orders:[["order_number","訂單編號"],["total_amount","金額"],["wallet_amount_used","會員卡扣款"],["external_due","剩餘應付"],["payment_method","付款方式"],["payment_status","付款狀態"],["order_status","訂單狀態"],["created_at","建立時間"]],
  topups:[["id","申請編號"],["amount","儲值金額"],["payment_method","付款方式"],["payment_bank","銀行"],["status","狀態"],["created_at","申請時間"]],
  members:[["id","會員編號"],["name","會員名稱"],["line_user_id","LINE User ID"],["wallet_balance","錢包餘額"],["created_at","加入時間"]],
  wallet_transactions:[["transaction_type","類型"],["amount","金額"],["balance_before","異動前"],["balance_after","異動後"],["description","說明"],["created_at","時間"]],
