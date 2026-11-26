@@ -24,4 +24,4 @@ jobs:
         run: |
           supabase functions deploy create-order \
             --project-ref ksellpcaecuihxjxsolr \
-            --no-verify-jwt
+            --no-verify-jwt \\\n            --yes
