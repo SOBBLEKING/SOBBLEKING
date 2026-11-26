@@ -169,7 +169,7 @@ async function loadModule(action,query=""){
  currentAction=action;currentSearch=query;$("panelTitle").textContent=labels[action]||"資料列表";$("panelHint").textContent=query?"搜尋結果":"最新 50 筆資料";
 $("panelMessage").style.display="block";$("panelMessage").textContent="正在讀取資料…";$("dataTable").querySelector("thead").innerHTML="";$("dataTable").querySelector("tbody").innerHTML="";
  document.querySelectorAll("#moduleNav button").forEach(b=>b.classList.toggle("active",b.dataset.action===action));
- try{const apiAction=query&&action==="orders"?"search_orders":query&&action==="members"?"search_members":action;const rows=await adminRequest(apiAction,query);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>x[0]==="order_number"&&action==="orders"?"<td><button class=\\"order-link\\" type=\\"button\\" data-order-id=\\""+esc(row.id)+"\\">"+esc(fmt(row.order_number))+"</button></td>":"<td>"+esc(fmt(row[x[0]]))+"</td>").join("")+"</tr>").join("");
+ try{const apiAction=query&&action==="orders"?"search_orders":query&&action==="members"?"search_members":action;const rows=await adminRequest(apiAction,query);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>x[0]==="order_number"&&action==="orders"?"<td><button class=\"order-link\" type=\"button\" data-order-id=\""+esc(row.id)+"\">"+esc(fmt(row.order_number))+"</button></td>":"<td>"+esc(fmt(row[x[0]]))+"</td>").join("")+"</tr>").join("");
  if(action==="orders") document.querySelectorAll(".order-link").forEach(btn=>btn.addEventListener("click",()=>openOrderDetail(btn.dataset.orderId)));}
  catch(e){$("panelMessage").style.display="block";$("panelMessage").textContent="讀取失敗："+e.message}
 }
@@ -187,15 +187,15 @@ async function openOrderDetail(orderId){
    ["付款方式",o.payment_method],["付款狀態",o.payment_status],["訂單狀態",o.order_status],
    ["建立時間",fmt(o.created_at)],["付款確認時間",fmt(o.paid_at)]
   ];
-  let html="<div class=\\"order-detail-grid\\">"+base.map(x=>"<div class=\\"order-detail-field\\"><small>"+esc(x[0])+"</small><strong>"+esc(x[1]||"—")+"</strong></div>").join("")+"</div>";
-  html+="<div class=\\"order-detail-section\\"><h3>訂購商品</h3><div class=\\"order-detail-field\\">"+items+"</div></div>";
-  html+="<div class=\\"order-detail-section\\"><h3>遊戲登入資料</h3>";
-  if(!g){html+="<div class=\\"order-detail-field\\">客人尚未填寫遊戲資料。</div>";}
+  let html="<div class=\"order-detail-grid\">"+base.map(x=>"<div class=\"order-detail-field\"><small>"+esc(x[0])+"</small><strong>"+esc(x[1]||"—")+"</strong></div>").join("")+"</div>";
+  html+="<div class=\"order-detail-section\"><h3>訂購商品</h3><div class=\"order-detail-field\">"+items+"</div></div>";
+  html+="<div class=\"order-detail-section\"><h3>遊戲登入資料</h3>";
+  if(!g){html+="<div class=\"order-detail-field\">客人尚未填寫遊戲資料。</div>";}
   else{
-   html+="<div class=\\"order-detail-grid\\">"+
-    [["遊戲帳號名稱／遊戲暱稱",g.game_nickname],["登入方式",g.login_method],["登入帳號",g.account],["資料送出時間",fmt(g.submitted_at)]].map(x=>"<div class=\\"order-detail-field\\"><small>"+esc(x[0])+"</small><strong>"+esc(x[1]||"—")+"</strong></div>").join("")+
-    "</div><div class=\\"order-detail-field\\" style=\\"margin-top:10px\\"><small>登入密碼</small><div class=\\"order-password-row\\"><strong id=\\"orderPasswordValue\\">••••••••</strong><button type=\\"button\\" id=\\"toggleOrderPassword\\">顯示密碼</button></div></div>";
-   if(g.note)html+="<div class=\\"order-detail-field\\" style=\\"margin-top:10px\\"><small>客人備註</small><strong class=\\"order-detail-note\\">"+esc(g.note)+"</strong></div>";
+   html+="<div class=\"order-detail-grid\">"+
+    [["遊戲帳號名稱／遊戲暱稱",g.game_nickname],["登入方式",g.login_method],["登入帳號",g.account],["資料送出時間",fmt(g.submitted_at)]].map(x=>"<div class=\"order-detail-field\"><small>"+esc(x[0])+"</small><strong>"+esc(x[1]||"—")+"</strong></div>").join("")+
+    "</div><div class=\"order-detail-field\" style=\"margin-top:10px\"><small>登入密碼</small><div class=\"order-password-row\"><strong id=\"orderPasswordValue\">••••••••</strong><button type=\"button\" id=\"toggleOrderPassword\">顯示密碼</button></div></div>";
+   if(g.note)html+="<div class=\"order-detail-field\" style=\"margin-top:10px\"><small>客人備註</small><strong class=\"order-detail-note\">"+esc(g.note)+"</strong></div>";
   }
   html+="</div>";
   content.innerHTML=html;
@@ -207,9 +207,9 @@ async function openOrderDetail(orderId){
     $("toggleOrderPassword").textContent=visible?"隱藏密碼":"顯示密碼";
    });
   }
- }catch(error){content.innerHTML="<div class=\\"order-detail-field\\">讀取訂單詳細資料失敗："+esc(error.message)+"</div>";}
+ }catch(error){content.innerHTML="<div class=\"order-detail-field\">讀取訂單詳細資料失敗："+esc(error.message)+"</div>";}
 }
-function closeOrderDetail(){$("orderDetailModal").hidden=true;$ ("orderDetailContent").innerHTML="";}
+function closeOrderDetail(){$("orderDetailModal").hidden=true;$("orderDetailContent").innerHTML="";}
 $("orderDetailModal").addEventListener("click",event=>{if(event.target===$("orderDetailModal"))closeOrderDetail();});
 
 document.querySelectorAll("#moduleNav button").forEach(b=>b.addEventListener("click",()=>loadModule(b.dataset.action)));
