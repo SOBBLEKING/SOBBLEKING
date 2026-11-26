@@ -219,9 +219,50 @@ Deno.serve(async (req) => {
       return reply({ success: true, data: safe });
     }
 
+    if (action === "topup_detail") {
+      const requestId = typeof body.request_id === "string" ? body.request_id : "";
+      if (!requestId) return reply({ success: false, error: "request_id_required" }, 400);
+      const { data, error } = await db.from("sk_wallet_topup_requests")
+        .select("id,customer_id,amount,payment_method,payment_bank,status,created_at,updated_at,confirmed_at,received_amount,excess_amount,admin_note,reviewed_at,reviewed_by")
+        .eq("id", requestId).maybeSingle();
+      if (error) throw error;
+      if (!data) return reply({ success: false, error: "topup_request_not_found" }, 404);
+      const { data: wallet, error: walletError } = await db.from("sk_wallet_accounts")
+        .select("balance").eq("customer_id", data.customer_id).maybeSingle();
+      if (walletError) throw walletError;
+      return reply({ success: true, data: { topup: data, wallet_balance: wallet?.balance ?? 0 } });
+    }
+
+    if (action === "confirm_wallet_topup") {
+      const requestId = typeof body.request_id === "string" ? body.request_id : "";
+      const receivedAmount = Number(body.received_amount);
+      if (!requestId || !Number.isSafeInteger(receivedAmount) || receivedAmount < 0) {
+        return reply({ success: false, error: "invalid_confirmation_input" }, 400);
+      }
+      const { data, error } = await db.rpc("sk_confirm_wallet_topup", {
+        p_request_id: requestId, p_received_amount: receivedAmount, p_admin_email: email,
+      });
+      if (error) {
+        const known = error.message || "topup_confirmation_failed";
+        return reply({ success: false, error: known }, 409);
+      }
+      return reply({ success: true, data });
+    }
+
+    if (action === "reject_wallet_topup") {
+      const requestId = typeof body.request_id === "string" ? body.request_id : "";
+      const reason = typeof body.reason === "string" ? body.reason.trim().slice(0, 500) : "";
+      if (!requestId || !reason) return reply({ success: false, error: "rejection_reason_required" }, 400);
+      const { data, error } = await db.rpc("sk_reject_wallet_topup", {
+        p_request_id: requestId, p_admin_email: email, p_reason: reason,
+      });
+      if (error) return reply({ success: false, error: error.message || "topup_rejection_failed" }, 409);
+      return reply({ success: true, data });
+    }
+
     if (action === "topups") {
       const { data, error } = await db.from("sk_wallet_topup_requests")
-        .select("id,customer_id,amount,payment_method,payment_bank,status,created_at,updated_at,confirmed_at,admin_note")
+        .select("id,customer_id,amount,payment_method,payment_bank,status,created_at,updated_at,confirmed_at,received_amount,excess_amount,admin_note,reviewed_at,reviewed_by")
         .order("created_at", { ascending: false }).limit(limit);
       if (error) throw error;
       return reply({ success: true, data: data || [] });
