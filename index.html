@@ -134,6 +134,26 @@ details p{color:#687F95;font-size:13px;margin-top:12px}
 .checkout-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap}
 .checkout-back{border:1px solid #cfe1ee;border-radius:25px;padding:11px 22px;background:#fff;color:#477FAF;font-weight:700;cursor:pointer}
 .checkout-submit:disabled{opacity:.45;cursor:not-allowed}
+
+.payment-methods{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:20px}
+.payment-method-option{display:flex;align-items:center;justify-content:center;gap:7px;padding:13px 8px;border:1px solid #cfe1ee;border-radius:13px;background:#fff;color:#477FAF;font-weight:750;cursor:pointer}
+.payment-method-option:has(input:checked){border-color:#6EA7D2;background:#EAF5FC;box-shadow:0 0 0 2px rgba(110,167,210,.14)}
+.payment-method-option input{accent-color:#477FAF}
+.payment-bank-select{display:none;margin-top:13px}
+.payment-bank-select.visible{display:block}
+.payment-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(28,57,82,.48);backdrop-filter:blur(7px)}
+.payment-modal[hidden]{display:none}
+.payment-modal-card{width:min(100%,430px);max-height:90vh;overflow:auto;padding:27px 23px;border:1px solid #fff;border-radius:24px;background:linear-gradient(160deg,#fff,#edf7fd);box-shadow:0 22px 70px rgba(25,65,98,.25);color:#315F85}
+.payment-modal-card h3{text-align:center;font-size:22px;margin-bottom:5px}
+.payment-modal-sub{text-align:center;color:#71869B;font-size:13px;margin-bottom:18px}
+.payment-info{padding:16px;border-radius:15px;background:rgba(217,237,250,.62);line-height:1.9;overflow-wrap:anywhere}
+.payment-info strong{color:#244F73}
+.payment-copy{display:block;width:100%;margin-top:12px;padding:11px;border:1px solid #cfe1ee;border-radius:12px;background:white;color:#477FAF;font-weight:750}
+.payment-modal-actions{display:grid;gap:10px;margin-top:17px}
+.payment-modal-actions a,.payment-modal-actions button{display:block;text-align:center;padding:12px;border-radius:25px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:white;font-weight:750}
+.payment-modal-actions button{border:0}
+@media(max-width:600px){.payment-methods{grid-template-columns:1fr}.payment-method-option{justify-content:flex-start;padding:12px 15px}.payment-modal-card{padding:24px 18px}}
+
 #checkout[hidden]{display:none}
 
 .contact{text-align:center}
@@ -564,6 +584,20 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
     <div id="checkout-member-state" class="checkout-hint">會員登入狀態確認中⋯</div>
     <div id="checkout-summary" class="checkout-summary"></div>
     <div class="checkout-grand-total"><span>訂單總額</span><span id="checkout-total">NT$0</span></div>
+    <div class="checkout-field">
+      <span>選擇付款方式</span>
+      <div class="payment-methods">
+        <label class="payment-method-option"><input type="radio" name="payment-method" value="無卡存款" checked> 無卡存款</label>
+        <label class="payment-method-option"><input type="radio" name="payment-method" value="銀行匯款"> 銀行匯款</label>
+        <label class="payment-method-option"><input type="radio" name="payment-method" value="LINE Pay"> LINE Pay</label>
+      </div>
+      <select id="payment-bank" class="checkout-field payment-bank-select" aria-label="選擇無卡存款銀行">
+        <option value="國泰世華（013）">國泰世華（013）</option>
+        <option value="台新銀行（812）">台新銀行（812）</option>
+        <option value="郵局（700）">郵局（700）</option>
+        <option value="中國信託（822）">中國信託（822）</option>
+      </select>
+    </div>
     <label class="checkout-field">訂單備註（選填）
       <textarea id="checkout-note" placeholder="如有需要補充的訂單資訊，請填寫於此"></textarea>
     </label>
@@ -574,6 +608,20 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
     </div>
   </div>
 </section>
+
+
+<div id="payment-modal" class="payment-modal" hidden role="dialog" aria-modal="true" aria-labelledby="payment-modal-title">
+  <div class="payment-modal-card">
+    <h3 id="payment-modal-title">訂單已建立</h3>
+    <p class="payment-modal-sub">請依照以下資訊完成付款</p>
+    <div id="payment-order-info" class="payment-info"></div>
+    <div id="payment-method-info" class="payment-info" style="margin-top:12px"></div>
+    <div class="payment-modal-actions">
+      <a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">付款後聯絡官方 LINE 客服</a>
+      <button type="button" onclick="closePaymentModal()">完成</button>
+    </div>
+  </div>
+</div>
 
 <section class="contact">
   <div class="section-title"><small>CONTACT US</small><h2>聯絡我們</h2><p>有任何問題，歡迎透過以下方式找到我們</p></div>
@@ -777,6 +825,47 @@ function renderCart(){
   if(checkoutButton) checkoutButton.disabled = count === 0;
 }
 
+/* 付款方式與付款資訊 */
+const paymentBankAccounts = {
+  "國泰世華（013）":"699515276541",
+  "台新銀行（812）":"28881025895864",
+  "郵局（700）":"03111570559974",
+  "中國信託（822）":"576540412394"
+};
+document.querySelectorAll('input[name="payment-method"]').forEach(input=>{
+  input.addEventListener("change",()=>{
+    const method=document.querySelector('input[name="payment-method"]:checked')?.value;
+    const bank=document.getElementById("payment-bank");
+    bank.classList.toggle("visible",method==="無卡存款");
+  });
+});
+function getSelectedPayment(){
+  const method=document.querySelector('input[name="payment-method"]:checked')?.value || "";
+  const bank=method==="無卡存款" ? document.getElementById("payment-bank").value : "";
+  return {method,bank};
+}
+function showPaymentModal(data,payment){
+  const amount="NT$"+Number(data.total_amount).toLocaleString("en-US");
+  document.getElementById("payment-order-info").innerHTML =
+    "<strong>訂單編號：</strong>"+data.order_number+
+    "<br><strong>應付金額：</strong>"+amount+
+    (data.verification_code ? "<br><strong>驗證碼：</strong>"+data.verification_code : "");
+  let info="";
+  if(payment.method==="無卡存款"){
+    info="<strong>無卡存款｜"+payment.bank+"</strong><br>請使用 ATM 選擇無卡存款，輸入以下帳號：<br><strong>"+paymentBankAccounts[payment.bank]+"</strong>";
+  }else if(payment.method==="銀行匯款"){
+    info="<strong>銀行匯款｜郵局（700）</strong><br>銀行代碼：700<br>匯款帳號：<strong>"+paymentBankAccounts["郵局（700）"]+"</strong>";
+  }else{
+    info="<strong>LINE Pay 手機轉帳</strong><br>請使用 LINE 加入手機號碼：<strong>0905302886</strong><br>再依畫面指示完成轉帳。";
+  }
+  document.getElementById("payment-method-info").innerHTML=info+
+    "<br><br>完成付款後，請將付款截圖傳給官方 LINE 客服，並附上訂單編號。";
+  document.getElementById("payment-modal").hidden=false;
+}
+function closePaymentModal(){
+  document.getElementById("payment-modal").hidden=true;
+}
+
 /* 購物車前往下單頁 */
 async function submitOrder(){
   const button = document.getElementById("checkout-submit-button");
@@ -794,6 +883,8 @@ async function submitOrder(){
     resultBox.textContent = "無法取得 LINE 登入憑證，請重新登入後再試。";
     return;
   }
+  const payment = getSelectedPayment();
+  if(!payment.method){ resultBox.textContent="請先選擇付款方式。"; return; }
   const items = products
     .filter(product=>(cart[product.id] || 0)>0)
     .map(product=>({product_id:product.id,quantity:cart[product.id]}));
@@ -816,6 +907,8 @@ async function submitOrder(){
         access_token:accessToken,
         items,
         note:document.getElementById("checkout-note").value,
+        payment_method:payment.method,
+        payment_bank:payment.bank,
         client_request_id:checkoutRequestId
       })
     });
@@ -824,10 +917,8 @@ async function submitOrder(){
     orderWasCreated = true;
     button.textContent = "訂單已建立";
     resultBox.classList.add("order-success");
-    resultBox.textContent = "訂單建立成功！\\n訂單編號：" + data.order_number +
-      "\\n訂單金額：NT$" + Number(data.total_amount).toLocaleString("en-US") +
-      (data.verification_code ? "\\n驗證碼：" + data.verification_code : "") +
-      "\\n請保存訂單編號與驗證碼，後續依客服指示完成付款與資料確認。";
+    resultBox.textContent = "訂單已建立，付款資訊請見彈出視窗。";
+    showPaymentModal(data,payment);
   }catch(error){
     console.error("正式下單失敗：",error);
     resultBox.textContent = error.message === "member_record_not_found"
