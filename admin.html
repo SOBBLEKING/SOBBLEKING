@@ -57,14 +57,17 @@ button,input{font:inherit}.shell{max-width:1120px;margin:auto;padding:26px}.top{
 <script>
 const SUPABASE_URL="https://ksellpcaecuihxjxsolr.supabase.co";
 const SUPABASE_KEY="sb_publishable_a9RhpMmIROPkSD6Vp0bVvg_rcRYGE_s";
-const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 let mode="login";
 const $=id=>document.getElementById(id);
 function message(text,error=false){$("notice").textContent=text;$("notice").className="notice show"+(error?" error":"")}
+window.addEventListener("error",e=>message("頁面程式發生錯誤："+(e.message||"未知錯誤"),true));
+window.addEventListener("unhandledrejection",e=>message("登入程序發生錯誤："+(e.reason?.message||String(e.reason||"未知錯誤")),true));
+if(!window.supabase||!window.supabase.createClient){message("登入元件尚未載入。請重新整理；若持續發生，請稍後再試。",true);throw new Error("Supabase client library unavailable")}
+const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 function setMode(next){mode=next;$("formTitle").textContent=mode==="signup"?"建立管理員帳號":"管理員登入";$("formSub").textContent=mode==="signup"?"僅限白名單中的管理員 Email 建立帳號，請自行設定密碼。":"請使用已授權的管理員帳號登入。";$("submitBtn").textContent=mode==="signup"?"建立帳號":"登入管理後台";$("switchLine").innerHTML=mode==="signup"?'已經有帳號？<button id="switchMode" type="button">返回登入</button>':'第一次使用？<button id="switchMode" type="button">建立管理員帳號</button>';$("switchMode").addEventListener("click",()=>setMode(mode==="signup"?"login":"signup"));$("notice").className="notice"}
 async function authorize(session){if(!session)return false;adminSession=session;const {data,error}=await client.from("sk_admin_emails").select("email").eq("email",session.user.email.toLowerCase()).eq("is_active",true).maybeSingle();if(error||!data){await client.auth.signOut();$("authView").style.display="grid";$("dashboard").style.display="none";message("此 Email 尚未獲授權，無法進入管理後台。",true);return false}$("authView").style.display="none";$("dashboard").style.display="block";$("adminEmail").textContent=session.user.email;loadOverview();loadModule("orders");return true}
 $("switchMode").addEventListener("click",()=>setMode("signup"));
-$("authForm").addEventListener("submit",async e=>{e.preventDefault();const email=$("email").value.trim().toLowerCase(),password=$("password").value;$("submitBtn").disabled=true;$("notice").className="notice";try{if(mode==="signup"){if(email!=="sobblekinggg@gmail.com"){message("目前僅開放指定管理員 Email 建立帳號。",true);return}const {data,error}=await client.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;if(data.session){await authorize(data.session)}else{message("帳號申請已送出！請到管理員信箱收取驗證信，完成驗證後再回到此頁登入。")}}else{const {data,error}=await client.auth.signInWithPassword({email,password});if(error)throw error;await authorize(data.session)}}catch(err){message(err.message||"操作失敗，請稍後再試。",true)}finally{$("submitBtn").disabled=false}});
+$("authForm").addEventListener("submit",async e=>{e.preventDefault();const email=$("email").value.trim().toLowerCase(),password=$("password").value;$("submitBtn").disabled=true;message("正在連線驗證，請稍候…");try{if(mode==="signup"){if(email!=="sobblekinggg@gmail.com"){message("目前僅開放指定管理員 Email 建立帳號。",true);return}const {data,error}=await client.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;if(data.session){await authorize(data.session)}else{message("帳號申請已送出！請到管理員信箱收取驗證信，完成驗證後再回到此頁登入。")}}else{const {data,error}=await client.auth.signInWithPassword({email,password});if(error)throw error;await authorize(data.session)}}catch(err){message(err.message||"操作失敗，請稍後再試。",true)}finally{$("submitBtn").disabled=false}});
 
 let currentAction="orders";
 let adminSession=null;
