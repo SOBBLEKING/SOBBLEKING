@@ -2,6 +2,11 @@ name: Deploy SOBBLEKING admin API
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/admin-api/**'
+      - '.github/workflows/deploy-admin-api.yml'
 
 permissions:
   contents: read
