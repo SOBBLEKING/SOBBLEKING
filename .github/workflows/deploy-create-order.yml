@@ -1,6 +1,11 @@
 name: Deploy create-order Edge Function
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/create-order/**'
+      - '.github/workflows/deploy-create-order.yml'
   workflow_dispatch:
 
 permissions:
