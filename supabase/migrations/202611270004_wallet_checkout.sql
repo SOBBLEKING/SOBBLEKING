@@ -7,6 +7,12 @@ alter table public.sk_orders
   add column if not exists external_due numeric(12,2) not null default 0
     check (external_due >= 0);
 
+update public.sk_orders
+set external_due = total_amount
+where payment_status = 'unpaid'
+  and wallet_amount_used = 0
+  and external_due = 0;
+
 create unique index if not exists sk_wallet_transactions_purchase_once_idx
   on public.sk_wallet_transactions(reference_id)
   where reference_id is not null and transaction_type = 'purchase';
