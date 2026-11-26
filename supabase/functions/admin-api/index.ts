@@ -56,9 +56,17 @@ Deno.serve(async (req) => {
         })
       });
       if (!lineResponse.ok) {
-        const detail = (await lineResponse.text()).slice(0, 500);
-        console.error("Admin LINE test push failed:", lineResponse.status, detail);
-        return reply({ success: false, error: "line_push_failed", status: lineResponse.status }, 502);
+        const raw = await lineResponse.text();
+        let detail = "LINE API rejected the push request";
+        try {
+          const parsed = JSON.parse(raw);
+          if (typeof parsed.message === "string") detail = parsed.message;
+          if (Array.isArray(parsed.details) && parsed.details.length) {
+            detail += ": " + parsed.details.map((item: any) => [item.property, item.message].filter(Boolean).join(" ")).join("; ");
+          }
+        } catch { /* Keep generic message for non-JSON responses. */ }
+        console.error("Admin LINE test push failed:", lineResponse.status, raw.slice(0, 500));
+        return reply({ success: false, error: "line_push_failed: HTTP " + lineResponse.status + " - " + detail, status: lineResponse.status }, 502);
       }
       return reply({ success: true, data: { sent: true } });
     }
