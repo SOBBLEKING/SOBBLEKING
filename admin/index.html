@@ -276,7 +276,7 @@ async function openTopupDetail(requestId){
     ["確認時間",fmt(t.confirmed_at)],["管理員備註",t.admin_note||"—"]]
     .map(x=>"<div class=\"order-detail-field\"><small>"+esc(x[0])+"</small><strong>"+esc(x[1])+"</strong></div>").join("")+"</div>";
   if(t.status==="pending"){
-   html+="<div class=\"order-detail-section\"><h3>確認收款</h3><p>請先核對實際入帳紀錄。無卡存款可將超額款項一併存入錢包；銀行匯款及 LINE Pay 必須與申請金額相同。</p>"+
+   html+="<div class=\"order-detail-section\"><h3>確認收款</h3><p>請先核對實際入帳紀錄。無卡存款可將超額款項一併存入錢包；銀行匯款及 LINE Pay 的超額款項不會自動入帳。</p>"+
     "<label class=\"order-detail-field\"><small>實際收到金額（NT$）</small><input id=\"topupReceivedAmount\" type=\"number\" min=\"0\" step=\"1\" value=\""+Number(t.amount||0)+"\" style=\"width:100%;padding:12px;border:1px solid #dceaf5;border-radius:10px;margin-top:8px\"></label>"+
     "<button type=\"button\" class=\"primary\" id=\"confirmTopupBtn\" style=\"width:auto;padding:0 20px;margin:12px 0 0\">確認收款並入帳</button> "+
     "<button type=\"button\" class=\"logout\" id=\"rejectTopupBtn\">拒絕申請</button></div>";
@@ -286,7 +286,6 @@ async function openTopupDetail(requestId){
   if(confirmBtn)confirmBtn.addEventListener("click",async()=>{
    const received=Number($("topupReceivedAmount").value);
    if(!Number.isSafeInteger(received)||received<Number(t.amount))return alert("實收金額不可低於申請金額，請重新確認。");
-   if(t.payment_method!=="無卡存款"&&received!==Number(t.amount))return alert("銀行匯款及 LINE Pay 目前須與申請金額完全相同；若有差額請先聯絡客人處理。");
    if(!confirm("確認已在實際收款帳戶收到 NT$"+received.toLocaleString("zh-TW")+"？確認後系統會自動入帳，且無法重複確認。"))return;
    confirmBtn.disabled=true;confirmBtn.textContent="正在入帳…";
    try{
