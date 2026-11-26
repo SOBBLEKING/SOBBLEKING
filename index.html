@@ -576,6 +576,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
       </div>
     </div>
     <button class="member-button wallet-topup-button" id="wallet-topup-button" type="button" onclick="openWalletTopupModal()" hidden>立即儲值</button>
+    <button class="member-button secondary" id="wallet-refresh-button" type="button" onclick="refreshMemberWallet()" hidden style="margin:10px auto 0">更新錢包餘額</button>
   </div>
 </section>
 
@@ -642,7 +643,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
       <label class="checkout-field" for="wallet-topup-amount">儲值金額（新台幣）
         <input id="wallet-topup-amount" type="number" min="500" step="500" inputmode="numeric" placeholder="請輸入 500 的倍數" style="width:100%;border:1px solid #d7e7f2;border-radius:12px;padding:12px;background:#fbfdff;color:#315F85;font:inherit">
       </label>
-      <p class="checkout-hint" style="margin-top:8px">小提醒：儲值金額須為 NT$500 的整數倍。完成付款後，請依照畫面指示提供付款證明，待客服確認收款後才會入帳；非營業時間請耐心等候。</p>
+      <p class="checkout-hint" style="margin-top:8px">小提醒：儲值金額須為 NT$500 的整數倍。完成付款後，請依照畫面指示提供付款證明，待客服確認收款後才會入帳；非營業時間請耐心等候。</p><div id="wallet-topup-promo" style="margin-top:12px;padding:14px;border:1px solid #cfe4f2;border-radius:14px;background:#eef8ff;text-align:left;color:#315F85"><strong>儲值優惠</strong><p id="wallet-topup-promo-detail" style="margin:7px 0 0;font-size:13px;line-height:1.7">正在讀取目前活動⋯</p><p id="wallet-topup-promo-total" style="margin:5px 0 0;font-weight:850"></p></div>
       <div class="checkout-field">付款方式</div>
       <div class="payment-methods" role="radiogroup" aria-label="儲值付款方式">
         <label class="payment-method-option"><input type="radio" name="topup-payment-method" value="無卡存款">無卡存款</label>
@@ -1027,7 +1028,24 @@ async function submitOrderCredentials(){
 }
 
 let walletTopupRequestId = null;
-
+let walletTopupCampaigns = [];
+let walletTopupCampaignsLoaded = false;
+async function loadWalletTopupCampaigns(){
+ const detail=document.getElementById("wallet-topup-promo-detail");
+ try{
+  const response=await fetch(CREATE_TOPUP_REQUEST_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},body:JSON.stringify({action:"preview_campaigns"})});
+  const data=await response.json();if(!response.ok||!data.success)throw new Error(data.error||"活動讀取失敗");
+  walletTopupCampaigns=Array.isArray(data.campaigns)?data.campaigns:[];walletTopupCampaignsLoaded=true;renderWalletTopupPromo();
+ }catch(error){detail.textContent="目前無法讀取優惠活動，請稍後再試；實際贈送以管理員確認入帳時的有效活動為準。"}
+}
+function renderWalletTopupPromo(){
+ const amount=Number(document.getElementById("wallet-topup-amount").value),detail=document.getElementById("wallet-topup-promo-detail"),total=document.getElementById("wallet-topup-promo-total");
+ if(!walletTopupCampaignsLoaded){detail.textContent="正在讀取目前活動⋯";total.textContent="";return}
+ if(!walletTopupCampaigns.length){detail.textContent="目前沒有進行中的儲值優惠。";total.textContent="";return}
+ const eligible=walletTopupCampaigns.filter(c=>Number(c.min_amount)<=amount).sort((a,b)=>Number(b.min_amount)-Number(a.min_amount));
+ if(Number.isSafeInteger(amount)&&amount>=500&&eligible.length){const c=eligible[0],bonus=Number(c.bonus_amount)||0;detail.textContent=c.name+"｜贈送 NT$"+bonus.toLocaleString("zh-TW");total.textContent="預計入帳總額：NT$"+(amount+bonus).toLocaleString("zh-TW")}
+ else{detail.textContent=walletTopupCampaigns.slice().sort((a,b)=>Number(a.min_amount)-Number(b.min_amount)).map(c=>"滿 NT$"+Number(c.min_amount).toLocaleString("zh-TW")+" 贈 NT$"+Number(c.bonus_amount).toLocaleString("zh-TW")).join("；");total.textContent=Number.isSafeInteger(amount)&&amount>=500?"此金額尚未達活動門檻。":"輸入金額即可查看優惠。"}
+}
 function openWalletTopupModal(){
   if(!window.liff || !liff.isLoggedIn()){
     alert("請先使用 LINE 登入會員，再進行儲值。");
@@ -1044,10 +1062,12 @@ function openWalletTopupModal(){
   document.getElementById("wallet-topup-submit").disabled = false;
   document.getElementById("wallet-topup-submit").textContent = "建立儲值申請";
   document.getElementById("wallet-topup-modal").hidden = false;
+  renderWalletTopupPromo(); if(!walletTopupCampaignsLoaded) loadWalletTopupCampaigns();
 }
 function closeWalletTopupModal(){
   document.getElementById("wallet-topup-modal").hidden = true;
 }
+document.getElementById("wallet-topup-amount").addEventListener("input",renderWalletTopupPromo);
 document.querySelectorAll('input[name="topup-payment-method"]').forEach(input=>{
   input.addEventListener("change",()=>{
     const method=document.querySelector('input[name="topup-payment-method"]:checked')?.value || "";
@@ -1310,11 +1330,16 @@ function showMember(member,wallet,topupHistory,transactionHistory){
   memberCard.setAttribute("aria-pressed","false");
   memberCard.hidden = false;
   document.getElementById("wallet-topup-button").hidden = false;
+  document.getElementById("wallet-refresh-button").hidden = false;
   loginButton.hidden = true;
   logoutButton.hidden = false;
   setMemberStatus("LINE 會員登入成功！");
 }
 
+async function refreshMemberWallet(){
+ const button=document.getElementById("wallet-refresh-button");button.disabled=true;button.textContent="更新中⋯";
+ await registerOrLoginMember();button.textContent="更新錢包餘額";button.disabled=false;
+}
 /* 將 LINE Access Token 傳給 Supabase Edge Function */
 async function registerOrLoginMember(){
   try{
