@@ -922,9 +922,16 @@ async function registerOrLoginMember(){
     });
     const result = await response.json();
     if(!response.ok || !result.success) throw new Error(result.error || "會員登入失敗，請稍後再試。");
-    currentCustomerId = result.customer_id || null;
-    if(!currentCustomerId) throw new Error("會員資料缺少客戶識別碼，請重新登入或聯絡客服。");
-    showMember(result.member,result.wallet,result.topup_history,result.transaction_history);
+    // 保留舊版登入行為：會員資料成功回傳即可顯示，不因 customer_id 欄位缺漏而阻擋登入。
+    const memberData = result.member || result.customer || {};
+    currentCustomerId =
+      result.customer_id ||
+      result.customer?.id ||
+      result.member?.customer_id ||
+      result.member?.id ||
+      result.wallet?.customer_id ||
+      null;
+    showMember(memberData,result.wallet,result.topup_history,result.transaction_history);
   }catch(error){
     console.error("LINE 會員登入錯誤：",error);
     setMemberStatus(error.message || "會員登入失敗，請稍後再試。");
