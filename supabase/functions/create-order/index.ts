@@ -87,8 +87,18 @@ Deno.serve(async (req) => {
     });
 
     if (error) {
-      console.error("sk_create_order failed:", error.message);
-      return respond({ success: false, error: "order_creation_failed" }, 400);
+      // Return a safe diagnostic code so the storefront can show the actual database failure.
+      // Keep raw database details in server logs only.
+      console.error("sk_create_order failed:", error.message, error.code, error.details, error.hint);
+      const diagnostic = [error.message, error.code, error.details, error.hint]
+        .filter(Boolean)
+        .join(" | ")
+        .slice(0, 1200);
+      return respond({
+        success: false,
+        error: "order_creation_failed",
+        diagnostic,
+      }, 400);
     }
 
     const order = data as Record<string, unknown>;
