@@ -8,6 +8,22 @@ const cors = {
 const reply = (body: Record<string, unknown>, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
+function hexToBytes(hex: string): Uint8Array {
+  return new Uint8Array(hex.match(/.{2}/g)!.map((part) => parseInt(part, 16)));
+}
+function fromBase64(value: string): Uint8Array {
+  return Uint8Array.from(atob(value), (char) => char.charCodeAt(0));
+}
+async function decryptOrderCredentials(encryptedPayload: string, ivBase64: string, keyHex: string) {
+  const key = await crypto.subtle.importKey("raw", hexToBytes(keyHex), { name: "AES-GCM" }, false, ["decrypt"]);
+  const plaintext = await crypto.subtle.decrypt(
+    { name: "AES-GCM", iv: fromBase64(ivBase64) },
+    key,
+    fromBase64(encryptedPayload),
+  );
+  return JSON.parse(new TextDecoder().decode(plaintext));
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: cors });
   if (req.method !== "POST") return reply({ success: false, error: "method_not_allowed" }, 405);
@@ -69,6 +85,45 @@ Deno.serve(async (req) => {
         return reply({ success: false, error: "line_push_failed: HTTP " + lineResponse.status + " - " + detail, status: lineResponse.status }, 502);
       }
       return reply({ success: true, data: { sent: true } });
+    }
+
+
+    if (action === "order_credentials") {
+      const orderId = typeof body.order_id === "string" ? body.order_id : "";
+      if (!orderId) return reply({ success: false, error: "order_id_required" }, 400);
+      const encryptionKeyHex = Deno.env.get("ORDER_CREDENTIALS_ENCRYPTION_KEY") || "";
+      if (!/^[0-9a-fA-F]{64}$/.test(encryptionKeyHex)) {
+        return reply({ success: false, error: "credentials_encryption_key_missing" }, 503);
+      }
+      const { data: order, error: orderError } = await db.from("sk_orders")
+        .select("id,order_number,customer_id,total_amount,payment_method,payment_status,order_status,note,created_at,paid_at")
+        .eq("id", orderId).maybeSingle();
+      if (orderError) throw orderError;
+      if (!order) return reply({ success: false, error: "order_not_found" }, 404);
+      const [{ data: credential, error: credentialError }, { data: items, error: itemsError }] = await Promise.all([
+        db.from("sk_order_credentials").select("encrypted_payload,iv,submitted_at,updated_at")
+          .eq("order_id", orderId).maybeSingle(),
+        db.from("sk_order_items").select("product_name,unit_price,quantity,subtotal")
+          .eq("order_id", orderId),
+      ]);
+      if (credentialError) throw credentialError;
+      if (itemsError) throw itemsError;
+      let credentials = null;
+      if (credential) {
+        credentials = await decryptOrderCredentials(
+          credential.encrypted_payload,
+          credential.iv,
+          encryptionKeyHex,
+        );
+        credentials.submitted_at = credential.submitted_at;
+        credentials.updated_at = credential.updated_at;
+        const { error: logError } = await db.from("sk_order_credential_access_logs").insert({
+          order_id: orderId,
+          admin_email: email,
+        });
+        if (logError) console.error("Credential access audit log failed:", logError.message);
+      }
+      return reply({ success: true, data: { order, items: items || [], credentials } });
     }
 
     if (action === "overview") {
