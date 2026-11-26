@@ -73,6 +73,8 @@ section{padding:75px 7%;scroll-margin-top:90px}
 .member-button:hover{transform:translateY(-2px);background:linear-gradient(135deg,#315F85,#659CC8)}
 .member-button.secondary{background:rgba(255,255,255,.75);color:#477FAF;border:1px solid rgba(71,127,175,.22);box-shadow:none}
 .member-button:disabled{opacity:.6;cursor:wait;transform:none}
+.wallet-topup-button{display:block;width:max-content;margin:16px auto 0;text-decoration:none;text-align:center}
+.wallet-topup-button[hidden]{display:none}
 .member-status{position:relative;min-height:22px;margin-top:16px;color:#71869B;font-size:12px}
 
 /* SOBBSTARS 冰晶珍珠橫式會員卡：全文字銀色浮雕效果 */
@@ -561,6 +563,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
       </div>
       </div>
     </div>
+    <a class="member-button wallet-topup-button" id="wallet-topup-button" href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener" hidden>立即儲值</a>
   </div>
 </section>
 
@@ -1085,6 +1088,7 @@ function showMember(member,wallet,topupHistory,transactionHistory){
   memberCard.classList.remove("is-flipped");
   memberCard.setAttribute("aria-pressed","false");
   memberCard.hidden = false;
+  document.getElementById("wallet-topup-button").hidden = false;
   loginButton.hidden = true;
   logoutButton.hidden = false;
   setMemberStatus("LINE 會員登入成功！");
