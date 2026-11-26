@@ -337,3 +337,5 @@ Deno.serve(async (req) => {
     return reply({ success: false, error: "internal_server_error" }, 500);
   }
 });
+
+// Deployment trigger: wallet top-up confirmation workflow.
