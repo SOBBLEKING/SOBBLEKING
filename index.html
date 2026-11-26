@@ -1338,7 +1338,11 @@ function showMember(member,wallet,topupHistory,transactionHistory){
 
 async function refreshMemberWallet(){
  const button=document.getElementById("wallet-refresh-button");button.disabled=true;button.textContent="更新中⋯";
- await registerOrLoginMember();button.textContent="更新錢包餘額";button.disabled=false;
+ try{
+  await registerOrLoginMember();
+  if(!memberStatus.textContent.includes("成功")) throw new Error(memberStatus.textContent||"更新失敗");
+  button.textContent="已更新";setTimeout(()=>{button.textContent="更新錢包餘額";button.disabled=false;},1000);
+ }catch(error){button.textContent="更新失敗，請重試";button.disabled=false;}
 }
 /* 將 LINE Access Token 傳給 Supabase Edge Function */
 async function registerOrLoginMember(){
