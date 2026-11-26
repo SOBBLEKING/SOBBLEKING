@@ -116,6 +116,23 @@ details p{color:#687F95;font-size:13px;margin-top:12px}
 .cart-controls button{width:27px;height:27px;border-radius:50%;background:#E5F3FC;color:#315F85;font-weight:900}
 .cart-total{display:flex;justify-content:space-between;margin-top:22px;font-size:18px;font-weight:900;color:#315F85}
 .cart-note{color:#8799AA;font-size:12px;margin-top:15px;text-align:center}
+
+.checkout-entry{display:flex;justify-content:center;margin-top:22px}
+.checkout-entry button,.checkout-submit{border:0;border-radius:28px;padding:13px 30px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:#fff;font-weight:800;cursor:pointer;box-shadow:0 8px 18px rgba(71,127,175,.2)}
+.checkout-entry button:disabled{opacity:.45;cursor:not-allowed}
+.checkout-area{max-width:850px;margin:auto;background:rgba(255,255,255,.9);border:1px solid #fff;border-radius:22px;padding:26px;box-shadow:var(--shadow)}
+.checkout-summary{padding:15px 0;border-bottom:1px solid var(--line);color:#526f89}
+.checkout-summary-row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;font-size:14px}
+.checkout-grand-total{display:flex;justify-content:space-between;margin-top:18px;color:#315F85;font-size:19px;font-weight:900}
+.checkout-field{display:flex;flex-direction:column;gap:8px;margin-top:18px;color:#315F85;font-size:13px;font-weight:700}
+.checkout-field input,.checkout-field textarea{width:100%;border:1px solid #d7e7f2;border-radius:12px;padding:12px;background:#fbfdff;color:#315F85;font:inherit}
+.checkout-field textarea{min-height:90px;resize:vertical}
+.checkout-hint{font-size:12px;color:#8799AA;line-height:1.7;margin-top:15px}
+.checkout-actions{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:22px;flex-wrap:wrap}
+.checkout-back{border:1px solid #cfe1ee;border-radius:25px;padding:11px 22px;background:#fff;color:#477FAF;font-weight:700;cursor:pointer}
+.checkout-submit:disabled{opacity:.45;cursor:not-allowed}
+#checkout[hidden]{display:none}
+
 .contact{text-align:center}
 .contact-links{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin-top:25px}
 .contact-links a{padding:11px 24px;border-radius:30px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:white;font-size:13px;font-weight:700;transition:.2s}
@@ -533,7 +550,25 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
   <div class="cart-area">
     <div id="cart-items"><div class="cart-empty">目前還沒有選購商品</div></div>
     <div class="cart-total"><span>商品總計</span><span id="cart-total">NT$0</span></div>
-    <p class="cart-note">目前已串接商品資料庫；正式訂單建立功能將於下一階段開放。</p>
+    <p class="cart-note">確認商品與數量後，點選下方按鈕前往下單頁面。</p>
+    <div class="checkout-entry"><button id="go-checkout-button" type="button" onclick="goToCheckout()" disabled>前往下單</button></div>
+  </div>
+</section>
+
+<section id="checkout" hidden>
+  <div class="section-title"><small>ORDER CHECKOUT</small><h2>確認下單</h2><p>請確認商品內容，並填寫訂單備註</p></div>
+  <div class="checkout-area">
+    <div id="checkout-member-state" class="checkout-hint">會員登入狀態確認中⋯</div>
+    <div id="checkout-summary" class="checkout-summary"></div>
+    <div class="checkout-grand-total"><span>訂單總額</span><span id="checkout-total">NT$0</span></div>
+    <label class="checkout-field">訂單備註（選填）
+      <textarea id="checkout-note" placeholder="如有需要補充的訂單資訊，請填寫於此"></textarea>
+    </label>
+    <p class="checkout-hint">目前已建立下單頁面並連結購物車。正式送出訂單、付款方式與遊戲帳號資料，需待安全的後端訂單建立功能接通後啟用；此頁目前不會扣款或建立正式訂單。</p>
+    <div class="checkout-actions">
+      <button class="checkout-back" type="button" onclick="backToCart()">返回購物車</button>
+      <button class="checkout-submit" type="button" disabled>正式下單功能串接中</button>
+    </div>
   </div>
 </section>
 
@@ -728,6 +763,44 @@ function renderCart(){
   if(count===0) container.innerHTML = '<div class="cart-empty">目前還沒有選購商品</div>';
   totalElement.textContent = "NT$" + total.toLocaleString("en-US");
   countElement.textContent = count;
+  const checkoutButton = document.getElementById("go-checkout-button");
+  if(checkoutButton) checkoutButton.disabled = count === 0;
+}
+
+/* 購物車前往下單頁 */
+function goToCheckout(){
+  const selected = products.filter(product=>(cart[product.id] || 0)>0);
+  if(!selected.length){
+    alert("請先將商品加入購物車。");
+    return;
+  }
+  const checkout = document.getElementById("checkout");
+  const summary = document.getElementById("checkout-summary");
+  let total = 0;
+  summary.innerHTML = "";
+  selected.forEach(product=>{
+    const quantity = cart[product.id];
+    const subtotal = product.price * quantity;
+    total += subtotal;
+    const row = document.createElement("div");
+    row.className = "checkout-summary-row";
+    const name = document.createElement("span");
+    name.textContent = product.name + " × " + quantity;
+    const amount = document.createElement("strong");
+    amount.textContent = "NT$" + subtotal.toLocaleString("en-US");
+    row.append(name,amount);
+    summary.appendChild(row);
+  });
+  document.getElementById("checkout-total").textContent = "NT$" + total.toLocaleString("en-US");
+  document.getElementById("checkout-member-state").textContent = currentCustomerId
+    ? "已取得會員識別資料，可以繼續確認訂單內容。"
+    : "尚未取得會員識別資料；正式下單前請先完成 LINE 會員登入。";
+  checkout.hidden = false;
+  checkout.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function backToCart(){
+  document.getElementById("checkout").hidden = true;
+  document.getElementById("cart").scrollIntoView({behavior:"smooth",block:"start"});
 }
 
 /* SOBBSTARS LINE 會員系統 */
