@@ -249,6 +249,14 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 .wallet-back-brand{font-size:10px;font-weight:950;letter-spacing:2.5px;color:#315F85}
 .wallet-back-label{font-size:8px;font-weight:850;letter-spacing:2px;color:#6794B1}
 .wallet-back-balance{padding:12px 18px 13px;border-radius:16px;border:1px solid rgba(255,255,255,.95);background:linear-gradient(120deg,rgba(255,255,255,.82),rgba(188,226,246,.78));box-shadow:inset 0 1px 0 #fff,0 7px 18px rgba(57,119,158,.08)}
+.wallet-back-history{display:grid;grid-template-columns:1fr 1fr;gap:10px;min-height:0;flex:1;overflow:hidden}
+.wallet-history-panel{min-width:0;min-height:0;padding:9px 10px;border:1px solid rgba(255,255,255,.88);border-radius:12px;background:rgba(255,255,255,.48);overflow:hidden;display:flex;flex-direction:column}
+.wallet-history-title{font-size:9px;font-weight:900;letter-spacing:.5px;color:#315F85;margin-bottom:6px}
+.wallet-history-list{min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:5px;scrollbar-width:thin}
+.wallet-history-item{padding:5px 0;border-bottom:1px solid rgba(80,139,174,.15);font-size:8px;line-height:1.35;color:#416F8D;overflow-wrap:anywhere}
+.wallet-history-item:last-child{border-bottom:0}
+.wallet-history-item strong{display:block;font-size:9px;color:#245A80}
+.wallet-history-empty{font-size:8px;color:#7393A8;line-height:1.5}
 .wallet-back-caption{display:block;font-size:8px;font-weight:850;letter-spacing:2px;color:#6C9AB6}
 .wallet-back-amount{display:block;margin-top:2px;font-size:clamp(25px,5vw,34px);line-height:1.25;font-weight:950;letter-spacing:.5px;color:#174F78;text-shadow:0 1px 0 #fff}
 .wallet-back-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:8px;border-top:1px solid rgba(67,130,169,.22);font-size:9px;color:#527F9B}
@@ -263,13 +271,117 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
  .member-card-back-inner{padding:18px 20px 15px}
  .wallet-back-brand{font-size:8px;letter-spacing:1.7px}
  .wallet-back-label,.wallet-back-caption{font-size:7px;letter-spacing:1.3px}
- .wallet-back-balance{padding:10px 13px;border-radius:13px}
- .wallet-back-amount{font-size:clamp(23px,7vw,29px)}
+ .wallet-back-balance{padding:8px 11px;border-radius:13px}
+ .wallet-back-amount{font-size:clamp(21px,6vw,27px)}
+ .wallet-back-history{gap:6px}
+ .wallet-history-panel{padding:6px 7px;border-radius:9px}
+ .wallet-history-title{font-size:8px;margin-bottom:4px}
+ .wallet-history-item{font-size:7px;padding:4px 0}
+ .wallet-history-item strong{font-size:8px}
+ .wallet-history-empty{font-size:7px}
  .wallet-back-foot{font-size:8px;gap:6px}
  .wallet-history-note{font-size:7px}
  .member-card-hint{right:20px;bottom:15px;font-size:7px}
 }
 @media(prefers-reduced-motion:reduce){.member-card-flipper{transition:none}}
+
+
+/* SOBBLEKING｜會員卡 3D 翻面定稿候選：以整張卡片作 Y 軸翻轉 */
+.member-card-info{
+  position:relative;
+  display:block;
+  width:100%;
+  max-width:620px;
+  aspect-ratio:1.72 / 1;
+  margin:30px auto 0;
+  padding:0;
+  overflow:visible;
+  perspective:1800px;
+  perspective-origin:50% 50%;
+  cursor:pointer;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+  isolation:isolate;
+  background:transparent;
+  border:0;
+  box-shadow:none;
+  transform:none;
+}
+.member-card-info:hover,
+.member-card-info:active{
+  transform:none;
+  box-shadow:none;
+}
+.member-card-flipper{
+  position:relative;
+  width:100%;
+  height:100%;
+  aspect-ratio:1.72 / 1;
+  transform:rotateY(0deg);
+  transform-origin:50% 50%;
+  transform-style:preserve-3d;
+  -webkit-transform-style:preserve-3d;
+  transition:transform .9s cubic-bezier(.2,.75,.18,1);
+  border-radius:25px;
+  will-change:transform;
+}
+.member-card-info.is-flipped .member-card-flipper{
+  transform:rotateY(180deg);
+}
+.member-card-face{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  border-radius:25px;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  transform-style:preserve-3d;
+  -webkit-transform-style:preserve-3d;
+  border:1px solid rgba(255,255,255,.98);
+  box-shadow:
+    0 28px 62px rgba(38,103,151,.24),
+    0 7px 19px rgba(61,131,178,.15),
+    inset 0 1px 0 rgba(255,255,255,.98);
+}
+.member-card-front{
+  z-index:2;
+  transform:rotateY(0deg) translateZ(1px);
+  background:linear-gradient(132deg,#EAF8FF 0%,#B9E2F7 26%,#D8F0FC 52%,#8FC6E8 78%,#DDF3FF 100%);
+}
+.member-card-back{
+  z-index:1;
+  transform:rotateY(180deg);
+  background:
+    radial-gradient(ellipse at 12% 8%,rgba(255,255,255,.98),transparent 42%),
+    linear-gradient(135deg,#F8FDFF 0%,#DDF1FB 48%,#B9DFF3 100%);
+  color:#285F86;
+}
+.member-card-front .premium-card-inner{height:100%}
+.member-card-back-inner{
+  position:relative;
+  z-index:2;
+  height:100%;
+  padding:24px 32px 20px;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+}
+.member-card-info:focus-visible{
+  outline:3px solid #477FAF;
+  outline-offset:7px;
+  border-radius:25px;
+}
+@media(max-width:600px){
+  .member-card-info{aspect-ratio:1.48 / 1}
+  .member-card-flipper{aspect-ratio:1.48 / 1}
+  .member-card-face{border-radius:19px}
+  .member-card-back-inner{padding:18px 20px 15px}
+}
+@media(prefers-reduced-motion:reduce){
+  .member-card-flipper{transition:none}
+}
 
 </style>
 </head>
@@ -384,9 +496,19 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
             <span class="wallet-back-caption">AVAILABLE BALANCE</span>
             <strong class="wallet-back-amount" id="member-wallet-balance">讀取中⋯</strong>
           </div>
+          <div class="wallet-back-history">
+            <section class="wallet-history-panel" aria-label="儲值紀錄">
+              <h3 class="wallet-history-title">儲值紀錄</h3>
+              <div class="wallet-history-list" id="wallet-topup-history"><div class="wallet-history-empty">登入後載入</div></div>
+            </section>
+            <section class="wallet-history-panel" aria-label="交易明細">
+              <h3 class="wallet-history-title">交易明細</h3>
+              <div class="wallet-history-list" id="wallet-transaction-history"><div class="wallet-history-empty">登入後載入</div></div>
+            </section>
+          </div>
           <div class="wallet-back-foot">
             <span class="wallet-back-hint">✧ 再點一下翻回會員卡</span>
-            <span class="wallet-history-note" id="wallet-history-note">交易明細尚未載入</span>
+            <span class="wallet-history-note" id="wallet-history-note">顯示最近紀錄</span>
           </div>
         </div>
       </div>
@@ -632,7 +754,55 @@ function setMemberStatus(message){
   memberStatus.textContent = message;
 }
 
-function showMember(member,wallet){
+function appendHistoryItem(container, title, detail){
+  const item = document.createElement("div");
+  item.className = "wallet-history-item";
+  const strong = document.createElement("strong");
+  strong.textContent = title;
+  const small = document.createElement("span");
+  small.textContent = detail;
+  item.append(strong, small);
+  container.appendChild(item);
+}
+
+function formatHistoryDate(value){
+  if(!value) return "時間未提供";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "時間未提供" : date.toLocaleString("zh-TW",{year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit"});
+}
+
+function renderWalletHistory(topupHistory, transactionHistory){
+  const topupContainer = document.getElementById("wallet-topup-history");
+  const transactionContainer = document.getElementById("wallet-transaction-history");
+  topupContainer.replaceChildren();
+  transactionContainer.replaceChildren();
+
+  const topupStatus = {pending:"審核中",approved:"已入帳",rejected:"未通過",completed:"已完成",cancelled:"已取消"};
+  (Array.isArray(topupHistory) ? topupHistory : []).forEach(row => {
+    const amount = Number(row.amount);
+    const amountText = Number.isFinite(amount) ? "NT$" + amount.toLocaleString("en-US") : "金額未提供";
+    const status = topupStatus[String(row.status || "").toLowerCase()] || row.status || "狀態未提供";
+    const method = row.payment_metho || "儲值";
+    appendHistoryItem(topupContainer, amountText + "・" + status, formatHistoryDate(row.created_at) + "｜" + method);
+  });
+  if(!topupContainer.children.length){
+    const empty = document.createElement("div"); empty.className = "wallet-history-empty"; empty.textContent = "目前沒有儲值紀錄"; topupContainer.appendChild(empty);
+  }
+
+  (Array.isArray(transactionHistory) ? transactionHistory : []).forEach(row => {
+    const amount = Number(row.amount);
+    const amountText = Number.isFinite(amount) ? ((amount > 0 ? "+" : "") + "NT$" + amount.toLocaleString("en-US")) : "金額未提供";
+    const title = row.description || row.transaction_type || "錢包異動";
+    const balance = Number(row.balance_after);
+    const balanceText = Number.isFinite(balance) ? "餘額 NT$" + balance.toLocaleString("en-US") : "";
+    appendHistoryItem(transactionContainer, title + "｜" + amountText, formatHistoryDate(row.created_at) + (balanceText ? "｜" + balanceText : ""));
+  });
+  if(!transactionContainer.children.length){
+    const empty = document.createElement("div"); empty.className = "wallet-history-empty"; empty.textContent = "目前沒有交易明細"; transactionContainer.appendChild(empty);
+  }
+}
+
+function showMember(member,wallet,topupHistory,transactionHistory){
   document.getElementById("member-name").textContent = member.line_display_name || "SOBBSTARS 會員";
   const rawMemberNo = member.member_no || "會員編號讀取中";
   document.getElementById("member-number").textContent = rawMemberNo.replace(/^SB(?=[0-9-])/, "SK");
@@ -650,8 +820,10 @@ function showMember(member,wallet){
   }else{
     walletBalanceElement.textContent = "暫無資料";
   }
-  /* 目前登入 API 僅回傳錢包餘額；不虛構儲值或交易紀錄。 */
-  walletHistoryNote.textContent = "交易明細請洽官方 LINE";
+  renderWalletHistory(topupHistory,transactionHistory);
+  const topupCount = Array.isArray(topupHistory) ? topupHistory.length : 0;
+  const transactionCount = Array.isArray(transactionHistory) ? transactionHistory.length : 0;
+  walletHistoryNote.textContent = "儲值 " + topupCount + " 筆・交易 " + transactionCount + " 筆";
   memberCard.classList.remove("is-flipped");
   memberCard.setAttribute("aria-pressed","false");
   memberCard.hidden = false;
@@ -677,7 +849,7 @@ async function registerOrLoginMember(){
     });
     const result = await response.json();
     if(!response.ok || !result.success) throw new Error(result.error || "會員登入失敗，請稍後再試。");
-    showMember(result.member,result.wallet);
+    showMember(result.member,result.wallet,result.topup_history,result.transaction_history);
   }catch(error){
     console.error("LINE 會員登入錯誤：",error);
     setMemberStatus(error.message || "會員登入失敗，請稍後再試。");
