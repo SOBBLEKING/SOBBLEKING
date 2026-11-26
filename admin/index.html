@@ -377,5 +377,6 @@ $("enableNotificationsBtn").addEventListener("click",async()=>{
 $("logoutBtn").addEventListener("click",async()=>{if(orderPollTimer)clearInterval(orderPollTimer);await client.auth.signOut();$("dashboard").style.display="none";$("authView").style.display="grid";$("password").value="";message("已安全登出。")});
 client.auth.getSession().then(({data})=>{if(data.session)authorize(data.session)});
 </script>
+<!-- Admin frontend deployment refresh: wallet top-up review controls -->
 </body>
 </html>
