@@ -155,6 +155,7 @@ body{text-wrap:pretty}
 .payment-account-number{display:inline-block;white-space:nowrap;letter-spacing:1px;font-variant-numeric:tabular-nums;word-break:keep-all}
 .payment-modal-card{width:min(100%,430px);max-height:90vh;overflow:auto;padding:27px 23px;border:1px solid #fff;border-radius:24px;background:linear-gradient(160deg,#fff,#edf7fd);box-shadow:0 22px 70px rgba(25,65,98,.25);color:#315F85}
 .payment-modal-card h3{text-align:center;font-size:22px;margin-bottom:5px}
+#wallet-topup-modal .checkout-field{margin-top:14px}#wallet-topup-modal .payment-bank-select.visible{display:block}#wallet-topup-modal .payment-modal-actions{display:flex;gap:10px;justify-content:space-between}#wallet-topup-modal .payment-modal-actions button,#wallet-topup-modal .payment-modal-actions a{flex:1;text-align:center;padding:11px 8px;border-radius:12px;background:#477FAF;color:#fff;font-weight:750}#wallet-topup-modal .payment-modal-actions button:first-child{background:#fff;color:#477FAF;border:1px solid #cfe1ee}#wallet-topup-modal .payment-modal-actions a{display:block}
 .payment-modal-sub{text-align:center;color:#71869B;font-size:13px;margin-bottom:18px}
 .payment-info{padding:16px;border-radius:15px;background:rgba(217,237,250,.62);line-height:1.9;overflow-wrap:anywhere}
 .payment-info strong{color:#244F73}
@@ -563,7 +564,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
       </div>
       </div>
     </div>
-    <a class="member-button wallet-topup-button" id="wallet-topup-button" href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener" hidden>立即儲值</a>
+    <button class="member-button wallet-topup-button" id="wallet-topup-button" type="button" onclick="openWalletTopupModal()" hidden>立即儲值</button>
   </div>
 </section>
 
@@ -622,6 +623,44 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 </section>
 
 
+<div id="wallet-topup-modal" class="payment-modal" hidden role="dialog" aria-modal="true" aria-labelledby="wallet-topup-title">
+  <div class="payment-modal-card">
+    <h3 id="wallet-topup-title">會員錢包儲值</h3>
+    <p class="payment-modal-sub">請輸入儲值金額並選擇付款方式</p>
+    <div id="wallet-topup-form">
+      <label class="checkout-field" for="wallet-topup-amount">儲值金額（新台幣）
+        <input id="wallet-topup-amount" type="number" min="500" step="500" inputmode="numeric" placeholder="請輸入 500 的倍數" style="width:100%;border:1px solid #d7e7f2;border-radius:12px;padding:12px;background:#fbfdff;color:#315F85;font:inherit">
+      </label>
+      <p class="checkout-hint" style="margin-top:8px">小提醒：儲值金額須為 NT$500 的整數倍。完成付款後，請依照畫面指示提供付款證明，待客服確認收款後才會入帳；非營業時間請耐心等候。</p>
+      <div class="checkout-field">付款方式</div>
+      <div class="payment-methods" role="radiogroup" aria-label="儲值付款方式">
+        <label class="payment-method-option"><input type="radio" name="topup-payment-method" value="無卡存款">無卡存款</label>
+        <label class="payment-method-option"><input type="radio" name="topup-payment-method" value="銀行匯款">銀行匯款</label>
+        <label class="payment-method-option"><input type="radio" name="topup-payment-method" value="LINE Pay">LINE Pay</label>
+      </div>
+      <select id="wallet-topup-bank" class="payment-bank-select" aria-label="選擇無卡存款銀行">
+        <option value="國泰世華（013）">國泰世華（013）</option>
+        <option value="台新銀行（812）">台新銀行（812）</option>
+        <option value="郵局（700）">郵局（700）</option>
+        <option value="中國信託（822）">中國信託（822）</option>
+      </select>
+      <p id="wallet-topup-error" class="checkout-hint" role="status"></p>
+      <div class="payment-modal-actions" style="margin-top:18px">
+        <button type="button" onclick="closeWalletTopupModal()">取消</button>
+        <button id="wallet-topup-submit" type="button" onclick="submitWalletTopup()">建立儲值申請</button>
+      </div>
+    </div>
+    <div id="wallet-topup-result" hidden>
+      <div id="wallet-topup-payment-info" class="payment-info"></div>
+      <p class="checkout-hint" style="margin-top:12px">申請已建立，目前狀態為「待客服確認」。請完成付款後，將付款截圖與申請編號傳給官方 LINE 客服。客服確認收款後才會入帳。</p>
+      <div class="payment-modal-actions" style="margin-top:18px">
+        <a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">聯絡官方 LINE 客服</a>
+        <button type="button" onclick="closeWalletTopupModal()">完成</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div id="payment-modal" class="payment-modal" hidden role="dialog" aria-modal="true" aria-labelledby="payment-modal-title">
   <div class="payment-modal-card">
     <h3 id="payment-modal-title">訂單已建立</h3>
@@ -661,6 +700,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const LIFF_ID = "2012790935-6gudcqo6";
 const MEMBER_LOGIN_URL = "https://ksellpcaecuihxjxsolr.supabase.co/functions/v1/line-member-login";
 const CREATE_ORDER_URL = "https://ksellpcaecuihxjxsolr.supabase.co/functions/v1/create-order";
+const CREATE_TOPUP_REQUEST_URL = "https://ksellpcaecuihxjxsolr.supabase.co/functions/v1/create-topup-request";
 
 /* 商品資料庫 ID 與顯示順序 */
 const PRODUCT_ORDER = [
@@ -889,6 +929,92 @@ function reopenPaymentModal(){
 function closePaymentModal(){
   document.getElementById("payment-modal").hidden=true;
 }
+
+let walletTopupRequestId = null;
+
+function openWalletTopupModal(){
+  if(!window.liff || !liff.isLoggedIn()){
+    alert("請先使用 LINE 登入會員，再進行儲值。");
+    return;
+  }
+  walletTopupRequestId = crypto.randomUUID();
+  document.getElementById("wallet-topup-amount").value = "";
+  document.querySelectorAll('input[name="topup-payment-method"]').forEach(input=>input.checked=false);
+  document.getElementById("wallet-topup-bank").classList.remove("visible");
+  document.getElementById("wallet-topup-error").textContent = "";
+  document.getElementById("wallet-topup-form").hidden = false;
+  document.getElementById("wallet-topup-result").hidden = true;
+  document.getElementById("wallet-topup-submit").disabled = false;
+  document.getElementById("wallet-topup-submit").textContent = "建立儲值申請";
+  document.getElementById("wallet-topup-modal").hidden = false;
+}
+function closeWalletTopupModal(){
+  document.getElementById("wallet-topup-modal").hidden = true;
+}
+document.querySelectorAll('input[name="topup-payment-method"]').forEach(input=>{
+  input.addEventListener("change",()=>{
+    const method=document.querySelector('input[name="topup-payment-method"]:checked')?.value || "";
+    document.getElementById("wallet-topup-bank").classList.toggle("visible",method==="無卡存款");
+  });
+});
+async function submitWalletTopup(){
+  const errorBox=document.getElementById("wallet-topup-error");
+  const button=document.getElementById("wallet-topup-submit");
+  const amount=Number(document.getElementById("wallet-topup-amount").value);
+  const method=document.querySelector('input[name="topup-payment-method"]:checked')?.value || "";
+  const bank=method==="無卡存款" ? document.getElementById("wallet-topup-bank").value : "";
+  if(!Number.isSafeInteger(amount) || amount<500 || amount%500!==0){
+    errorBox.textContent="請輸入至少 NT$500，且為 NT$500 的整數倍。";
+    return;
+  }
+  if(!method){errorBox.textContent="請先選擇付款方式。";return;}
+  if(!window.liff || !liff.isLoggedIn()){
+    errorBox.textContent="LINE 登入已失效，請重新登入後再試。";
+    return;
+  }
+  const accessToken=liff.getAccessToken();
+  if(!accessToken){errorBox.textContent="無法取得 LINE 登入憑證，請重新登入。";return;}
+  if(!walletTopupRequestId) walletTopupRequestId=crypto.randomUUID();
+  button.disabled=true;
+  button.textContent="正在建立申請⋯";
+  errorBox.textContent="正在驗證會員資料，請稍候，不要重複點擊。";
+  try{
+    const response=await fetch(CREATE_TOPUP_REQUEST_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},
+      body:JSON.stringify({
+        access_token:accessToken,
+        amount,
+        payment_method:method,
+        payment_bank:bank,
+        client_request_id:walletTopupRequestId
+      })
+    });
+    const data=await response.json();
+    if(!response.ok || !data.success) throw new Error(data.error || "儲值申請建立失敗，請稍後再試。");
+    const payment= {method,bank};
+    let info="";
+    if(method==="無卡存款"){
+      info="<strong>無卡存款｜"+bank+"</strong><br>請使用 ATM 選擇無卡存款<br>輸入以下帳號<br><strong class=\"payment-account-number\">"+String(paymentBankAccounts[bank]).replace(/[,，\s]/g,"")+"</strong>";
+    }else if(method==="銀行匯款"){
+      info="<strong>銀行匯款｜郵局（700）</strong><br>銀行代碼 700<br>匯款帳號<br><strong class=\"payment-account-number\">"+String(paymentBankAccounts["郵局（700）"]).replace(/[,，\s]/g,"")+"</strong>";
+    }else{
+      info="<strong>LINE Pay 手機轉帳</strong><br>請在 LINE 搜尋手機號碼<br><strong class=\"payment-account-number\">0905302886</strong><br>找到帳號後加入好友，再依畫面指示完成轉帳。";
+    }
+    document.getElementById("wallet-topup-payment-info").innerHTML=
+      "<strong>儲值申請編號：</strong>"+String(data.request_id).toUpperCase()+
+      "<br><strong>儲值金額：</strong>NT$"+Number(data.amount).toLocaleString("en-US")+
+      "<br><strong>申請狀態：</strong>待客服確認<br><br>"+info;
+    document.getElementById("wallet-topup-form").hidden=true;
+    document.getElementById("wallet-topup-result").hidden=false;
+    document.getElementById("wallet-topup-title").textContent="儲值申請已建立";
+  }catch(error){
+    errorBox.textContent=error.message || "目前無法建立申請，請稍後再試。";
+    button.disabled=false;
+    button.textContent="重新送出申請";
+  }
+}
+
 
 /* 購物車前往下單頁 */
 async function submitOrder(){
