@@ -922,9 +922,26 @@ async function registerOrLoginMember(){
     });
     const result = await response.json();
     if(!response.ok || !result.success) throw new Error(result.error || "會員登入失敗，請稍後再試。");
-    currentCustomerId = result.customer_id || result.wallet?.customer_id || null;
-    if(!currentCustomerId) throw new Error("會員資料缺少客戶識別碼，請重新登入或聯絡客服。");
-    showMember(result.member,result.wallet,result.topup_history,result.transaction_history);
+    // 相容 Edge Function 不同版本的會員識別碼回傳位置：
+    // customers.id 可能位於 customer_id、customer.id 或 member.id。
+    const memberData = result.member || result.customer || {};
+    currentCustomerId =
+      result.customer_id ||
+      result.customer?.id ||
+      result.member?.customer_id ||
+      result.member?.id ||
+      result.wallet?.customer_id ||
+      null;
+    if(!currentCustomerId){
+      console.error("會員登入回應缺少 customer id：", {
+        success: result.success,
+        hasMember: !!result.member,
+        hasCustomer: !!result.customer,
+        memberKeys: Object.keys(memberData)
+      });
+      throw new Error("會員資料缺少客戶識別碼。請確認會員登入服務有回傳 customers.id，暫時不會建立錯誤會員。");
+    }
+    showMember(memberData,result.wallet,result.topup_history,result.transaction_history);
   }catch(error){
     console.error("LINE 會員登入錯誤：",error);
     setMemberStatus(error.message || "會員登入失敗，請稍後再試。");
