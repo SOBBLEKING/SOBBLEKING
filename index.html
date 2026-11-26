@@ -586,6 +586,7 @@ const PRODUCT_DESCRIPTIONS = {
 };
 let products = [];
 let cart = {};
+let currentCustomerId = null;
 
 /* 讀取商品 */
 async function loadProducts(){
@@ -848,6 +849,8 @@ async function registerOrLoginMember(){
     });
     const result = await response.json();
     if(!response.ok || !result.success) throw new Error(result.error || "會員登入失敗，請稍後再試。");
+    currentCustomerId = result.customer_id || null;
+    if(!currentCustomerId) throw new Error("會員資料缺少客戶識別碼，請重新登入或聯絡客服。");
     showMember(result.member,result.wallet,result.topup_history,result.transaction_history);
   }catch(error){
     console.error("LINE 會員登入錯誤：",error);
@@ -892,6 +895,7 @@ loginButton.addEventListener("click",()=>{
 logoutButton.addEventListener("click",()=>{
   if(!window.liff || !liff.isLoggedIn()) return;
   liff.logout();
+  currentCustomerId = null;
   memberCard.hidden = true;
   memberCard.classList.remove("is-flipped");
   memberCard.setAttribute("aria-pressed","false");
