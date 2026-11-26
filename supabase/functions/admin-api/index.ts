@@ -234,7 +234,7 @@ Deno.serve(async (req) => {
       const query = typeof body.query === "string" ? body.query.trim().slice(0, 100) : "";
       if (!query) return reply({ success: false, error: "query_required" }, 400);
       const { data, error } = await db.from("sk_orders")
-        .select("id,order_number,customer_id,total_amount,payment_status,order_status,payment_method,note,created_at,updated_at,paid_at")
+        .select("id,order_number,customer_id,total_amount,wallet_amount_used,external_due,payment_status,order_status,payment_method,payment_bank,note,created_at,updated_at,paid_at")
         .ilike("order_number", `%${query}%`)
         .order("created_at", { ascending: false }).limit(100);
       if (error) throw error;
