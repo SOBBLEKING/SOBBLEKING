@@ -26,6 +26,14 @@ Deno.serve(async (req) => {
     if (!supabaseUrl || !serviceRoleKey) return respond({ success: false, error: "server_not_configured" }, 500);
 
     const body = await req.json();
+    if (body.action === "preview_campaigns") {
+      const admin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
+      const { data: campaigns, error: campaignError } = await admin.from("sk_topup_campaigns").select("name,min_amount,bonus_amount,starts_at,ends_at").eq("is_active", true).order("min_amount", { ascending: true });
+      if (campaignError) throw campaignError;
+      const now = Date.now();
+      const active = (campaigns || []).filter((c: any) => (!c.starts_at || new Date(c.starts_at).getTime() <= now) && (!c.ends_at || new Date(c.ends_at).getTime() > now));
+      return respond({ success: true, campaigns: active });
+    }
     const accessToken = typeof body.access_token === "string" ? body.access_token : "";
     const amount = Number(body.amount);
     const paymentMethod = typeof body.payment_method === "string" ? body.payment_method : "";
