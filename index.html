@@ -162,7 +162,18 @@ body{text-wrap:pretty}
 .payment-copy{display:block;width:100%;margin-top:12px;padding:11px;border:1px solid #cfe1ee;border-radius:12px;background:white;color:#477FAF;font-weight:750}
 .payment-modal-actions{display:grid;gap:10px;margin-top:17px}
 .payment-modal-actions a,.payment-modal-actions button{display:block;text-align:center;padding:12px;border-radius:25px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:white;font-weight:750}
+
 .payment-modal-actions button{border:0}
+.credentials-entry{margin-top:18px;padding:16px;border:1px solid rgba(118,169,208,.28);border-radius:16px;background:rgba(229,243,252,.55)}
+.credentials-entry[hidden]{display:none}
+.credentials-entry h4{color:#315F85;font-size:16px;margin-bottom:5px}
+.credentials-entry p{color:#71869B;font-size:12px;line-height:1.7;margin-bottom:12px}
+.credentials-entry .checkout-field{margin-top:12px}
+.credentials-entry .checkout-field input{min-height:44px}
+.credentials-submit{width:100%;margin-top:15px;padding:12px;border:0;border-radius:25px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:#fff;font-weight:800}
+.credentials-submit:disabled{opacity:.55;cursor:wait}
+.credentials-status{font-size:12px;color:#477FAF;margin-top:10px;white-space:pre-line}
+
 @media(max-width:600px){.payment-methods{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.payment-method-option{justify-content:center;padding:12px 4px}.payment-modal-card{padding:24px 18px}}
 
 #checkout[hidden]{display:none}
@@ -668,6 +679,30 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
     <div id="payment-order-info" class="payment-info"></div>
     <div id="payment-method-info" class="payment-info" style="margin-top:12px"></div>
     <div class="payment-modal-actions">
+      <button id="open-credentials-form" type="button" onclick="openOrderCredentialsForm()">已完成付款，填寫遊戲資料</button>
+    </div>
+    <div id="order-credentials-form" class="credentials-entry" hidden>
+      <h4>填寫遊戲登入資料</h4>
+      <p>請確認資料正確，方便客服為你完成代儲。付款仍需由管理員確認收款後才會開始處理。</p>
+      <label class="checkout-field">遊戲帳號名稱／遊戲暱稱
+        <input id="credential-game-nickname" type="text" maxlength="100" placeholder="請輸入遊戲內顯示的名稱" autocomplete="off" required>
+      </label>
+      <label class="checkout-field">登入方式
+        <input id="credential-login-method" type="text" maxlength="60" placeholder="例如：Google、PTC、Facebook" autocomplete="off" required>
+      </label>
+      <label class="checkout-field">登入帳號
+        <input id="credential-account" type="text" maxlength="200" placeholder="請輸入登入帳號／Email" autocomplete="off" required>
+      </label>
+      <label class="checkout-field">登入密碼
+        <input id="credential-password" type="password" maxlength="500" placeholder="請輸入登入密碼" autocomplete="new-password" required>
+      </label>
+      <label class="checkout-field">備註（選填）
+        <textarea id="credential-note" maxlength="500" placeholder="其他需要客服注意的事項"></textarea>
+      </label>
+      <button id="credential-submit-button" class="credentials-submit" type="button" onclick="submitOrderCredentials()">安全送出遊戲資料</button>
+      <div id="credential-status" class="credentials-status" role="status"></div>
+    </div>
+    <div class="payment-modal-actions">
       <a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">付款後聯絡官方 LINE 客服</a>
       <button type="button" onclick="closePaymentModal()">完成</button>
     </div>
@@ -700,6 +735,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 const LIFF_ID = "2012790935-6gudcqo6";
 const MEMBER_LOGIN_URL = "https://ksellpcaecuihxjxsolr.supabase.co/functions/v1/line-member-login";
 const CREATE_ORDER_URL = "https://ksellpcaecuihxjxsolr.supabase.co/functions/v1/create-order";
+const ORDER_CREDENTIALS_URL = "https://ksellpcaecuihxjxsolr.supabase.co/functions/v1/submit-order-credentials";
 const CREATE_TOPUP_REQUEST_URL = "https://ksellpcaecuihxjxsolr.supabase.co/functions/v1/create-topup-request";
 
 /* 商品資料庫 ID 與顯示順序 */
@@ -917,6 +953,19 @@ function showPaymentModal(data,payment){
   savedPaymentDetails={data,payment};
   try{sessionStorage.setItem("sobbleking_payment_details",JSON.stringify(savedPaymentDetails));}catch(error){console.warn("付款資訊暫存失敗",error);}
   document.getElementById("reopen-payment-button").hidden=false;
+  const credentialButton=document.getElementById("open-credentials-form");
+  const credentialForm=document.getElementById("order-credentials-form");
+  const credentialStatus=document.getElementById("credential-status");
+  credentialForm.hidden=true;
+  credentialStatus.textContent="";
+  credentialButton.hidden=false;
+  credentialButton.disabled=!data.order_id;
+  if(data.credentials_submitted){
+    credentialButton.textContent="✓ 遊戲資料已送出";
+    credentialButton.disabled=true;
+  }else{
+    credentialButton.textContent="已完成付款，填寫遊戲資料";
+  }
   document.getElementById("payment-modal").hidden=false;
 }
 function reopenPaymentModal(){
@@ -928,6 +977,53 @@ function reopenPaymentModal(){
 }
 function closePaymentModal(){
   document.getElementById("payment-modal").hidden=true;
+}
+function openOrderCredentialsForm(){
+  if(!savedPaymentDetails?.data?.order_id){
+    alert("找不到訂單資料，請聯絡官方 LINE 客服協助。");
+    return;
+  }
+  document.getElementById("order-credentials-form").hidden=false;
+  document.getElementById("open-credentials-form").hidden=true;
+}
+async function submitOrderCredentials(){
+  const button=document.getElementById("credential-submit-button");
+  const status=document.getElementById("credential-status");
+  if(!savedPaymentDetails?.data?.order_id){status.textContent="找不到訂單編號，請重新開啟訂單付款資訊。";return;}
+  if(!window.liff || !liff.isLoggedIn()){status.textContent="請先使用原本的 LINE 會員帳號登入，再送出資料。";return;}
+  const accessToken=liff.getAccessToken();
+  if(!accessToken){status.textContent="LINE 登入憑證已失效，請重新登入後再試。";return;}
+  const payload={
+    access_token:accessToken,
+    order_id:savedPaymentDetails.data.order_id,
+    game_nickname:document.getElementById("credential-game-nickname").value.trim(),
+    login_method:document.getElementById("credential-login-method").value.trim(),
+    account:document.getElementById("credential-account").value.trim(),
+    password:document.getElementById("credential-password").value,
+    note:document.getElementById("credential-note").value.trim()
+  };
+  if(!payload.game_nickname || !payload.login_method || !payload.account || !payload.password){
+    status.textContent="請完整填寫遊戲暱稱、登入方式、帳號及密碼。";return;
+  }
+  button.disabled=true;button.textContent="正在安全加密並送出…";status.textContent="資料傳送中，請勿關閉視窗。";
+  try{
+    const response=await fetch(ORDER_CREDENTIALS_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},
+      body:JSON.stringify(payload)
+    });
+    const result=await response.json().catch(()=>({}));
+    if(!response.ok || !result.success) throw new Error(result.error||"資料送出失敗");
+    savedPaymentDetails.data.credentials_submitted=true;
+    try{sessionStorage.setItem("sobbleking_payment_details",JSON.stringify(savedPaymentDetails));}catch(error){console.warn("訂單資料暫存失敗",error);}
+    status.textContent="✓ 遊戲資料已安全送出！管理員確認收款後即可查看並開始處理。";
+    button.textContent="已成功送出";
+    button.disabled=true;
+    document.getElementById("credential-password").value="";
+  }catch(error){
+    status.textContent="送出失敗："+(error.message||"請稍後再試，或聯絡官方 LINE 客服。");
+    button.disabled=false;button.textContent="重新送出遊戲資料";
+  }
 }
 
 let walletTopupRequestId = null;
