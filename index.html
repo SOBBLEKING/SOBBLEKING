@@ -1261,12 +1261,12 @@ function renderWalletHistory(topupHistory, transactionHistory){
   topupContainer.replaceChildren();
   transactionContainer.replaceChildren();
 
-  const topupStatus = {pending:"審核中",approved:"已入帳",rejected:"未通過",completed:"已完成",cancelled:"已取消"};
+  const topupStatus = {pending:"待確認",confirmed:"已入帳",approved:"已入帳",rejected:"未通過",completed:"已完成",cancelled:"已取消"};
   (Array.isArray(topupHistory) ? topupHistory : []).forEach(row => {
     const amount = Number(row.amount);
     const amountText = Number.isFinite(amount) ? "NT$" + amount.toLocaleString("en-US") : "金額未提供";
     const status = topupStatus[String(row.status || "").toLowerCase()] || row.status || "狀態未提供";
-    const method = row.payment_metho || "儲值";
+    const method = row.payment_method || "儲值";
     appendHistoryItem(topupContainer, amountText + "・" + status, formatHistoryDate(row.created_at) + "｜" + method);
   });
   if(!topupContainer.children.length){
