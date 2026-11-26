@@ -132,8 +132,9 @@ Deno.serve(async (req) => {
             verificationCode,
           }),
         });
-        if (!emailResponse.ok) {
-          console.error("Admin order email failed:", emailResponse.status);
+        const emailResult = (await emailResponse.text()).trim();
+        if (!emailResponse.ok || emailResult !== "ok") {
+          console.error("Admin order email failed:", emailResponse.status, emailResult);
         }
       } catch (emailError) {
         // Email failure must not undo a successfully created order.
