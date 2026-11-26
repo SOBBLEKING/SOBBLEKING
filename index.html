@@ -1171,7 +1171,10 @@ logoutButton.addEventListener("click",()=>{
 /* 網頁載入後執行 */
 try{
   savedPaymentDetails=JSON.parse(sessionStorage.getItem("sobbleking_payment_details")||"null");
-  if(savedPaymentDetails) document.getElementById("reopen-payment-button").hidden=false;
+  if(savedPaymentDetails){
+    orderWasCreated=true;
+    document.getElementById("reopen-payment-button").hidden=false;
+  }
 }catch(error){savedPaymentDetails=null;}
 loadProducts();
 initializeLIFF();
