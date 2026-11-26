@@ -59,6 +59,36 @@ Deno.serve(async (req) => {
       }});
     }
 
+    if (action === "search_orders") {
+      const query = typeof body.query === "string" ? body.query.trim().slice(0, 100) : "";
+      if (!query) return reply({ success: false, error: "query_required" }, 400);
+      const { data, error } = await db.from("sk_orders")
+        .select("id,order_number,customer_id,total_amount,payment_status,order_status,payment_method,note,created_at,updated_at,paid_at")
+        .ilike("order_number", `%${query}%`)
+        .order("created_at", { ascending: false }).limit(100);
+      if (error) throw error;
+      return reply({ success: true, data: data || [] });
+    }
+
+    if (action === "search_members") {
+      const query = typeof body.query === "string" ? body.query.trim().slice(0, 100).toLowerCase() : "";
+      if (!query) return reply({ success: false, error: "query_required" }, 400);
+      // Return only the same safe member fields as the regular members action.
+      const { data, error } = await db.from("customers").select("*")
+        .order("created_at", { ascending: false }).limit(1000);
+      if (error) throw error;
+      const safe = (data || []).map((row: Record<string, unknown>) => ({
+        id: row.id ?? null,
+        line_user_id: row.line_user_id ?? null,
+        name: row.name ?? row.display_name ?? row.line_display_name ?? row.customer_name ?? "未命名會員",
+        created_at: row.created_at ?? null,
+      }));
+      const matches = safe.filter((row: Record<string, unknown>) =>
+        [row.id, row.line_user_id, row.name].some(value => String(value ?? "").toLowerCase().includes(query))
+      ).slice(0, 100);
+      return reply({ success: true, data: matches });
+    }
+
     if (action === "orders") {
       const { data, error } = await db.from("sk_orders").select("id,order_number,customer_id,total_amount,payment_status,order_status,payment_method,note,created_at,updated_at,paid_at")
         .order("created_at", { ascending: false }).limit(limit);
