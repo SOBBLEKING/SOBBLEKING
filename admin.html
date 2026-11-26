@@ -129,7 +129,7 @@ async function checkForNewOrders(initial=false){
  try{
    const rows=await adminRequest("orders");
    const newest=rows?.[0];
-   if(!newest?.id)return;
+   if(!newest?.id){if(!orderPollReady){lastSeenOrderId=null;orderPollReady=true;}return;}
    if(!orderPollReady||initial){lastSeenOrderId=newest.id;orderPollReady=true;return;}
    if(newest.id!==lastSeenOrderId){
      lastSeenOrderId=newest.id;
