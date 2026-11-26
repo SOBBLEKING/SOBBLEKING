@@ -1,35 +1,6 @@
 -- SOBBLEKING Admin Foundation v1
 -- Safe additive migration. Does not delete existing customer/order data.
 
-alter table public.products
-  add column if not exists cost_price numeric(12,2)
-  check (cost_price is null or cost_price >= 0);
-
-alter table public.sk_order_items
-  add column if not exists cost_price_snapshot numeric(12,2)
-  check (cost_price_snapshot is null or cost_price_snapshot >= 0);
-
-create or replace function public.sk_capture_order_item_cost()
-returns trigger
-language plpgsql
-security definer
-set search_path = public
-as $$
-begin
-  if new.cost_price_snapshot is null then
-    select p.cost_price into new.cost_price_snapshot
-    from public.products p
-    where p.id = new.product_id;
-  end if;
-  return new;
-end;
-$$;
-
-drop trigger if exists sk_order_item_capture_cost on public.sk_order_items;
-create trigger sk_order_item_capture_cost
-before insert on public.sk_order_items
-for each row execute function public.sk_capture_order_item_cost();
-
 create table if not exists public.sk_wallet_accounts (
   id uuid primary key default gen_random_uuid(),
   customer_id uuid not null unique references public.customers(id) on delete restrict,
@@ -140,5 +111,3 @@ begin
     execute format('grant all on public.%I to service_role', t);
   end loop;
 end $$;
-
-revoke all on function public.sk_capture_order_item_cost() from public, anon, authenticated;
