@@ -14,7 +14,67 @@ function hexToBytes(hex: string): Uint8Array {
 function fromBase64(value: string): Uint8Array {
   return Uint8Array.from(atob(value), (char) => char.charCodeAt(0));
 }
-async function decryptOrderCredentials(encryptedPayload: string, ivBase64: string, keyHex: string) {
+
+async function sendTopupLineNotification(db: any, queueId: string) {
+  const { data: item, error: readError } = await db.from("sk_line_notification_queue")
+    .select("*").eq("id", queueId).maybeSingle();
+  if (readError) throw readError;
+  if (!item) throw new Error("notification_queue_item_not_found");
+  if (item.status === "sent") return { sent: true, already_sent: true };
+  const token = Deno.env.get("LINE_CHANNEL_ACCESS_TOKEN") || "";
+  if (!token) {
+    await db.from("sk_line_notification_queue").update({
+      status: "failed", attempts: Number(item.attempts || 0) + 1,
+      last_error: "LINE_CHANNEL_ACCESS_TOKEN_missing",
+      next_retry_at: new Date(Date.now() + 60_000).toISOString(),
+      updated_at: new Date().toISOString(),
+    }).eq("id", queueId);
+    return { sent: false, error: "LINE_CHANNEL_ACCESS_TOKEN_missing" };
+  }
+  if (!item.line_user_id) {
+    await db.from("sk_line_notification_queue").update({
+      status: "failed", attempts: Number(item.attempts || 0) + 1,
+      last_error: "customer_line_user_id_missing", next_retry_at: null,
+      updated_at: new Date().toISOString(),
+    }).eq("id", queueId);
+    return { sent: false, error: "customer_line_user_id_missing" };
+  }
+  const money = (n: unknown) => "NT$" + Number(n || 0).toLocaleString("zh-TW");
+  const message = [
+    "✅ SOBBLEKING 儲值成功通知",
+    "",
+    "儲值單號：" + item.request_id,
+    "儲值金額：" + money(item.requested_amount),
+    "額外入帳：" + money(Number(item.excess_amount || 0) + Number(item.bonus_amount || 0)),
+    "本次入帳：" + money(item.wallet_credit),
+    "目前餘額：" + money(item.balance_after),
+    "",
+    "感謝支持 SOBBLE PARADISE！",
+  ].join("\n");
+  const response = await fetch("https://api.line.me/v2/bot/message/push", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token },
+    body: JSON.stringify({ to: item.line_user_id, messages: [{ type: "text", text: message }] }),
+  });
+  const attempts = Number(item.attempts || 0) + 1;
+  if (response.ok) {
+    const { error } = await db.from("sk_line_notification_queue").update({
+      status: "sent", attempts, last_error: null, sent_at: new Date().toISOString(),
+      next_retry_at: null, updated_at: new Date().toISOString(),
+    }).eq("id", queueId).neq("status", "sent");
+    if (error) throw error;
+    return { sent: true };
+  }
+  const raw = (await response.text()).slice(0, 1000);
+  const retryMinutes = [1, 5, 15, 60, 360][Math.min(attempts - 1, 4)];
+  await db.from("sk_line_notification_queue").update({
+    status: "failed", attempts, last_error: "LINE HTTP " + response.status + ": " + raw,
+    next_retry_at: attempts >= 5 ? null : new Date(Date.now() + retryMinutes * 60_000).toISOString(),
+    updated_at: new Date().toISOString(),
+  }).eq("id", queueId).neq("status", "sent");
+  return { sent: false, error: "LINE HTTP " + response.status, attempts };
+}
+\nasync function decryptOrderCredentials(encryptedPayload: string, ivBase64: string, keyHex: string) {
   const key = await crypto.subtle.importKey("raw", hexToBytes(keyHex), { name: "AES-GCM" }, false, ["decrypt"]);
   const plaintext = await crypto.subtle.decrypt(
     { name: "AES-GCM", iv: fromBase64(ivBase64) },
@@ -327,7 +387,30 @@ Deno.serve(async (req) => {
         const known = error.message || "topup_confirmation_failed";
         return reply({ success: false, error: known }, 409);
       }
-      return reply({ success: true, data });
+      const { data: queued, error: queueError } = await db.from("sk_line_notification_queue")
+        .select("id,status").eq("request_id", requestId).maybeSingle();
+      if (queueError) console.error("Top-up LINE queue lookup failed:", queueError.message);
+      let notification = null;
+      if (queued?.id) {
+        try { notification = await sendTopupLineNotification(db, queued.id); }
+        catch (notifyError) { console.error("Top-up LINE notification failed:", notifyError); notification = { sent: false, error: String(notifyError) }; }
+      } else {
+        notification = { sent: false, error: "notification_queue_item_not_found" };
+      }
+      return reply({ success: true, data, notification });
+    }
+
+    if (action === "retry_line_notifications") {
+      const { data: due, error: dueError } = await db.from("sk_line_notification_queue")
+        .select("id").eq("status", "failed").not("next_retry_at", "is", null)
+        .lte("next_retry_at", new Date().toISOString()).order("created_at", { ascending: true }).limit(20);
+      if (dueError) throw dueError;
+      const results = [];
+      for (const item of due || []) {
+        try { results.push({ id: item.id, ...(await sendTopupLineNotification(db, item.id)) }); }
+        catch (retryError) { results.push({ id: item.id, sent: false, error: String(retryError) }); }
+      }
+      return reply({ success: true, data: results });
     }
 
     if (action === "reject_wallet_topup") {
