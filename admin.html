@@ -30,6 +30,7 @@ button,input{font:inherit}.shell{max-width:1120px;margin:auto;padding:26px}.top{
         <div class="field"><label for="password">密碼</label><input id="password" type="password" autocomplete="current-password" placeholder="請輸入密碼" minlength="8" required></div>
         <button class="primary" id="submitBtn" type="submit">登入管理後台</button>
       </form>
+      <p class="switch" style="margin-top:12px"><button id="forgotPasswordBtn" type="button">忘記密碼？寄送重設連結</button></p>
       <p class="switch" id="switchLine">第一次使用？<button id="switchMode" type="button">建立管理員帳號</button></p>
       <div class="notice" id="notice" role="status"></div>
       <div class="foot">僅限授權管理員使用 · SOBBLEKING</div>
@@ -76,6 +77,35 @@ window.addEventListener("error",e=>message("頁面程式發生錯誤："+(e.mess
 window.addEventListener("unhandledrejection",e=>message("登入程序發生錯誤："+(e.reason?.message||String(e.reason||"未知錯誤")),true));
 if(!window.supabase||!window.supabase.createClient){message("登入元件尚未載入。請重新整理；若持續發生，請稍後再試。",true);throw new Error("Supabase client library unavailable")}
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+client.auth.onAuthStateChange((event, session)=>{
+  if(event === "PASSWORD_RECOVERY"){
+    setTimeout(async()=>{
+      const first = prompt("請輸入新的管理員密碼（至少 8 個字元）：");
+      if(!first) { message("你已取消密碼重設。請重新點擊信件連結再設定。",true); return; }
+      if(first.length < 8) { message("密碼至少需要 8 個字元，請重新申請重設連結。",true); return; }
+      const second = prompt("請再次輸入新密碼確認：");
+      if(first !== second) { message("兩次輸入的密碼不一致，請重新申請重設連結。",true); return; }
+      const {error} = await client.auth.updateUser({password:first});
+      if(error) { message("密碼更新失敗："+error.message,true); return; }
+      message("管理員密碼已更新！請返回登入頁，使用新密碼登入。");
+      await client.auth.signOut();
+      $("authView").style.display="grid";
+      $("dashboard").style.display="none";
+    }, 0);
+  }
+});
+$("forgotPasswordBtn").addEventListener("click", async()=>{
+  const email = $("email").value.trim().toLowerCase();
+  if(!email){ message("請先在 Email 欄位輸入管理員信箱。",true); $("email").focus(); return; }
+  if(email !== "sobblekinggg@gmail.com"){ message("請使用已授權的管理員 Email 申請重設。",true); return; }
+  const btn=$("forgotPasswordBtn"); btn.disabled=true;
+  try{
+    const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+    if(error) throw error;
+    message("已提出密碼重設申請。請到 sobblekinggg@gmail.com 收信，點擊重設連結後依照畫面設定新密碼。");
+  }catch(err){message("寄送重設信失敗："+(err.message||String(err)),true);}
+  finally{btn.disabled=false;}
+});
 function setMode(next){mode=next;$("formTitle").textContent=mode==="signup"?"建立管理員帳號":"管理員登入";$("formSub").textContent=mode==="signup"?"僅限白名單中的管理員 Email 建立帳號，請自行設定密碼。":"請使用已授權的管理員帳號登入。";$("submitBtn").textContent=mode==="signup"?"建立帳號":"登入管理後台";$("switchLine").innerHTML=mode==="signup"?'已經有帳號？<button id="switchMode" type="button">返回登入</button>':'第一次使用？<button id="switchMode" type="button">建立管理員帳號</button>';$("switchMode").addEventListener("click",()=>setMode(mode==="signup"?"login":"signup"));$("notice").className="notice"}
 async function authorize(session){if(!session){message("登入未建立有效工作階段，請重新登入；若持續發生，請告訴我。",true);return false}adminSession=session;message("登入成功，正在確認管理員授權…");if(!session.user?.email){message("登入工作階段缺少 Email，無法驗證管理員身份。",true);return false}let result;try{result=await client.from("sk_admin_emails").select("email").eq("email",session.user.email.toLowerCase()).eq("is_active",true).maybeSingle()}catch(e){message("已登入，但讀取管理員授權時發生錯誤："+(e.message||String(e)),true);return false}const {data,error}=result;if(error){message("已登入，但無法讀取管理員授權資料："+error.message,true);return false}if(!data){await client.auth.signOut();adminSession=null;$("authView").style.display="grid";$("dashboard").style.display="none";message("此 Email 尚未獲授權，無法進入管理後台。",true);return false}$("authView").style.display="none";$("dashboard").style.display="block";$("adminEmail").textContent=session.user.email;loadOverview();loadModule("orders");startOrderPolling();return true}
 $("switchMode").addEventListener("click",()=>setMode("signup"));
