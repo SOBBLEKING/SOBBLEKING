@@ -44,16 +44,23 @@ button,input{font:inherit}.shell{max-width:1120px;margin:auto;padding:26px}.top{
       <article class="tile"><div class="ico">👥</div><h3>會員人數</h3><p id="statMembers">載入中…</p></article>
       <article class="tile"><div class="ico">💳</div><h3>待處理儲值</h3><p id="statTopups">載入中…</p></article>
     </section>
+    <section class="grid" style="margin-top:18px">
+      <article class="data-panel" style="margin-top:0">
+        <div class="panel-head"><div><h2>🔎 訂單編號查詢</h2><p>輸入完整或部分訂單編號</p></div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="orderSearchInput" type="search" placeholder="例如：SK202611..." style="flex:1;min-width:150px;height:44px;border:1px solid var(--line);border-radius:11px;padding:0 12px;color:var(--ink)"><button class="primary" id="orderSearchBtn" type="button" style="width:auto;padding:0 20px;margin:0">查詢訂單</button></div>
+      </article>
+      <article class="data-panel" style="margin-top:0">
+        <div class="panel-head"><div><h2>👤 會員查詢</h2><p>可搜尋會員名稱、LINE User ID 或會員編號</p></div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="memberSearchInput" type="search" placeholder="輸入會員資料關鍵字" style="flex:1;min-width:150px;height:44px;border:1px solid var(--line);border-radius:11px;padding:0 12px;color:var(--ink)"><button class="primary" id="memberSearchBtn" type="button" style="width:auto;padding:0 20px;margin:0">查詢會員</button></div>
+      </article>
+    </section>
+    <div id="newOrderToast" role="status" style="display:none;position:sticky;top:12px;z-index:20;margin:14px 0;padding:16px 18px;border-radius:15px;background:#fff3d9;border:1px solid #f1d18a;color:#805719;box-shadow:0 8px 24px #0001;font-weight:700;cursor:pointer"></div>
+    <div style="display:flex;justify-content:flex-end;margin-top:12px"><button class="logout" id="enableNotificationsBtn" type="button">🔔 開啟桌面通知</button></div>
     <nav class="module-nav" id="moduleNav">
       <button data-action="orders">訂單管理</button><button data-action="topups">儲值管理</button><button data-action="members">會員管理</button><button data-action="wallet_transactions">錢包交易</button><button data-action="audit_logs">操作紀錄</button>
     </nav>
     <section class="data-panel">
       <div class="panel-head"><div><h2 id="panelTitle">近期訂單</h2><p id="panelHint">最新 50 筆資料</p></div><button class="logout" id="refreshBtn">重新整理</button></div>
-      <div id="searchArea" style="display:flex;gap:9px;flex-wrap:wrap;margin:12px 0 16px">
-        <input id="searchInput" type="search" placeholder="輸入訂單編號查詢" style="flex:1;min-width:210px;height:44px;border:1px solid var(--line);border-radius:11px;padding:0 13px;color:var(--ink)">
-        <button class="logout" id="searchBtn" type="button">查詢</button>
-        <button class="logout" id="clearSearchBtn" type="button">清除</button>
-      </div>
       <div id="panelMessage" class="pending">正在讀取資料…</div>
       <div class="table-wrap"><table id="dataTable"><thead></thead><tbody></tbody></table></div>
     </section>
@@ -70,12 +77,15 @@ window.addEventListener("unhandledrejection",e=>message("登入程序發生錯�
 if(!window.supabase||!window.supabase.createClient){message("登入元件尚未載入。請重新整理；若持續發生，請稍後再試。",true);throw new Error("Supabase client library unavailable")}
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 function setMode(next){mode=next;$("formTitle").textContent=mode==="signup"?"建立管理員帳號":"管理員登入";$("formSub").textContent=mode==="signup"?"僅限白名單中的管理員 Email 建立帳號，請自行設定密碼。":"請使用已授權的管理員帳號登入。";$("submitBtn").textContent=mode==="signup"?"建立帳號":"登入管理後台";$("switchLine").innerHTML=mode==="signup"?'已經有帳號？<button id="switchMode" type="button">返回登入</button>':'第一次使用？<button id="switchMode" type="button">建立管理員帳號</button>';$("switchMode").addEventListener("click",()=>setMode(mode==="signup"?"login":"signup"));$("notice").className="notice"}
-async function authorize(session){if(!session)return false;adminSession=session;const {data,error}=await client.from("sk_admin_emails").select("email").eq("email",session.user.email.toLowerCase()).eq("is_active",true).maybeSingle();if(error||!data){await client.auth.signOut();$("authView").style.display="grid";$("dashboard").style.display="none";message("此 Email 尚未獲授權，無法進入管理後台。",true);return false}$("authView").style.display="none";$("dashboard").style.display="block";$("adminEmail").textContent=session.user.email;loadOverview();loadModule("orders");return true}
+async function authorize(session){if(!session)return false;adminSession=session;const {data,error}=await client.from("sk_admin_emails").select("email").eq("email",session.user.email.toLowerCase()).eq("is_active",true).maybeSingle();if(error||!data){await client.auth.signOut();$("authView").style.display="grid";$("dashboard").style.display="none";message("此 Email 尚未獲授權，無法進入管理後台。",true);return false}$("authView").style.display="none";$("dashboard").style.display="block";$("adminEmail").textContent=session.user.email;loadOverview();loadModule("orders");startOrderPolling();return true}
 $("switchMode").addEventListener("click",()=>setMode("signup"));
 $("authForm").addEventListener("submit",async e=>{e.preventDefault();const email=$("email").value.trim().toLowerCase(),password=$("password").value;$("submitBtn").disabled=true;message("正在連線驗證，請稍候…");try{if(mode==="signup"){if(email!=="sobblekinggg@gmail.com"){message("目前僅開放指定管理員 Email 建立帳號。",true);return}const {data,error}=await client.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;if(data.session){await authorize(data.session)}else{message("帳號申請已送出！請到管理員信箱收取驗證信，完成驗證後再回到此頁登入。")}}else{const {data,error}=await client.auth.signInWithPassword({email,password});if(error)throw error;await authorize(data.session)}}catch(err){message(err.message||"操作失敗，請稍後再試。",true)}finally{$("submitBtn").disabled=false}});
 
 let currentAction="orders";
 let currentSearch="";
+let orderPollTimer=null;
+let lastSeenOrderId=null;
+let orderPollReady=false;
 let adminSession=null;
 const labels={orders:"訂單管理",topups:"儲值管理",members:"會員管理",wallet_transactions:"錢包交易紀錄",audit_logs:"管理員操作紀錄"};
 const columns={
@@ -100,20 +110,55 @@ async function loadOverview(){
 }
 async function loadModule(action,query=""){
  currentAction=action;currentSearch=query;$("panelTitle").textContent=labels[action]||"資料列表";$("panelHint").textContent=query?"搜尋結果":"最新 50 筆資料";
- $("searchArea").style.display=(action==="orders"||action==="members")?"flex":"none";
- $("searchInput").placeholder=action==="members"?"輸入會員名稱、LINE User ID 或會員編號":"輸入訂單編號查詢";
- $("searchInput").value=query;$("panelMessage").style.display="block";$("panelMessage").textContent="正在讀取資料…";$("dataTable").querySelector("thead").innerHTML="";$("dataTable").querySelector("tbody").innerHTML="";
+$("panelMessage").style.display="block";$("panelMessage").textContent="正在讀取資料…";$("dataTable").querySelector("thead").innerHTML="";$("dataTable").querySelector("tbody").innerHTML="";
  document.querySelectorAll("#moduleNav button").forEach(b=>b.classList.toggle("active",b.dataset.action===action));
  try{const apiAction=query&&action==="orders"?"search_orders":query&&action==="members"?"search_members":action;const rows=await adminRequest(apiAction,query);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>"<td>"+esc(fmt(row[x[0]]))+"</td>").join("")+"</tr>").join("");}
  catch(e){$("panelMessage").style.display="block";$("panelMessage").textContent="讀取失敗："+e.message}
 }
 
 document.querySelectorAll("#moduleNav button").forEach(b=>b.addEventListener("click",()=>loadModule(b.dataset.action)));
-$("searchBtn").addEventListener("click",()=>{const q=$("searchInput").value.trim();if(!q){loadModule(currentAction);return}loadModule(currentAction,q)});
-$("searchInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("searchBtn").click()}});
-$("clearSearchBtn").addEventListener("click",()=>{ $("searchInput").value="";loadModule(currentAction); });
+async function runSearch(action,inputId){const q=$(inputId).value.trim();if(!q){$(inputId).focus();return}await loadModule(action,q);document.querySelector(".data-panel:last-of-type")?.scrollIntoView({behavior:"smooth",block:"start"});}
+$("orderSearchBtn").addEventListener("click",()=>runSearch("orders","orderSearchInput"));
+$("memberSearchBtn").addEventListener("click",()=>runSearch("members","memberSearchInput"));
+$("orderSearchInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("orderSearchBtn").click()});
+$("memberSearchInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("memberSearchBtn").click()});
+
 $("refreshBtn").addEventListener("click",()=>{loadOverview();loadModule(currentAction,currentSearch)});
-$("logoutBtn").addEventListener("click",async()=>{await client.auth.signOut();$("dashboard").style.display="none";$("authView").style.display="grid";$("password").value="";message("已安全登出。")});
+async function checkForNewOrders(initial=false){
+ try{
+   const rows=await adminRequest("orders");
+   const newest=rows?.[0];
+   if(!newest?.id)return;
+   if(!orderPollReady||initial){lastSeenOrderId=newest.id;orderPollReady=true;return;}
+   if(newest.id!==lastSeenOrderId){
+     lastSeenOrderId=newest.id;
+     const count=rows.findIndex(row=>row.id===lastSeenOrderId);
+     const toast=$("newOrderToast");
+     toast.textContent="🛎️ 有新訂單！訂單編號："+(newest.order_number||"新訂單")+"　點此查看訂單";
+     toast.style.display="block";
+     toast.onclick=()=>{loadModule("orders");$("panelTitle").scrollIntoView({behavior:"smooth",block:"center"});};
+     if("Notification" in window && Notification.permission==="granted"){
+       new Notification("SOBBLEKING｜收到新訂單",{body:"訂單編號："+(newest.order_number||"新訂單")});
+     }
+     if(orderPollTimer){clearInterval(orderPollTimer);orderPollTimer=null;}
+     orderPollTimer=setTimeout(()=>{if(toast)toast.style.display="none";},15000);
+   }
+ }catch(e){console.warn("new order polling failed",e);}
+}
+function startOrderPolling(){
+ if(orderPollTimer)clearInterval(orderPollTimer);
+ orderPollReady=false;lastSeenOrderId=null;
+ checkForNewOrders(true);
+ orderPollTimer=setInterval(()=>checkForNewOrders(false),30000);
+}
+$("enableNotificationsBtn").addEventListener("click",async()=>{
+ if(!("Notification" in window)){alert("此瀏覽器不支援桌面通知，仍會在管理後台顯示新訂單提醒。");return;}
+ const permission=await Notification.requestPermission();
+ $("enableNotificationsBtn").textContent=permission==="granted"?"✓ 桌面通知已開啟": "🔔 重新開啟桌面通知";
+ if(permission!=="granted")alert("尚未允許桌面通知；管理後台內的新訂單彈出提醒仍會正常運作。");
+});
+
+$("logoutBtn").addEventListener("click",async()=>{if(orderPollTimer)clearInterval(orderPollTimer);await client.auth.signOut();$("dashboard").style.display="none";$("authView").style.display="grid";$("password").value="";message("已安全登出。")});
 client.auth.getSession().then(({data})=>{if(data.session)authorize(data.session)});
 </script>
 </body>
