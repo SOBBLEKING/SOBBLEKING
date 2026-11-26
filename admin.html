@@ -49,6 +49,11 @@ button,input{font:inherit}.shell{max-width:1120px;margin:auto;padding:26px}.top{
     </nav>
     <section class="data-panel">
       <div class="panel-head"><div><h2 id="panelTitle">近期訂單</h2><p id="panelHint">最新 50 筆資料</p></div><button class="logout" id="refreshBtn">重新整理</button></div>
+      <div id="searchArea" style="display:flex;gap:9px;flex-wrap:wrap;margin:12px 0 16px">
+        <input id="searchInput" type="search" placeholder="輸入訂單編號查詢" style="flex:1;min-width:210px;height:44px;border:1px solid var(--line);border-radius:11px;padding:0 13px;color:var(--ink)">
+        <button class="logout" id="searchBtn" type="button">查詢</button>
+        <button class="logout" id="clearSearchBtn" type="button">清除</button>
+      </div>
       <div id="panelMessage" class="pending">正在讀取資料…</div>
       <div class="table-wrap"><table id="dataTable"><thead></thead><tbody></tbody></table></div>
     </section>
@@ -70,6 +75,7 @@ $("switchMode").addEventListener("click",()=>setMode("signup"));
 $("authForm").addEventListener("submit",async e=>{e.preventDefault();const email=$("email").value.trim().toLowerCase(),password=$("password").value;$("submitBtn").disabled=true;message("正在連線驗證，請稍候…");try{if(mode==="signup"){if(email!=="sobblekinggg@gmail.com"){message("目前僅開放指定管理員 Email 建立帳號。",true);return}const {data,error}=await client.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;if(data.session){await authorize(data.session)}else{message("帳號申請已送出！請到管理員信箱收取驗證信，完成驗證後再回到此頁登入。")}}else{const {data,error}=await client.auth.signInWithPassword({email,password});if(error)throw error;await authorize(data.session)}}catch(err){message(err.message||"操作失敗，請稍後再試。",true)}finally{$("submitBtn").disabled=false}});
 
 let currentAction="orders";
+let currentSearch="";
 let adminSession=null;
 const labels={orders:"訂單管理",topups:"儲值管理",members:"會員管理",wallet_transactions:"錢包交易紀錄",audit_logs:"管理員操作紀錄"};
 const columns={
@@ -81,10 +87,10 @@ const columns={
 };
 function esc(v){return String(v??"—").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
 function fmt(v){if(v==null||v==="")return "—";if(typeof v==="string"&&v.includes("T"))return new Date(v).toLocaleString("zh-TW");return v}
-async function adminRequest(action){
+async function adminRequest(action,query="") {
  const {data:{session}}=await client.auth.getSession();
  if(!session?.access_token)throw new Error("登入已逾時，請重新登入。");
- const res=await fetch(SUPABASE_URL+"/functions/v1/admin-api",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify({action,limit:50})});
+ const res=await fetch(SUPABASE_URL+"/functions/v1/admin-api",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify({action,limit:50,query})});
  const json=await res.json().catch(()=>({}));
  if(!res.ok||!json.success)throw new Error(json.error||"讀取資料失敗");
  return json.data;
@@ -92,14 +98,21 @@ async function adminRequest(action){
 async function loadOverview(){
  try{const d=await adminRequest("overview");$("statOrders").textContent=d.order_count+" 筆";$("statRevenue").textContent="NT$ "+Number(d.paid_revenue||0).toLocaleString("en-US");$("statMembers").textContent=d.member_count+" 位";$("statTopups").textContent=d.pending_topups+" 筆待確認";}catch(e){["statOrders","statRevenue","statMembers","statTopups"].forEach(id=>$(id).textContent="暫時無法讀取");$("panelMessage").textContent="總覽資料載入失敗："+e.message}
 }
-async function loadModule(action){
- currentAction=action;$("panelTitle").textContent=labels[action]||"資料列表";$("panelHint").textContent="最新 50 筆資料";$("panelMessage").style.display="block";$("panelMessage").textContent="正在讀取資料…";$("dataTable").querySelector("thead").innerHTML="";$("dataTable").querySelector("tbody").innerHTML="";
+async function loadModule(action,query=""){
+ currentAction=action;currentSearch=query;$("panelTitle").textContent=labels[action]||"資料列表";$("panelHint").textContent=query?"搜尋結果":"最新 50 筆資料";
+ $("searchArea").style.display=(action==="orders"||action==="members")?"flex":"none";
+ $("searchInput").placeholder=action==="members"?"輸入會員名稱、LINE User ID 或會員編號":"輸入訂單編號查詢";
+ $("searchInput").value=query;$("panelMessage").style.display="block";$("panelMessage").textContent="正在讀取資料…";$("dataTable").querySelector("thead").innerHTML="";$("dataTable").querySelector("tbody").innerHTML="";
  document.querySelectorAll("#moduleNav button").forEach(b=>b.classList.toggle("active",b.dataset.action===action));
- try{const rows=await adminRequest(action);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>"<td>"+esc(fmt(row[x[0]]))+"</td>").join("")+"</tr>").join("");}
+ try{const apiAction=query&&action==="orders"?"search_orders":query&&action==="members"?"search_members":action;const rows=await adminRequest(apiAction,query);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>"<td>"+esc(fmt(row[x[0]]))+"</td>").join("")+"</tr>").join("");}
  catch(e){$("panelMessage").style.display="block";$("panelMessage").textContent="讀取失敗："+e.message}
 }
 
-document.querySelectorAll("#moduleNav button").forEach(b=>b.addEventListener("click",()=>loadModule(b.dataset.action)));$("refreshBtn").addEventListener("click",()=>{loadOverview();loadModule(currentAction)});
+document.querySelectorAll("#moduleNav button").forEach(b=>b.addEventListener("click",()=>loadModule(b.dataset.action)));
+$("searchBtn").addEventListener("click",()=>{const q=$("searchInput").value.trim();if(!q){loadModule(currentAction);return}loadModule(currentAction,q)});
+$("searchInput").addEventListener("keydown",e=>{if(e.key==="Enter"){e.preventDefault();$("searchBtn").click()}});
+$("clearSearchBtn").addEventListener("click",()=>{ $("searchInput").value="";loadModule(currentAction); });
+$("refreshBtn").addEventListener("click",()=>{loadOverview();loadModule(currentAction,currentSearch)});
 $("logoutBtn").addEventListener("click",async()=>{await client.auth.signOut();$("dashboard").style.display="none";$("authView").style.display="grid";$("password").value="";message("已安全登出。")});
 client.auth.getSession().then(({data})=>{if(data.session)authorize(data.session)});
 </script>
