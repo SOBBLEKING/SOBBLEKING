@@ -74,7 +74,8 @@ async function sendTopupLineNotification(db: any, queueId: string) {
   }).eq("id", queueId).neq("status", "sent");
   return { sent: false, error: "LINE HTTP " + response.status, attempts };
 }
-\nasync function decryptOrderCredentials(encryptedPayload: string, ivBase64: string, keyHex: string) {
+
+async function decryptOrderCredentials(encryptedPayload: string, ivBase64: string, keyHex: string) {
   const key = await crypto.subtle.importKey("raw", hexToBytes(keyHex), { name: "AES-GCM" }, false, ["decrypt"]);
   const plaintext = await crypto.subtle.decrypt(
     { name: "AES-GCM", iv: fromBase64(ivBase64) },
