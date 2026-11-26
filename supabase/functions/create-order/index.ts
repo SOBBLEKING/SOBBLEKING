@@ -27,7 +27,17 @@ Deno.serve(async (req) => {
     const body = await req.json();
     const accessToken = typeof body.access_token === "string" ? body.access_token : "";
     const items = body.items;
-    const note = typeof body.note === "string" ? body.note.slice(0, 1000) : null;
+    const customerNote = typeof body.note === "string" ? body.note.slice(0, 900) : "";
+    const paymentMethod = typeof body.payment_method === "string" ? body.payment_method : "";
+    const paymentBank = typeof body.payment_bank === "string" ? body.payment_bank : "";
+    const allowedMethods = ["無卡存款", "銀行匯款", "LINE Pay"];
+    if (!allowedMethods.includes(paymentMethod)) {
+      return respond({ success: false, error: "invalid_payment_method" }, 400);
+    }
+    if (paymentMethod === "無卡存款" && !["國泰世華（013）", "台新銀行（812）", "郵局（700）", "中國信託（822）"].includes(paymentBank)) {
+      return respond({ success: false, error: "invalid_payment_bank" }, 400);
+    }
+    const note = [`付款方式：${paymentMethod}`, paymentBank ? `無卡存款銀行：${paymentBank}` : "", customerNote].filter(Boolean).join("\n");
     const clientRequestId = typeof body.client_request_id === "string"
       ? body.client_request_id
       : "";
