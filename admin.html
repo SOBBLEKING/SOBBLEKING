@@ -46,6 +46,13 @@ button,input{font:inherit}.shell{max-width:1120px;margin:auto;padding:26px}.top{
       <article style="margin:0;padding:0;background:transparent;border:0;box-shadow:none">
         <div class="panel-head"><div><h2 style="font-size:20px">👤 快速查詢會員</h2><p>可搜尋會員名稱、LINE User ID 或會員編號</p></div></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="memberSearchInput" type="search" placeholder="輸入會員資料關鍵字" style="flex:1;min-width:150px;height:44px;border:1px solid var(--line);border-radius:11px;padding:0 12px;color:var(--ink)"><button class="primary" id="memberSearchBtn" type="button" style="width:auto;padding:0 20px;margin:0">查詢會員</button></div>
+        <div style="margin-top:18px;padding:16px;border:1px solid var(--line);border-radius:15px;background:#f7fbfe">
+          <h3 style="margin:0 0 5px;font-size:16px">💳 手動調整會員餘額</h3><p style="font-size:12px;color:var(--muted);margin:0 0 12px">先查詢會員，複製會員編號，再進行增加或扣除。每筆調整都會留下稽核紀錄。</p>
+          <input id="walletCustomerId" placeholder="會員編號（Customer ID）" style="width:100%;height:43px;border:1px solid var(--line);border-radius:10px;padding:0 12px;margin-bottom:9px;color:var(--ink)">
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><select id="walletDirection" style="flex:1;min-width:110px;height:43px;border:1px solid var(--line);border-radius:10px;padding:0 10px;color:var(--ink)"><option value="credit">增加餘額</option><option value="debit">扣除餘額</option></select><input id="walletAmount" type="number" min="1" step="1" placeholder="金額（NT$）" style="flex:1;min-width:120px;height:43px;border:1px solid var(--line);border-radius:10px;padding:0 12px;color:var(--ink)"></div>
+          <input id="walletReason" placeholder="調整原因（必填）" maxlength="500" style="width:100%;height:43px;border:1px solid var(--line);border-radius:10px;padding:0 12px;margin-top:9px;color:var(--ink)">
+          <button class="primary" id="walletAdjustBtn" type="button" style="margin-top:10px">確認調整餘額</button><p id="walletAdjustResult" style="font-size:12px;color:var(--muted);margin:9px 0 0"></p>
+        </div>
       </article>
     </section>
     <section class="welcome"><h2>歡迎回來，管理員</h2><p>SOBBLEKING 管理中心已登入。以下管理模組將逐步啟用。</p></section>
@@ -122,16 +129,16 @@ const labels={orders:"訂單管理",topups:"儲值管理",members:"會員管理"
 const columns={
  orders:[["order_number","訂單編號"],["total_amount","金額"],["payment_method","付款方式"],["payment_status","付款狀態"],["order_status","訂單狀態"],["created_at","建立時間"]],
  topups:[["id","申請編號"],["amount","儲值金額"],["payment_method","付款方式"],["payment_bank","銀行"],["status","狀態"],["created_at","申請時間"]],
- members:[["id","會員編號"],["name","會員名稱"],["line_user_id","LINE User ID"],["created_at","加入時間"]],
+ members:[["id","會員編號"],["name","會員名稱"],["line_user_id","LINE User ID"],["wallet_balance","錢包餘額"],["created_at","加入時間"]],
  wallet_transactions:[["transaction_type","類型"],["amount","金額"],["balance_before","異動前"],["balance_after","異動後"],["description","說明"],["created_at","時間"]],
  audit_logs:[["admin_email","管理員"],["action","操作"],["target_type","資料類型"],["target_id","資料編號"],["created_at","時間"]]
 };
 function esc(v){return String(v??"—").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
 function fmt(v){if(v==null||v==="")return "—";if(typeof v==="string"&&v.includes("T"))return new Date(v).toLocaleString("zh-TW");return v}
-async function adminRequest(action,query="") {
+async function adminRequest(action,query="",extra={}) {
  const {data:{session}}=await client.auth.getSession();
  if(!session?.access_token)throw new Error("登入已逾時，請重新登入。");
- const res=await fetch(SUPABASE_URL+"/functions/v1/admin-api",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify({action,limit:50,query})});
+ const res=await fetch(SUPABASE_URL+"/functions/v1/admin-api",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify({action,limit:50,query,...extra})});
  const json=await res.json().catch(()=>({}));
  if(!res.ok||!json.success)throw new Error(json.error||"讀取資料失敗");
  return json.data;
@@ -151,6 +158,21 @@ document.querySelectorAll("#moduleNav button").forEach(b=>b.addEventListener("cl
 async function runSearch(action,inputId){const q=$(inputId).value.trim();if(!q){$(inputId).focus();return}await loadModule(action,q);document.querySelector(".data-panel:last-of-type")?.scrollIntoView({behavior:"smooth",block:"start"});}
 $("orderSearchBtn").addEventListener("click",()=>runSearch("orders","orderSearchInput"));
 $("memberSearchBtn").addEventListener("click",()=>runSearch("members","memberSearchInput"));
+$("walletAdjustBtn").addEventListener("click",async()=>{
+ const btn=$("walletAdjustBtn"),result=$("walletAdjustResult");
+ const customerId=$("walletCustomerId").value.trim(),direction=$("walletDirection").value;
+ const amount=Number($("walletAmount").value),reason=$("walletReason").value.trim();
+ if(!customerId||!Number.isSafeInteger(amount)||amount<=0||!reason){result.textContent="請填寫會員編號、正整數金額及調整原因。";return;}
+ if(!confirm((direction==="credit"?"增加":"扣除")+"會員餘額 NT$"+amount+"？此操作會立即入帳並留下紀錄。"))return;
+ btn.disabled=true;result.textContent="正在處理…";
+ try{
+   const data=await adminRequest("manual_wallet_adjustment","",{customer_id:customerId,direction,amount,reason});
+   result.textContent="調整成功！餘額："+Number(data.balance_before).toLocaleString("zh-TW")+" → "+Number(data.balance_after).toLocaleString("zh-TW");
+   $("walletAmount").value="";$("walletReason").value="";
+   if(currentAction==="members")await loadModule("members",currentSearch);
+ }catch(e){result.textContent="調整失敗："+e.message;}
+ finally{btn.disabled=false;}
+});
 $("orderSearchInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("orderSearchBtn").click()});
 $("memberSearchInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("memberSearchBtn").click()});
 
