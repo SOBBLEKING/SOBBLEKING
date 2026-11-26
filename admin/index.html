@@ -202,14 +202,19 @@ async function openOrderDetail(orderId){
    ["付款方式",o.payment_method],["付款狀態",o.payment_status],["訂單狀態",o.order_status],
    ["建立時間",fmt(o.created_at)],["付款確認時間",fmt(o.paid_at)]
   ];
-  let html="<div class=\"order-detail-grid\">"+base.map(x=>"<div class=\"order-detail-field\"><small>"+esc(x[0])+"</small><div class=\"order-copy-row\"><strong>"+esc(x[1]||"—")+"</strong>"+(x[2]?"<button type=\"button\" class=\"copy-value-button\" data-copy-value=\""+esc(x[1]||"")+"\">複製</button>":"")+"</div></div>").join("")+"</div>";
+  let html="<div class=\"order-detail-grid\">"+base.map(x=>"<div class=\"order-detail-field\"><small>"+esc(x[0])+"</small><div class=\"order-copy-row\"><strong>"+esc(x[1]||"—")+"</strong>"+(x[2]?"<button type=\"button\" class=\"copy-value-button\" data-copy-value=\""+esc(x[1]||"") + "\">複製</button>":"")+"</div></div>").join("")+"</div>";
   html+="<div class=\"order-detail-section\"><h3>訂購商品</h3><div class=\"order-detail-field\">"+items+"</div></div>";
   html+="<div class=\"order-detail-section\"><h3>遊戲登入資料</h3>";
   if(!g){html+="<div class=\"order-detail-field\">客人尚未填寫遊戲資料。</div>";}
   else{
-   html+="<div class=\"order-detail-grid\">"+
-    [["遊戲帳號名稱／遊戲暱稱",g.game_nickname],["登入方式",g.login_method],["資料送出時間",fmt(g.submitted_at)]].map(x=>"<div class=\\"order-detail-field\\"><small>"+esc(x[0])+"</small><strong>"+esc(x[1]||"—")+"</strong></div>").join("")+"<div class=\\"order-detail-field\\"><small>登入帳號</small><div class=\\"order-copy-row\\"><strong>"+esc(g.account||"—")+"</strong><button type=\\"button\\" class=\\"copy-value-button\\" data-copy-value=\\""+esc(g.account||"")+"\\">複製</button></div></div>"+
-    "</div><div class=\"order-detail-field\" style=\"margin-top:10px\"><small>登入密碼</small><div class=\"order-password-row\"><strong id=\"orderPasswordValue\">••••••••</strong><button type=\"button\" id=\"toggleOrderPassword\">顯示密碼</button><button type=\"button\" class=\"copy-value-button\" id=\"copyOrderPassword\">複製密碼</button></div></div>";
+   const credentialFields=[
+    ["遊戲帳號名稱／遊戲暱稱",g.game_nickname],
+    ["登入方式",g.login_method],
+    ["資料送出時間",fmt(g.submitted_at)]
+   ];
+   html+="<div class=\"order-detail-grid\">"+credentialFields.map(x=>"<div class=\"order-detail-field\"><small>"+esc(x[0])+"</small><strong>"+esc(x[1]||"—")+"</strong></div>").join("")+
+    "<div class=\"order-detail-field\"><small>登入帳號</small><div class=\"order-copy-row\"><strong>"+esc(g.account||"—")+"</strong><button type=\"button\" class=\"copy-value-button\" data-copy-value=\""+esc(g.account||"") + "\">複製</button></div></div></div>";
+   html+="<div class=\"order-detail-field\" style=\"margin-top:10px\"><small>登入密碼</small><div class=\"order-password-row\"><strong id=\"orderPasswordValue\">••••••••</strong><button type=\"button\" id=\"toggleOrderPassword\">顯示密碼</button><button type=\"button\" class=\"copy-value-button\" id=\"copyOrderPassword\">複製密碼</button></div></div>";
    if(g.note)html+="<div class=\"order-detail-field\" style=\"margin-top:10px\"><small>客人備註</small><strong class=\"order-detail-note\">"+esc(g.note)+"</strong></div>";
   }
   html+="</div>";
