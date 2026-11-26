@@ -869,7 +869,8 @@ function showPaymentModal(data,payment){
     info="<strong>LINE Pay 手機轉帳</strong><br>請在 LINE 搜尋手機號碼：<br><strong class=\"payment-account-number\">0905302886</strong><br>找到帳號後加入好友，再依畫面指示完成轉帳。";
   }
   document.getElementById("payment-method-info").innerHTML=info+
-    "<br><br>完成付款後，請將付款截圖傳給官方 LINE 客服，並附上訂單編號。";
+    "<br><br>完成付款後，請將付款截圖傳給官方 LINE 客服，並附上訂單編號。"+
+    "<br><br><strong>儲值入帳提醒</strong><br>若於非營業時間完成匯款，請耐心等待客服確認收款並為您儲值，感謝您的理解與配合。";
   savedPaymentDetails={data,payment};
   try{sessionStorage.setItem("sobbleking_payment_details",JSON.stringify(savedPaymentDetails));}catch(error){console.warn("付款資訊暫存失敗",error);}
   document.getElementById("reopen-payment-button").hidden=false;
