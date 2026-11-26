@@ -41,6 +41,28 @@ Deno.serve(async (req) => {
     const action = typeof body.action === "string" ? body.action : "";
     const limit = Math.min(100, Math.max(1, Number.isInteger(body.limit) ? body.limit : 50));
 
+    if (action === "test_line") {
+      const lineToken = Deno.env.get("LINE_CHANNEL_ACCESS_TOKEN");
+      const adminLineUserId = Deno.env.get("ADMIN_LINE_USER_ID");
+      if (!lineToken || !adminLineUserId) {
+        return reply({ success: false, error: "line_secrets_missing" }, 400);
+      }
+      const lineResponse = await fetch("https://api.line.me/v2/bot/message/push", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + lineToken },
+        body: JSON.stringify({
+          to: adminLineUserId,
+          messages: [{ type: "text", text: "✅ SOBBLEKING LINE 通知測試成功！新訂單成立時，系統會自動通知你。" }]
+        })
+      });
+      if (!lineResponse.ok) {
+        const detail = (await lineResponse.text()).slice(0, 500);
+        console.error("Admin LINE test push failed:", lineResponse.status, detail);
+        return reply({ success: false, error: "line_push_failed", status: lineResponse.status }, 502);
+      }
+      return reply({ success: true, data: { sent: true } });
+    }
+
     if (action === "overview") {
       const [orders, paid, members, topups, wallet] = await Promise.all([
         db.from("sk_orders").select("id", { count: "exact", head: true }),
