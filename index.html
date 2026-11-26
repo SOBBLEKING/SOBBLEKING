@@ -938,6 +938,7 @@ function openWalletTopupModal(){
     return;
   }
   walletTopupRequestId = crypto.randomUUID();
+  document.getElementById("wallet-topup-title").textContent = "會員錢包儲值";
   document.getElementById("wallet-topup-amount").value = "";
   document.querySelectorAll('input[name="topup-payment-method"]').forEach(input=>input.checked=false);
   document.getElementById("wallet-topup-bank").classList.remove("visible");
