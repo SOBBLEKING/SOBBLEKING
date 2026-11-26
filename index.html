@@ -1062,7 +1062,7 @@ function openWalletTopupModal(){
   document.getElementById("wallet-topup-submit").disabled = false;
   document.getElementById("wallet-topup-submit").textContent = "建立儲值申請";
   document.getElementById("wallet-topup-modal").hidden = false;
-  renderWalletTopupPromo(); if(!walletTopupCampaignsLoaded) loadWalletTopupCampaigns();
+  renderWalletTopupPromo(); loadWalletTopupCampaigns();
 }
 function closeWalletTopupModal(){
   document.getElementById("wallet-topup-modal").hidden = true;
