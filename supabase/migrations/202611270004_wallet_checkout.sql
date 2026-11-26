@@ -149,11 +149,12 @@ begin
   end loop;
 
   insert into public.sk_orders (
-    order_number, customer_id, total_amount, payment_status, payment_method,
+    order_number, customer_id, total_amount, payment_status, order_status, payment_method,
     payment_bank, note, client_request_id, wallet_amount_used, external_due, paid_at
   ) values (
-    v_order_number, p_customer_id, v_total, v_payment_status, v_payment_method,
-    v_payment_bank, nullif(left(coalesce(p_note,''),1000),''), p_client_request_id,
+    v_order_number, p_customer_id, v_total, v_payment_status,
+    case when v_payment_status = 'paid' then 'processing' else 'pending' end,
+    v_payment_method, v_payment_bank, nullif(left(coalesce(p_note,''),1000),''), p_client_request_id,
     v_wallet_used, v_external_due, v_paid_at
   ) returning id into v_order_id;
 
