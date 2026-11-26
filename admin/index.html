@@ -208,7 +208,7 @@ async function openOrderDetail(orderId){
   if(!g){html+="<div class=\"order-detail-field\">客人尚未填寫遊戲資料。</div>";}
   else{
    html+="<div class=\"order-detail-grid\">"+
-    [["遊戲帳號名稱／遊戲暱稱",g.game_nickname],["登入方式",g.login_method],["登入帳號",g.account,true],["資料送出時間",fmt(g.submitted_at)]].map(x=>"<div class=\"order-detail-field\"><small>"+esc(x[0])+"</small><strong>"+esc(x[1]||"—")+"</strong></div>").join("")+
+    [["遊戲帳號名稱／遊戲暱稱",g.game_nickname],["登入方式",g.login_method],["資料送出時間",fmt(g.submitted_at)]].map(x=>"<div class=\\"order-detail-field\\"><small>"+esc(x[0])+"</small><strong>"+esc(x[1]||"—")+"</strong></div>").join("")+"<div class=\\"order-detail-field\\"><small>登入帳號</small><div class=\\"order-copy-row\\"><strong>"+esc(g.account||"—")+"</strong><button type=\\"button\\" class=\\"copy-value-button\\" data-copy-value=\\""+esc(g.account||"")+"\\">複製</button></div></div>"+
     "</div><div class=\"order-detail-field\" style=\"margin-top:10px\"><small>登入密碼</small><div class=\"order-password-row\"><strong id=\"orderPasswordValue\">••••••••</strong><button type=\"button\" id=\"toggleOrderPassword\">顯示密碼</button><button type=\"button\" class=\"copy-value-button\" id=\"copyOrderPassword\">複製密碼</button></div></div>";
    if(g.note)html+="<div class=\"order-detail-field\" style=\"margin-top:10px\"><small>客人備註</small><strong class=\"order-detail-note\">"+esc(g.note)+"</strong></div>";
   }
