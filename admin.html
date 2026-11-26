@@ -95,7 +95,9 @@ async function loadModule(action){
  try{const rows=await adminRequest(action);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>"<td>"+esc(fmt(row[x[0]]))+"</td>").join("")+"</tr>").join("");}
  catch(e){$("panelMessage").style.display="block";$("panelMessage").textContent="讀取失敗："+e.message}
 }
-\ndocument.querySelectorAll("#moduleNav button").forEach(b=>b.addEventListener("click",()=>loadModule(b.dataset.action)));$("refreshBtn").addEventListener("click",()=>{loadOverview();loadModule(currentAction)});\n$("logoutBtn").addEventListener("click",async()=>{await client.auth.signOut();$("dashboard").style.display="none";$("authView").style.display="grid";$("password").value="";message("已安全登出。")});
+
+document.querySelectorAll("#moduleNav button").forEach(b=>b.addEventListener("click",()=>loadModule(b.dataset.action)));$("refreshBtn").addEventListener("click",()=>{loadOverview();loadModule(currentAction)});
+$("logoutBtn").addEventListener("click",async()=>{await client.auth.signOut();$("dashboard").style.display="none";$("authView").style.display="grid";$("password").value="";message("已安全登出。")});
 client.auth.getSession().then(({data})=>{if(data.session)authorize(data.session)});
 </script>
 </body>
