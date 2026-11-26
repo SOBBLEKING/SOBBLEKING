@@ -44,9 +44,7 @@ begin
   if v_request.payment_method = '無卡存款' then
     v_excess := p_received_amount - v_request.amount;
   else
-    if p_received_amount <> v_request.amount then
-      raise exception 'received_amount_must_match_request';
-    end if;
+    -- Bank transfer and LINE Pay never auto-credit overpayments.
     v_excess := 0;
   end if;
 
