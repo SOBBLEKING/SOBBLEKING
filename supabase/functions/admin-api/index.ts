@@ -126,6 +126,32 @@ Deno.serve(async (req) => {
       return reply({ success: true, data: { order, items: items || [], credentials } });
     }
 
+    if (action === "confirm_order_payment") {
+      const orderId = typeof body.order_id === "string" ? body.order_id : "";
+      if (!orderId) return reply({ success: false, error: "order_id_required" }, 400);
+      const { data: order, error: orderError } = await db.from("sk_orders")
+        .select("id,order_number,payment_status,order_status").eq("id", orderId).maybeSingle();
+      if (orderError) throw orderError;
+      if (!order) return reply({ success: false, error: "order_not_found" }, 404);
+      if (order.payment_status === "paid") return reply({ success: true, data: { already_paid: true, order_id: order.id } });
+      if (order.payment_status !== "unpaid") return reply({ success: false, error: "payment_status_not_confirmable" }, 409);
+      const paidAt = new Date().toISOString();
+      const { data: updated, error: updateError } = await db.from("sk_orders").update({
+        payment_status: "paid",
+        order_status: order.order_status === "pending" ? "processing" : order.order_status,
+        paid_at: paidAt, updated_at: paidAt,
+      }).eq("id", orderId).eq("payment_status", "unpaid")
+        .select("id,order_number,payment_status,order_status,paid_at").maybeSingle();
+      if (updateError) throw updateError;
+      if (!updated) return reply({ success: false, error: "payment_status_changed_retry" }, 409);
+      const { error: auditError } = await db.from("sk_admin_audit_logs").insert({
+        admin_email: email, action: "confirm_order_payment", target_type: "order", target_id: orderId,
+        details: { order_number: order.order_number, payment_status: "paid" },
+      });
+      if (auditError) console.error("Payment confirmation audit log failed:", auditError.message);
+      return reply({ success: true, data: updated });
+    }
+
     if (action === "overview") {
       const [orders, paid, members, topups, wallet] = await Promise.all([
         db.from("sk_orders").select("id", { count: "exact", head: true }),
