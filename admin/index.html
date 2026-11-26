@@ -81,11 +81,11 @@ button,input{font:inherit}.shell{max-width:1120px;margin:auto;padding:26px}.top{
         <div id="newOrderToast" role="status" style="display:none;position:sticky;top:12px;z-index:20;margin:14px 0;padding:16px 18px;border-radius:15px;background:#fff3d9;border:1px solid #f1d18a;color:#805719;box-shadow:0 8px 24px #0001;font-weight:700;cursor:pointer"></div>
     <div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="logout" id="testLineBtn" type="button">💬 測試 LINE 通知</button><button class="logout" id="enableNotificationsBtn" type="button">🔔 開啟桌面通知</button></div>
     <nav class="module-nav" id="moduleNav">
-      <button data-action="orders">訂單管理</button><button data-action="topups">儲值管理</button><button data-action="members">會員管理</button><button data-action="wallet_transactions">錢包交易</button><button data-action="audit_logs">操作紀錄</button>
+      <button data-action="orders">訂單管理</button><button data-action="topups">儲值管理</button><button data-action="members">會員管理</button><button data-action="topup_campaigns">儲值活動</button><button data-action="wallet_transactions">錢包交易</button><button data-action="audit_logs">操作紀錄</button>
     </nav>
     <section class="data-panel">
       <div class="panel-head"><div><h2 id="panelTitle">近期訂單</h2><p id="panelHint">最新 50 筆資料</p></div><button class="logout" id="refreshBtn">重新整理</button></div>
-      <div id="panelMessage" class="pending">正在讀取資料…</div>
+      <div id="campaignEditor" hidden style="margin:0 0 18px;padding:18px;border:1px solid var(--line);border-radius:16px;background:#fff"><h3 style="margin:0 0 12px">儲值活動設定</h3><input id="campaignId" type="hidden"><div class="order-detail-grid"><label class="order-detail-field"><small>活動名稱</small><input id="campaignName" maxlength="100" placeholder="例如：冬季儲值回饋" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px"></label><label class="order-detail-field"><small>最低儲值金額（500 的倍數）</small><input id="campaignMin" type="number" min="500" step="500" value="500" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px"></label><label class="order-detail-field"><small>額外贈送金額</small><input id="campaignBonus" type="number" min="0" step="1" value="0" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px"></label><label class="order-detail-field"><small>開始時間（選填）</small><input id="campaignStarts" type="datetime-local" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px"></label><label class="order-detail-field"><small>結束時間（選填）</small><input id="campaignEnds" type="datetime-local" style="width:100%;padding:10px;border:1px solid var(--line);border-radius:9px"></label><label class="order-detail-field" style="display:flex;align-items:center;gap:8px"><input id="campaignActive" type="checkbox" checked>立即啟用</label></div><div style="display:flex;gap:10px;margin-top:12px"><button class="primary" id="saveCampaignBtn" type="button" style="width:auto;padding:0 20px">儲存活動</button><button class="logout" id="resetCampaignBtn" type="button">新增／清空</button></div><p id="campaignFormMessage" style="margin:10px 0 0;color:var(--muted);font-size:12px"></p></div><div id="panelMessage" class="pending">正在讀取資料…</div>
       <div class="table-wrap"><table id="dataTable"><thead></thead><tbody></tbody></table></div>
     </section>
   </main>
@@ -147,10 +147,11 @@ let toastHideTimer=null;
 let lastSeenOrderId=null;
 let orderPollReady=false;
 let adminSession=null;
-const labels={orders:"訂單管理",topups:"儲值管理",members:"會員管理",wallet_transactions:"錢包交易紀錄",audit_logs:"管理員操作紀錄"};
+const labels={orders:"訂單管理",topups:"儲值管理",topup_campaigns:"儲值活動",members:"會員管理",wallet_transactions:"錢包交易紀錄",audit_logs:"管理員操作紀錄"};
 const columns={
  orders:[["order_number","訂單編號"],["total_amount","金額"],["payment_method","付款方式"],["payment_status","付款狀態"],["order_status","訂單狀態"],["created_at","建立時間"]],
  topups:[["id","申請編號"],["customer_id","會員編號"],["amount","申請金額"],["payment_method","付款方式"],["payment_bank","銀行"],["status","狀態"],["created_at","申請時間"]],
+ topup_campaigns:[["name","活動名稱"],["min_amount","最低儲值"],["bonus_amount","贈送金額"],["starts_at","開始時間"],["ends_at","結束時間"],["is_active","啟用狀態"],["id","操作"]],
  members:[["id","會員編號"],["name","會員名稱"],["line_user_id","LINE User ID"],["created_at","加入時間"]],
  wallet_transactions:[["transaction_type","類型"],["amount","金額"],["balance_before","異動前"],["balance_after","異動後"],["description","說明"],["created_at","時間"]],
  audit_logs:[["admin_email","管理員"],["action","操作"],["target_type","資料類型"],["target_id","資料編號"],["created_at","時間"]]
@@ -169,12 +170,21 @@ async function loadOverview(){
  try{const d=await adminRequest("overview");$("statOrders").textContent=d.order_count+" 筆";$("statRevenue").textContent="NT$ "+Number(d.paid_revenue||0).toLocaleString("en-US");$("statMembers").textContent=d.member_count+" 位";$("statTopups").textContent=d.pending_topups+" 筆待確認";}catch(e){["statOrders","statRevenue","statMembers","statTopups"].forEach(id=>$(id).textContent="暫時無法讀取");$("panelMessage").textContent="總覽資料載入失敗："+e.message}
 }
 async function loadModule(action,query=""){
- currentAction=action;currentSearch=query;$("panelTitle").textContent=labels[action]||"資料列表";$("panelHint").textContent=query?"搜尋結果":"最新 50 筆資料";
+ currentAction=action;currentSearch=query;$("panelTitle").textContent=labels[action]||"資料列表";$("panelHint").textContent=query?"搜尋結果":"最新 50 筆資料";$("campaignEditor").hidden=action!=="topup_campaigns";
 $("panelMessage").style.display="block";$("panelMessage").textContent="正在讀取資料…";$("dataTable").querySelector("thead").innerHTML="";$("dataTable").querySelector("tbody").innerHTML="";
  document.querySelectorAll("#moduleNav button").forEach(b=>b.classList.toggle("active",b.dataset.action===action));
- try{const apiAction=query&&action==="orders"?"search_orders":query&&action==="members"?"search_members":action;const rows=await adminRequest(apiAction,query);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>x[0]==="order_number"&&action==="orders"?"<td><button class=\"order-link\" type=\"button\" data-order-id=\""+esc(row.id)+"\">"+esc(fmt(row.order_number))+"</button></td>":x[0]==="id"&&action==="topups"?"<td><button class=\"order-link\" type=\"button\" data-topup-id=\""+esc(row.id)+"\">"+esc(String(row.id).slice(0,8).toUpperCase())+"</button></td>":"<td>"+esc(fmt(row[x[0]]))+"</td>").join("")+"</tr>").join("");
+ try{const apiAction=query&&action==="orders"?"search_orders":query&&action==="members"?"search_members":action;const rows=await adminRequest(apiAction,query);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>x[0]==="order_number"&&action==="orders"?"<td><button class=\"order-link\" type=\"button\" data-order-id=\""+esc(row.id)+"\">"+esc(fmt(row.order_number))+"</button></td>":x[0]==="id"&&action==="topups"?"<td><button class=\"order-link\" type=\"button\" data-topup-id=\""+esc(row.id)+"\">"+esc(String(row.id).slice(0,8).toUpperCase())+"</button></td>":x[0]==="id"&&action==="topup_campaigns"?"<td><button type=\"button\" class=\"order-link\" data-campaign-edit=\""+esc(row.id)+"\">編輯</button></td>":x[0]==="is_active"&&action==="topup_campaigns"?"<td>"+(row.is_active?"啟用中":"已停用")+"</td>":"<td>"+esc(fmt(row[x[0]]))+"</td>").join("")+"</tr>").join("");
  if(action==="orders") document.querySelectorAll(".order-link[data-order-id]").forEach(btn=>btn.addEventListener("click",()=>openOrderDetail(btn.dataset.orderId)));
- if(action==="topups") document.querySelectorAll(".order-link[data-topup-id]").forEach(btn=>btn.addEventListener("click",()=>openTopupDetail(btn.dataset.topupId)));}
+ if(action==="topups") document.querySelectorAll(".order-link[data-topup-id]").forEach(btn=>btn.addEventListener("click",()=>openTopupDetail(btn.dataset.topupId))); if(action==="topup_campaigns"){
+  document.querySelectorAll("[data-campaign-edit]").forEach(btn=>btn.addEventListener("click",()=>{
+   const row=rows.find(x=>x.id===btn.dataset.campaignEdit);if(!row)return;
+   $("campaignId").value=row.id;$("campaignName").value=row.name||"";$("campaignMin").value=row.min_amount;$("campaignBonus").value=row.bonus_amount;
+   $("campaignStarts").value=row.starts_at?new Date(row.starts_at).toISOString().slice(0,16):"";
+   $("campaignEnds").value=row.ends_at?new Date(row.ends_at).toISOString().slice(0,16):"";
+   $("campaignActive").checked=!!row.is_active;$("campaignFormMessage").textContent="正在編輯："+row.name;
+  }));
+ }
+}
  catch(e){$("panelMessage").style.display="block";$("panelMessage").textContent="讀取失敗："+e.message}
 }
 
@@ -191,6 +201,7 @@ async function copyAdminValue(button,value){
  }catch(error){alert("複製失敗，請確認瀏覽器允許剪貼簿存取。");}
 }
 async function openOrderDetail(orderId){
+ $("orderDetailTitle").textContent="訂單詳細資料";
  const modal=$("orderDetailModal"),content=$("orderDetailContent");
  modal.hidden=false;content.innerHTML="<p>正在安全讀取訂單詳細資料…</p>";
  try{
@@ -295,6 +306,25 @@ async function openTopupDetail(requestId){
   });
  }catch(error){content.innerHTML="<div class=\"order-detail-field\">讀取儲值申請失敗："+esc(error.message)+"</div>";}
 }
+function resetCampaignForm(){
+ $("campaignId").value="";$("campaignName").value="";$("campaignMin").value="500";$("campaignBonus").value="0";
+ $("campaignStarts").value="";$("campaignEnds").value="";$("campaignActive").checked=true;$("campaignFormMessage").textContent="";
+}
+$("resetCampaignBtn").addEventListener("click",resetCampaignForm);
+$("saveCampaignBtn").addEventListener("click",async()=>{
+ const btn=$("saveCampaignBtn"),message=$("campaignFormMessage");
+ const payload={
+  campaign_id:$("campaignId").value||undefined,name:$("campaignName").value.trim(),
+  min_amount:Number($("campaignMin").value),bonus_amount:Number($("campaignBonus").value),
+  starts_at:$("campaignStarts").value?new Date($("campaignStarts").value).toISOString():null,
+  ends_at:$("campaignEnds").value?new Date($("campaignEnds").value).toISOString():null,
+  is_active:$("campaignActive").checked
+ };
+ btn.disabled=true;message.textContent="正在儲存活動…";
+ try{await adminRequest("save_topup_campaign","",payload);message.textContent="✓ 活動已儲存";resetCampaignForm();await loadModule("topup_campaigns");}
+ catch(error){message.textContent="儲存失敗："+error.message;}
+ finally{btn.disabled=false;}
+});
 function closeOrderDetail(){$("orderDetailModal").hidden=true;$("orderDetailContent").innerHTML="";}
 $("orderDetailModal").addEventListener("click",event=>{if(event.target===$("orderDetailModal"))closeOrderDetail();});
 
