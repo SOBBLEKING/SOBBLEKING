@@ -82,6 +82,8 @@ Deno.serve(async (req) => {
       p_items: normalizedItems,
       p_note: note,
       p_client_request_id: clientRequestId,
+      p_payment_method: paymentMethod,
+      p_payment_bank: paymentMethod === "無卡存款" ? paymentBank : "",
     });
 
     if (error) {
