@@ -564,9 +564,6 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
     <div id="checkout-member-state" class="checkout-hint">會員登入狀態確認中⋯</div>
     <div id="checkout-summary" class="checkout-summary"></div>
     <div class="checkout-grand-total"><span>訂單總額</span><span id="checkout-total">NT$0</span></div>
-    <label class="checkout-field">Email（必填，用於接收訂單通知）
-      <input id="checkout-email" type="email" inputmode="email" autocomplete="email" placeholder="請輸入常用 Email" required>
-    </label>
     <label class="checkout-field">訂單備註（選填）
       <textarea id="checkout-note" placeholder="如有需要補充的訂單資訊，請填寫於此"></textarea>
     </label>
@@ -804,12 +801,6 @@ async function submitOrder(){
     resultBox.textContent = "購物車是空的，請先選購商品。";
     return;
   }
-  const customerEmail = document.getElementById("checkout-email").value.trim();
-  if(!customerEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)){
-    resultBox.textContent = "請填寫正確的 Email，才能接收訂單通知。";
-    document.getElementById("checkout-email").focus();
-    return;
-  }
   if(!checkoutRequestId) checkoutRequestId = crypto.randomUUID();
   button.disabled = true;
   button.textContent = "正在建立訂單⋯";
@@ -823,7 +814,6 @@ async function submitOrder(){
       },
       body:JSON.stringify({
         access_token:accessToken,
-        customer_email:customerEmail,
         items,
         note:document.getElementById("checkout-note").value,
         client_request_id:checkoutRequestId
@@ -837,8 +827,6 @@ async function submitOrder(){
     resultBox.textContent = "訂單建立成功！\\n訂單編號：" + data.order_number +
       "\\n訂單金額：NT$" + Number(data.total_amount).toLocaleString("en-US") +
       (data.verification_code ? "\\n驗證碼：" + data.verification_code : "") +
-      "\\n\\n訂單通知寄送至：" + customerEmail +
-      (data.email_notifications_sent ? "\\n管理員通知也已寄出。" : "\\nEmail 通知尚未完成，請聯絡客服確認。") +
       "\\n請保存訂單編號與驗證碼，後續依客服指示完成付款與資料確認。";
   }catch(error){
     console.error("正式下單失敗：",error);
