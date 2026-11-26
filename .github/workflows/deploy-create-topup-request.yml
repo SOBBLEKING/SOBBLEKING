@@ -2,6 +2,11 @@ name: Deploy wallet top-up Edge Function
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/functions/create-topup-request/**'
+      - '.github/workflows/deploy-create-topup-request.yml'
 
 permissions:
   contents: read
