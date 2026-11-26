@@ -84,6 +84,7 @@ Deno.serve(async (req) => {
       p_client_request_id: clientRequestId,
       p_payment_method: paymentMethod,
       p_payment_bank: paymentMethod === "無卡存款" ? paymentBank : "",
+      p_use_wallet: body.use_wallet !== false,
     });
 
     if (error) {
@@ -106,6 +107,10 @@ Deno.serve(async (req) => {
     const verificationCode = typeof order.verification_code === "string"
       ? order.verification_code
       : "";
+    const effectivePaymentMethod = typeof order.payment_method === "string" ? order.payment_method : paymentMethod;
+    const walletAmountUsed = Number(order.wallet_amount_used ?? 0);
+    const externalDue = Number(order.external_due ?? order.total_amount ?? 0);
+    const effectivePaymentBank = effectivePaymentMethod === "無卡存款" ? paymentBank : "";
 
     if (!orderId) return respond({ success: false, error: "order_id_missing" }, 500);
 
@@ -139,8 +144,10 @@ Deno.serve(async (req) => {
             order: savedOrder ?? order,
             items: savedItems ?? [],
             customer: customerInfo,
-            paymentMethod,
-            paymentBank,
+            paymentMethod: effectivePaymentMethod,
+            paymentBank: effectivePaymentBank,
+            walletAmountUsed,
+            externalDue,
             verificationCode,
           }),
         });
@@ -166,7 +173,9 @@ Deno.serve(async (req) => {
           "🛎️ SOBBLEKING 新訂單成立",
           "訂單編號：" + String(lineOrder?.order_number || order.order_number || orderId),
           "訂單金額：NT$" + Number(lineOrder?.total_amount ?? order.total_amount ?? 0).toLocaleString("zh-TW"),
-          "付款方式：" + paymentMethod + (paymentBank ? "（" + paymentBank + "）" : ""),
+          "會員卡扣款：NT$" + walletAmountUsed.toLocaleString("zh-TW"),
+          "剩餘應付：NT$" + externalDue.toLocaleString("zh-TW"),
+          "付款方式：" + (externalDue > 0 ? effectivePaymentMethod + (effectivePaymentBank ? "（" + effectivePaymentBank + "）" : "") : "會員卡餘額（已付款）"),
           "請登入管理後台確認訂單。"
         ].join("\n");
         const lineResponse = await fetch("https://api.line.me/v2/bot/message/push", {
