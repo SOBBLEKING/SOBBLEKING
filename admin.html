@@ -84,6 +84,7 @@ $("authForm").addEventListener("submit",async e=>{e.preventDefault();const email
 let currentAction="orders";
 let currentSearch="";
 let orderPollTimer=null;
+let toastHideTimer=null;
 let lastSeenOrderId=null;
 let orderPollReady=false;
 let adminSession=null;
@@ -132,7 +133,6 @@ async function checkForNewOrders(initial=false){
    if(!orderPollReady||initial){lastSeenOrderId=newest.id;orderPollReady=true;return;}
    if(newest.id!==lastSeenOrderId){
      lastSeenOrderId=newest.id;
-     const count=rows.findIndex(row=>row.id===lastSeenOrderId);
      const toast=$("newOrderToast");
      toast.textContent="🛎️ 有新訂單！訂單編號："+(newest.order_number||"新訂單")+"　點此查看訂單";
      toast.style.display="block";
@@ -140,8 +140,8 @@ async function checkForNewOrders(initial=false){
      if("Notification" in window && Notification.permission==="granted"){
        new Notification("SOBBLEKING｜收到新訂單",{body:"訂單編號："+(newest.order_number||"新訂單")});
      }
-     if(orderPollTimer){clearInterval(orderPollTimer);orderPollTimer=null;}
-     orderPollTimer=setTimeout(()=>{if(toast)toast.style.display="none";},15000);
+     if(toastHideTimer)clearTimeout(toastHideTimer);
+     toastHideTimer=setTimeout(()=>{if(toast)toast.style.display="none";},15000);
    }
  }catch(e){console.warn("new order polling failed",e);}
 }
