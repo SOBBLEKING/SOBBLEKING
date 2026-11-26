@@ -48,13 +48,10 @@ alter table public.sk_orders enable row level security;
 alter table public.sk_order_items enable row level security;
 alter table public.sk_order_verification_codes enable row level security;
 
-drop policy if exists sk_orders_service_role_only on public.sk_orders;
 create policy sk_orders_service_role_only on public.sk_orders
   for all to service_role using (true) with check (true);
-drop policy if exists sk_order_items_service_role_only on public.sk_order_items;
 create policy sk_order_items_service_role_only on public.sk_order_items
   for all to service_role using (true) with check (true);
-drop policy if exists sk_order_codes_service_role_only on public.sk_order_verification_codes;
 create policy sk_order_codes_service_role_only on public.sk_order_verification_codes
   for all to service_role using (true) with check (true);
 
