@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
 
     const { data: customer, error: customerError } = await admin
       .from("customers")
-      .select("id")
+      .select("*")
       .eq("line_user_id", profile.userId)
       .maybeSingle();
 
@@ -96,6 +96,50 @@ Deno.serve(async (req) => {
       : "";
 
     if (!orderId) return respond({ success: false, error: "order_id_missing" }, 500);
+
+    // Notify the administrator only for a newly created order, never for an idempotent retry.
+    const emailEndpoint = Deno.env.get("ADMIN_ORDER_EMAIL_URL");
+    const emailToken = Deno.env.get("ADMIN_ORDER_EMAIL_TOKEN");
+    if (emailEndpoint && emailToken && order.reused !== true) {
+      try {
+        const [{ data: savedOrder }, { data: savedItems }] = await Promise.all([
+          admin.from("sk_orders")
+            .select("order_number,total_amount,created_at,note,customer_id")
+            .eq("id", orderId)
+            .maybeSingle(),
+          admin.from("sk_order_items")
+            .select("product_name,unit_price,quantity,subtotal")
+            .eq("order_id", orderId),
+        ]);
+
+        const customerInfo: Record<string, unknown> = {};
+        const customerFields = ["name", "display_name", "line_display_name", "customer_name", "phone", "customer_code", "member_code", "member_number"];
+        for (const field of customerFields) {
+          const value = customer[field];
+          if (typeof value === "string" && value.trim()) customerInfo[field] = value;
+        }
+
+        const emailResponse = await fetch(emailEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            token: emailToken,
+            order: savedOrder ?? order,
+            items: savedItems ?? [],
+            customer: customerInfo,
+            paymentMethod,
+            paymentBank,
+            verificationCode,
+          }),
+        });
+        if (!emailResponse.ok) {
+          console.error("Admin order email failed:", emailResponse.status);
+        }
+      } catch (emailError) {
+        // Email failure must not undo a successfully created order.
+        console.error("Admin order email error:", emailError);
+      }
+    }
 
     return respond(order);
   } catch (error) {
