@@ -564,10 +564,10 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
     <label class="checkout-field">訂單備註（選填）
       <textarea id="checkout-note" placeholder="如有需要補充的訂單資訊，請填寫於此"></textarea>
     </label>
-    <p class="checkout-hint">目前已建立下單頁面並連結購物車。正式送出訂單、付款方式與遊戲帳號資料，需待安全的後端訂單建立功能接通後啟用；此頁目前不會扣款或建立正式訂單。</p>
+    <p id="checkout-result" class="checkout-hint">送出後會由系統再次確認 LINE 身分與商品價格，並建立正式訂單；此步驟不會自動扣款。</p>
     <div class="checkout-actions">
       <button class="checkout-back" type="button" onclick="backToCart()">返回購物車</button>
-      <button class="checkout-submit" type="button" disabled>正式下單功能串接中</button>
+      <button id="checkout-submit-button" class="checkout-submit" type="button" onclick="submitOrder()" disabled>請先登入 LINE 會員</button>
     </div>
   </div>
 </section>
@@ -597,6 +597,7 @@ const supabaseClient = window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
 /* LINE LIFF 會員設定 */
 const LIFF_ID = "2012790935-6gudcqo6";
 const MEMBER_LOGIN_URL = "https://ksellpcaecuihxjxsolr.supabase.co/functions/v1/line-member-login";
+const CREATE_ORDER_URL = "https://ksellpcaecuihxjxsolr.supabase.co/functions/v1/create-order";
 
 /* 商品資料庫 ID 與顯示順序 */
 const PRODUCT_ORDER = [
@@ -622,6 +623,8 @@ const PRODUCT_DESCRIPTIONS = {
 let products = [];
 let cart = {};
 let currentCustomerId = null;
+let checkoutRequestId = null;
+let orderWasCreated = false;
 
 /* 讀取商品 */
 async function loadProducts(){
@@ -706,6 +709,8 @@ function animateAddToCart(button,id){
 
 /* 加入購物車 */
 function addToCart(id){
+  checkoutRequestId = null;
+  orderWasCreated = false;
   const product = products.find(item=>item.id===id);
   if(!product) return;
   cart[id] = (cart[id] || 0) + 1;
@@ -715,6 +720,8 @@ function addToCart(id){
 /* 調整商品數量 */
 function changeQuantity(id,amount){
   if(!cart[id]) return;
+  checkoutRequestId = null;
+  orderWasCreated = false;
   cart[id] += amount;
   if(cart[id]<=0) delete cart[id];
   renderCart();
@@ -768,6 +775,65 @@ function renderCart(){
 }
 
 /* 購物車前往下單頁 */
+async function submitOrder(){
+  const button = document.getElementById("checkout-submit-button");
+  const resultBox = document.getElementById("checkout-result");
+  if(orderWasCreated){
+    resultBox.textContent = "這筆購物車已成功建立訂單，請勿重複送出。";
+    return;
+  }
+  if(!window.liff || !liff.isLoggedIn()){
+    resultBox.textContent = "請先使用 LINE 登入會員，再送出訂單。";
+    return;
+  }
+  const accessToken = liff.getAccessToken();
+  if(!accessToken){
+    resultBox.textContent = "無法取得 LINE 登入憑證，請重新登入後再試。";
+    return;
+  }
+  const items = products
+    .filter(product=>(cart[product.id] || 0)>0)
+    .map(product=>({product_id:product.id,quantity:cart[product.id]}));
+  if(!items.length){
+    resultBox.textContent = "購物車是空的，請先選購商品。";
+    return;
+  }
+  if(!checkoutRequestId) checkoutRequestId = crypto.randomUUID();
+  button.disabled = true;
+  button.textContent = "正在建立訂單⋯";
+  resultBox.textContent = "正在確認 LINE 會員與商品資料，請稍候，不要重複點擊。";
+  try{
+    const response = await fetch(CREATE_ORDER_URL,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "apikey":SUPABASE_KEY
+      },
+      body:JSON.stringify({
+        access_token:accessToken,
+        items,
+        note:document.getElementById("checkout-note").value,
+        client_request_id:checkoutRequestId
+      })
+    });
+    const data = await response.json();
+    if(!response.ok || !data.success) throw new Error(data.error || "訂單建立失敗，請稍後再試。");
+    orderWasCreated = true;
+    button.textContent = "訂單已建立";
+    resultBox.textContent = "訂單建立成功！訂單編號：" + data.order_number +
+      "；金額：NT$" + Number(data.total_amount).toLocaleString("en-US") +
+      (data.verification_code ? "；驗證碼：" + data.verification_code : "") +
+      "。請保存訂單編號與驗證碼，後續依客服指示完成付款與資料確認。";
+  }catch(error){
+    console.error("正式下單失敗：",error);
+    resultBox.textContent = error.message === "member_record_not_found"
+      ? "找不到你的 LINE 會員資料，請先重新登入會員或聯絡客服。"
+      : "訂單尚未建立：" + (error.message || "請稍後再試。") + "。你可以稍後重試，不會因同一請求重複建立訂單。";
+    button.disabled = false;
+    button.textContent = "重新送出訂單";
+  }
+}
+
 function goToCheckout(){
   const selected = products.filter(product=>(cart[product.id] || 0)>0);
   if(!selected.length){
@@ -792,9 +858,12 @@ function goToCheckout(){
     summary.appendChild(row);
   });
   document.getElementById("checkout-total").textContent = "NT$" + total.toLocaleString("en-US");
-  document.getElementById("checkout-member-state").textContent = currentCustomerId
-    ? "已取得會員識別資料，可以繼續確認訂單內容。"
-    : "尚未取得會員識別資料；正式下單前請先完成 LINE 會員登入。";
+  document.getElementById("checkout-member-state").textContent = window.liff && liff.isLoggedIn()
+    ? "LINE 會員已登入，可以送出訂單。"
+    : "尚未登入 LINE 會員，請先完成登入。";
+  const submitButton = document.getElementById("checkout-submit-button");
+  submitButton.disabled = !(window.liff && liff.isLoggedIn()) || orderWasCreated;
+  submitButton.textContent = orderWasCreated ? "訂單已建立" : (submitButton.disabled ? "請先登入 LINE 會員" : "確認並建立訂單");
   checkout.hidden = false;
   checkout.scrollIntoView({behavior:"smooth",block:"start"});
 }
