@@ -150,7 +150,7 @@ let adminSession=null;
 const labels={orders:"訂單管理",topups:"儲值管理",members:"會員管理",wallet_transactions:"錢包交易紀錄",audit_logs:"管理員操作紀錄"};
 const columns={
  orders:[["order_number","訂單編號"],["total_amount","金額"],["payment_method","付款方式"],["payment_status","付款狀態"],["order_status","訂單狀態"],["created_at","建立時間"]],
- topups:[["id","申請編號"],["amount","儲值金額"],["payment_method","付款方式"],["payment_bank","銀行"],["status","狀態"],["created_at","申請時間"]],
+ topups:[["id","申請編號"],["customer_id","會員編號"],["amount","申請金額"],["payment_method","付款方式"],["payment_bank","銀行"],["status","狀態"],["created_at","申請時間"]],
  members:[["id","會員編號"],["name","會員名稱"],["line_user_id","LINE User ID"],["created_at","加入時間"]],
  wallet_transactions:[["transaction_type","類型"],["amount","金額"],["balance_before","異動前"],["balance_after","異動後"],["description","說明"],["created_at","時間"]],
  audit_logs:[["admin_email","管理員"],["action","操作"],["target_type","資料類型"],["target_id","資料編號"],["created_at","時間"]]
@@ -172,8 +172,9 @@ async function loadModule(action,query=""){
  currentAction=action;currentSearch=query;$("panelTitle").textContent=labels[action]||"資料列表";$("panelHint").textContent=query?"搜尋結果":"最新 50 筆資料";
 $("panelMessage").style.display="block";$("panelMessage").textContent="正在讀取資料…";$("dataTable").querySelector("thead").innerHTML="";$("dataTable").querySelector("tbody").innerHTML="";
  document.querySelectorAll("#moduleNav button").forEach(b=>b.classList.toggle("active",b.dataset.action===action));
- try{const apiAction=query&&action==="orders"?"search_orders":query&&action==="members"?"search_members":action;const rows=await adminRequest(apiAction,query);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>x[0]==="order_number"&&action==="orders"?"<td><button class=\"order-link\" type=\"button\" data-order-id=\""+esc(row.id)+"\">"+esc(fmt(row.order_number))+"</button></td>":"<td>"+esc(fmt(row[x[0]]))+"</td>").join("")+"</tr>").join("");
- if(action==="orders") document.querySelectorAll(".order-link").forEach(btn=>btn.addEventListener("click",()=>openOrderDetail(btn.dataset.orderId)));}
+ try{const apiAction=query&&action==="orders"?"search_orders":query&&action==="members"?"search_members":action;const rows=await adminRequest(apiAction,query);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>x[0]==="order_number"&&action==="orders"?"<td><button class=\"order-link\" type=\"button\" data-order-id=\""+esc(row.id)+"\">"+esc(fmt(row.order_number))+"</button></td>":x[0]==="id"&&action==="topups"?"<td><button class=\"order-link\" type=\"button\" data-topup-id=\""+esc(row.id)+"\">"+esc(String(row.id).slice(0,8).toUpperCase())+"</button></td>":"<td>"+esc(fmt(row[x[0]]))+"</td>").join("")+"</tr>").join("");
+ if(action==="orders") document.querySelectorAll(".order-link[data-order-id]").forEach(btn=>btn.addEventListener("click",()=>openOrderDetail(btn.dataset.orderId)));
+ if(action==="topups") document.querySelectorAll(".order-link[data-topup-id]").forEach(btn=>btn.addEventListener("click",()=>openTopupDetail(btn.dataset.topupId)));}
  catch(e){$("panelMessage").style.display="block";$("panelMessage").textContent="讀取失敗："+e.message}
 }
 
@@ -246,6 +247,53 @@ async function openOrderDetail(orderId){
    $("copyOrderPassword").addEventListener("click",()=>copyAdminValue($("copyOrderPassword"),g.password));
   }
  }catch(error){content.innerHTML="<div class=\"order-detail-field\">讀取訂單詳細資料失敗："+esc(error.message)+"</div>";}
+}
+async function openTopupDetail(requestId){
+ const modal=$("orderDetailModal"),content=$("orderDetailContent");
+ $("orderDetailTitle").textContent="儲值申請詳細資料";
+ modal.hidden=false;content.innerHTML="<p>正在讀取儲值申請…</p>";
+ try{
+  const data=await adminRequest("topup_detail","",{request_id:requestId});
+  const t=data.topup||{};
+  const statusMap={pending:"待確認",confirmed:"已入帳",rejected:"已拒絕",cancelled:"已取消"};
+  let html="<div class=\"order-detail-grid\">"+
+   [["申請編號",t.id],["會員編號",t.customer_id],["申請金額","NT$"+Number(t.amount||0).toLocaleString("zh-TW")],
+    ["付款方式",t.payment_method],["存款銀行",t.payment_bank],["申請時間",fmt(t.created_at)],
+    ["目前狀態",statusMap[t.status]||t.status],["目前錢包餘額","NT$"+Number(data.wallet_balance||0).toLocaleString("zh-TW")],
+    ["實際收款",t.received_amount==null?"尚未確認":"NT$"+Number(t.received_amount).toLocaleString("zh-TW")],
+    ["超額入帳", "NT$"+Number(t.excess_amount||0).toLocaleString("zh-TW")],
+    ["確認時間",fmt(t.confirmed_at)],["管理員備註",t.admin_note||"—"]]
+    .map(x=>"<div class=\"order-detail-field\"><small>"+esc(x[0])+"</small><strong>"+esc(x[1])+"</strong></div>").join("")+"</div>";
+  if(t.status==="pending"){
+   html+="<div class=\"order-detail-section\"><h3>確認收款</h3><p>請先核對實際入帳紀錄。無卡存款可將超額款項一併存入錢包；銀行匯款及 LINE Pay 必須與申請金額相同。</p>"+
+    "<label class=\"order-detail-field\"><small>實際收到金額（NT$）</small><input id=\"topupReceivedAmount\" type=\"number\" min=\"0\" step=\"1\" value=\""+Number(t.amount||0)+"\" style=\"width:100%;padding:12px;border:1px solid #dceaf5;border-radius:10px;margin-top:8px\"></label>"+
+    "<button type=\"button\" class=\"primary\" id=\"confirmTopupBtn\" style=\"width:auto;padding:0 20px;margin:12px 0 0\">確認收款並入帳</button> "+
+    "<button type=\"button\" class=\"logout\" id=\"rejectTopupBtn\">拒絕申請</button></div>";
+  }
+  content.innerHTML=html;
+  const confirmBtn=$("confirmTopupBtn");
+  if(confirmBtn)confirmBtn.addEventListener("click",async()=>{
+   const received=Number($("topupReceivedAmount").value);
+   if(!Number.isSafeInteger(received)||received<Number(t.amount))return alert("實收金額不可低於申請金額，請重新確認。");
+   if(t.payment_method!=="無卡存款"&&received!==Number(t.amount))return alert("銀行匯款及 LINE Pay 目前須與申請金額完全相同；若有差額請先聯絡客人處理。");
+   if(!confirm("確認已在實際收款帳戶收到 NT$"+received.toLocaleString("zh-TW")+"？確認後系統會自動入帳，且無法重複確認。"))return;
+   confirmBtn.disabled=true;confirmBtn.textContent="正在入帳…";
+   try{
+    const result=await adminRequest("confirm_wallet_topup","",{request_id:requestId,received_amount:received});
+    alert("儲值已入帳！\n本金及超額：NT$"+Number(result.wallet_credit-(result.bonus_amount||0)).toLocaleString("zh-TW")+"\n活動贈送：NT$"+Number(result.bonus_amount||0).toLocaleString("zh-TW")+"\n目前餘額：NT$"+Number(result.balance_after).toLocaleString("zh-TW"));
+    await loadOverview();await loadModule("topups");await openTopupDetail(requestId);
+   }catch(error){alert("儲值入帳失敗："+error.message);confirmBtn.disabled=false;confirmBtn.textContent="確認收款並入帳";}
+  });
+  const rejectBtn=$("rejectTopupBtn");
+  if(rejectBtn)rejectBtn.addEventListener("click",async()=>{
+   const reason=prompt("請輸入拒絕原因（必填）：");
+   if(!reason||!reason.trim())return;
+   if(!confirm("確定拒絕這筆儲值申請？拒絕後不會增加會員餘額。"))return;
+   rejectBtn.disabled=true;
+   try{await adminRequest("reject_wallet_topup","",{request_id:requestId,reason:reason.trim()});alert("已拒絕申請，會員錢包餘額不變。");await loadOverview();await loadModule("topups");await openTopupDetail(requestId);}
+   catch(error){alert("拒絕失敗："+error.message);rejectBtn.disabled=false;}
+  });
+ }catch(error){content.innerHTML="<div class=\"order-detail-field\">讀取儲值申請失敗："+esc(error.message)+"</div>";}
 }
 function closeOrderDetail(){$("orderDetailModal").hidden=true;$("orderDetailContent").innerHTML="";}
 $("orderDetailModal").addEventListener("click",event=>{if(event.target===$("orderDetailModal"))closeOrderDetail();});
