@@ -591,7 +591,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
         <label class="payment-method-option"><input type="radio" name="payment-method" value="銀行匯款"> 銀行匯款</label>
         <label class="payment-method-option"><input type="radio" name="payment-method" value="LINE Pay"> LINE Pay</label>
       </div>
-      <select id="payment-bank" class="checkout-field payment-bank-select" aria-label="選擇無卡存款銀行">
+      <select id="payment-bank" class="checkout-field payment-bank-select visible" aria-label="選擇無卡存款銀行">
         <option value="國泰世華（013）">國泰世華（013）</option>
         <option value="台新銀行（812）">台新銀行（812）</option>
         <option value="郵局（700）">郵局（700）</option>
@@ -601,7 +601,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
     <label class="checkout-field">訂單備註（選填）
       <textarea id="checkout-note" placeholder="如有需要補充的訂單資訊，請填寫於此"></textarea>
     </label>
-    <p id="checkout-result" class="checkout-hint">送出後會由系統再次確認 LINE 身分與商品價格，並建立正式訂單；此步驟不會自動扣款。</p>
+    <p id="checkout-result" class="checkout-hint">請確認付款方式，再建立訂單。</p>
     <div class="checkout-actions">
       <button class="checkout-back" type="button" onclick="backToCart()">返回購物車</button>
       <button id="checkout-submit-button" class="checkout-submit" type="button" onclick="submitOrder()" disabled>請先登入 LINE 會員</button>
