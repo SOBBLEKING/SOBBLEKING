@@ -1202,12 +1202,10 @@ function showMember(member,wallet,topupHistory,transactionHistory){
   }
   const walletBalanceElement = document.getElementById("member-wallet-balance");
   const walletHistoryNote = document.getElementById("wallet-history-note");
-  const balance = wallet && wallet.balance !== undefined && wallet.balance !== null ? Number(wallet.balance) : NaN;
-  if(Number.isFinite(balance)){
-    walletBalanceElement.textContent = "NT$" + balance.toLocaleString("en-US");
-  }else{
-    walletBalanceElement.textContent = "暫無資料";
-  }
+  // 沒有錢包資料或尚未儲值時，預設餘額為 NT$0；不顯示「暫無資料」。
+  const parsedBalance = wallet && wallet.balance !== undefined && wallet.balance !== null ? Number(wallet.balance) : 0;
+  const balance = Number.isFinite(parsedBalance) ? parsedBalance : 0;
+  walletBalanceElement.textContent = "NT$" + balance.toLocaleString("en-US");
   renderWalletHistory(topupHistory,transactionHistory);
   const topupCount = Array.isArray(topupHistory) ? topupHistory.length : 0;
   const transactionCount = Array.isArray(transactionHistory) ? transactionHistory.length : 0;
