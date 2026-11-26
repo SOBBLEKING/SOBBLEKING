@@ -188,15 +188,23 @@ Deno.serve(async (req) => {
       const { data, error } = await db.from("customers").select("*")
         .order("created_at", { ascending: false }).limit(1000);
       if (error) throw error;
-      const safe = (data || []).map((row: Record<string, unknown>) => ({
+      const matchesRaw = (data || []).map((row: Record<string, unknown>) => ({
         id: row.id ?? null,
         line_user_id: row.line_user_id ?? null,
         name: row.name ?? row.display_name ?? row.line_display_name ?? row.customer_name ?? "未命名會員",
         created_at: row.created_at ?? null,
-      }));
-      const matches = safe.filter((row: Record<string, unknown>) =>
+      })).filter((row: Record<string, unknown>) =>
         [row.id, row.line_user_id, row.name].some(value => String(value ?? "").toLowerCase().includes(query))
       ).slice(0, 100);
+      const ids = matchesRaw.map((row: Record<string, unknown>) => row.id).filter(Boolean);
+      const { data: wallets, error: walletError } = ids.length
+        ? await db.from("sk_wallet_accounts").select("customer_id,balance").in("customer_id", ids)
+        : { data: [], error: null };
+      if (walletError) throw walletError;
+      const balances = new Map((wallets || []).map((w: Record<string, unknown>) => [String(w.customer_id), Number(w.balance || 0)]));
+      const matches = matchesRaw.map((row: Record<string, unknown>) => ({
+        ...row, wallet_balance: balances.get(String(row.id)) ?? 0,
+      }));
       return reply({ success: true, data: matches });
     }
 
@@ -207,13 +215,39 @@ Deno.serve(async (req) => {
       return reply({ success: true, data: data || [] });
     }
 
+    if (action === "manual_wallet_adjustment") {
+      const customerId = typeof body.customer_id === "string" ? body.customer_id.trim() : "";
+      const direction = body.direction === "credit" || body.direction === "debit" ? body.direction : "";
+      const amount = Number(body.amount);
+      const reason = typeof body.reason === "string" ? body.reason.trim().slice(0, 500) : "";
+      if (!customerId || !direction || !Number.isSafeInteger(amount) || amount <= 0 || !reason) {
+        return reply({ success: false, error: "invalid_wallet_adjustment_input" }, 400);
+      }
+      const { data, error } = await db.rpc("sk_manual_wallet_adjustment", {
+        p_customer_id: customerId,
+        p_direction: direction,
+        p_amount: amount,
+        p_reason: reason,
+        p_admin_email: email,
+      });
+      if (error) return reply({ success: false, error: error.message || "manual_wallet_adjustment_failed" }, 409);
+      return reply({ success: true, data });
+    }
+
     if (action === "members") {
       const { data, error } = await db.from("customers").select("*").order("created_at", { ascending: false }).limit(limit);
       if (error) throw error;
+      const ids = (data || []).map((row: Record<string, unknown>) => row.id).filter(Boolean);
+      const { data: wallets, error: walletError } = ids.length
+        ? await db.from("sk_wallet_accounts").select("customer_id,balance").in("customer_id", ids)
+        : { data: [], error: null };
+      if (walletError) throw walletError;
+      const balances = new Map((wallets || []).map((w: Record<string, unknown>) => [String(w.customer_id), Number(w.balance || 0)]));
       const safe = (data || []).map((row: Record<string, unknown>) => ({
         id: row.id ?? null,
         line_user_id: row.line_user_id ?? null,
         name: row.name ?? row.display_name ?? row.line_display_name ?? row.customer_name ?? "未命名會員",
+        wallet_balance: balances.get(String(row.id)) ?? 0,
         created_at: row.created_at ?? null,
       }));
       return reply({ success: true, data: safe });
