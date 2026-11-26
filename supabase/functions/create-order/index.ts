@@ -153,6 +153,32 @@ Deno.serve(async (req) => {
         console.error("Admin order email error:", emailError);
       }
     }
+    // LINE push notification is independent of email. Configure LINE_CHANNEL_ACCESS_TOKEN
+    // and ADMIN_LINE_USER_ID as Supabase secrets. Notification failure never rolls back an order.
+    const lineToken = Deno.env.get("LINE_CHANNEL_ACCESS_TOKEN");
+    const adminLineUserId = Deno.env.get("ADMIN_LINE_USER_ID");
+    if (lineToken && adminLineUserId && order.reused !== true) {
+      try {
+        const { data: lineOrder } = await admin.from("sk_orders")
+          .select("order_number,total_amount,created_at")
+          .eq("id", orderId).maybeSingle();
+        const lineText = [
+          "🛎️ SOBBLEKING 新訂單成立",
+          "訂單編號：" + String(lineOrder?.order_number || order.order_number || orderId),
+          "訂單金額：NT$" + Number(lineOrder?.total_amount ?? order.total_amount ?? 0).toLocaleString("zh-TW"),
+          "付款方式：" + paymentMethod + (paymentBank ? "（" + paymentBank + "）" : ""),
+          "請登入管理後台確認訂單。"
+        ].join("\n");
+        const lineResponse = await fetch("https://api.line.me/v2/bot/message/push", {
+          method: "POST",
+          headers: {"Content-Type":"application/json","Authorization":"Bearer " + lineToken},
+          body: JSON.stringify({to:adminLineUserId,messages:[{type:"text",text:lineText}]})
+        });
+        if (!lineResponse.ok) console.error("Admin LINE push failed:",lineResponse.status,(await lineResponse.text()).slice(0,500));
+      } catch (lineError) {
+        console.error("Admin LINE push error:",lineError);
+      }
+    }
 
     return respond(order);
   } catch (error) {
