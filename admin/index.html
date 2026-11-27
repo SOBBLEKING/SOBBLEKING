@@ -241,6 +241,15 @@ async function openOrderDetail(orderId){
    ["建立時間",fmt(o.created_at)],["付款確認時間",fmt(o.paid_at)]
   ];
   let html="<div class=\"order-detail-grid\">"+base.map(x=>"<div class=\"order-detail-field\"><small>"+esc(x[0])+"</small><div class=\"order-copy-row\"><strong>"+esc(x[1]||"—")+"</strong>"+(x[2]?"<button type=\"button\" class=\"copy-value-button\" data-copy-value=\""+esc(x[1]||"") + "\">複製</button>":"")+"</div></div>").join("")+"</div>";
+  html+="<div class=\"order-detail-section\"><h3>訂單管理</h3><div class=\"order-detail-field\">";
+  if(o.payment_status==="unpaid" && o.order_status==="pending"){
+   html+="<p style=\"margin:0 0 12px;color:#8a6730\">此訂單尚未付款，可在確認原因後取消。取消只變更訂單狀態，不會刪除訂單、商品或付款紀錄。</p><button type=\"button\" class=\"logout\" id=\"cancelOrderBtn\" style=\"color:#a34d4d;border-color:#e8caca\">取消訂單</button>";
+  }else if(o.order_status==="cancelled"){
+   html+="<strong style=\"color:#a34d4d\">此訂單已取消。</strong>";
+  }else{
+   html+="<span style=\"color:#71869b\">已付款或已進入處理中的訂單，請先處理退款／售後流程，不可直接取消。</span>";
+  }
+  html+="</div></div>";
   html+="<div class=\"order-detail-section\"><h3>付款確認</h3><div class=\"order-detail-field\">";
   if(o.payment_status==="unpaid"){
    html+="<p style=\"margin:0 0 12px;color:#8a6730\">請先核對實際入帳紀錄。只有確認收到全額款項後，才能按下確認。</p><button type=\"button\" class=\"primary\" id=\"confirmOrderPaymentBtn\" style=\"width:auto;padding:0 20px;margin:0\">確認已收到款項</button>";
@@ -272,6 +281,17 @@ async function openOrderDetail(orderId){
     confirmBtn.disabled=true;confirmBtn.textContent="正在確認…";
     try{await adminRequest("confirm_order_payment","",{order_id:orderId});await loadOverview();await loadModule(currentAction,currentSearch);await openOrderDetail(orderId);}
     catch(error){alert("確認收款失敗："+error.message);confirmBtn.disabled=false;confirmBtn.textContent="確認已收到款項";}
+  });
+  const cancelBtn=$("cancelOrderBtn");
+  if(cancelBtn) cancelBtn.addEventListener("click",async()=>{
+    const reason=prompt("請填寫取消原因（必填，將保留在管理員操作紀錄）：");
+    if(!reason||!reason.trim())return;
+    if(!confirm("確定取消這筆尚未付款的訂單？\\n\\n取消原因："+reason.trim()+"\\n\\n訂單與相關紀錄會保留，不會刪除。"))return;
+    cancelBtn.disabled=true;cancelBtn.textContent="取消處理中…";
+    try{
+      await adminRequest("cancel_order","",{order_id:orderId,reason:reason.trim()});
+      await loadOverview();await loadModule(currentAction,currentSearch);await openOrderDetail(orderId);
+    }catch(error){alert("取消訂單失敗："+error.message);cancelBtn.disabled=false;cancelBtn.textContent="取消訂單";}
   });
   content.querySelectorAll(".copy-value-button[data-copy-value]").forEach(btn=>btn.addEventListener("click",()=>copyAdminValue(btn,btn.dataset.copyValue)));
   if(g){
