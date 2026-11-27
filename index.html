@@ -640,7 +640,23 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 <div id="wallet-topup-modal" class="payment-modal" hidden role="dialog" aria-modal="true" aria-labelledby="wallet-topup-title">
   <div class="payment-modal-card">
     <h3 id="wallet-topup-title">會員錢包儲值</h3>
-    <p class="payment-modal-sub">請輸入儲值金額並選擇付款方式</p>
+    <p class="payment-modal-sub">依照以下步驟完成申請，款項經客服核對後才會正式入帳</p>
+    <section aria-label="會員錢包儲值流程" style="margin:0 0 18px;padding:15px;border:1px solid #cfe4f2;border-radius:15px;background:linear-gradient(145deg,#f5fbff,#eaf5fc);color:#315F85;text-align:left">
+      <strong style="display:block;font-size:15px;margin-bottom:10px">儲值流程說明</strong>
+      <ol style="margin:0;padding-left:21px;font-size:12px;line-height:1.85">
+        <li style="padding-bottom:5px"><strong>選擇儲值金額</strong>：輸入欲儲值金額，最低 NT$500，且須為 NT$500 的整數倍；可先查看目前活動優惠。</li>
+        <li style="padding-bottom:5px"><strong>建立儲值申請</strong>：選擇付款方式並送出，系統會產生專屬申請編號，請妥善保存。</li>
+        <li style="padding-bottom:5px"><strong>依付款資訊完成付款</strong>：請依申請完成後顯示的帳號或轉帳指示付款，金額請務必核對正確。</li>
+        <li style="padding-bottom:5px"><strong>提供付款證明</strong>：完成付款後，請截取付款成功畫面，連同申請編號傳送至官方 LINE 客服，方便核對。</li>
+        <li><strong>等待客服確認入帳</strong>：客服確認實際收款後，才會將儲值金額及符合資格的活動贈額存入錢包；入帳後即可使用。</li>
+      </ol>
+      <div style="margin-top:11px;padding-top:10px;border-top:1px solid #d5e8f5;font-size:11px;line-height:1.75;color:#617f96">
+        <strong>付款與入帳提醒</strong><br>
+        ・申請建立成功不代表已付款，付款完成也不代表已入帳，請以會員錢包餘額更新為準。<br>
+        ・無卡存款如實際存入金額高於申請金額，客服核對後，超額部分會一併存入錢包；此規則不適用於銀行匯款及 LINE Pay。<br>
+        ・非營業時間或遇到申請量較多時，請耐心等候客服處理，請勿重複付款或重複建立申請。
+      </div>
+    </section>
     <div id="wallet-topup-form">
       <label class="checkout-field" for="wallet-topup-amount">儲值金額（新台幣）
         <input id="wallet-topup-amount" type="number" min="500" step="500" inputmode="numeric" placeholder="請輸入 500 的倍數" style="width:100%;border:1px solid #d7e7f2;border-radius:12px;padding:12px;background:#fbfdff;color:#315F85;font:inherit">
@@ -659,6 +675,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
         <option value="中國信託（822）">中國信託（822）</option>
       </select>
       <p id="wallet-topup-error" class="checkout-hint" role="status"></p>
+      <p style="margin:12px 0 0;padding:11px 13px;border-radius:12px;background:#fff7e8;border:1px solid #f1dfbb;color:#8a672e;font-size:11px;line-height:1.7">送出申請前請再次確認金額與付款方式。建立申請後，請依畫面指示付款並將付款截圖及申請編號傳給官方 LINE；客服核對收款後才會入帳。</p>
       <div class="payment-modal-actions" style="margin-top:18px">
         <button type="button" onclick="closeWalletTopupModal()">取消</button>
         <button id="wallet-topup-submit" type="button" onclick="submitWalletTopup()">建立儲值申請</button>
