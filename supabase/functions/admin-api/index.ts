@@ -284,6 +284,20 @@ Deno.serve(async (req) => {
       return reply({ success: true, data: updated });
     }
 
+    if (action === "revenue_history") {
+      const fromDate = new Date();
+      fromDate.setUTCDate(fromDate.getUTCDate() - 365);
+      const { data, error } = await db.from("sk_orders")
+        .select("paid_at,total_amount")
+        .eq("payment_status", "paid")
+        .not("paid_at", "is", null)
+        .gte("paid_at", fromDate.toISOString())
+        .order("paid_at", { ascending: true })
+        .limit(5000);
+      if (error) throw error;
+      return reply({ success: true, data: data || [] });
+    }
+
     if (action === "overview") {
       const [orders, paid, members, topups, wallet] = await Promise.all([
         db.from("sk_orders").select("id", { count: "exact", head: true }),
