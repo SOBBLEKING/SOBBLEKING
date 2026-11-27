@@ -149,6 +149,21 @@ details p{color:#687F95;font-size:13px;margin-top:12px}
 .checkout-entry button,.checkout-submit{border:0;border-radius:28px;padding:10px 20px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:#fff;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 6px 15px rgba(71,127,175,.24);transition:transform .2s,box-shadow .2s}
 .checkout-entry button:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 9px 20px rgba(71,127,175,.3)}
 .checkout-entry button:disabled{opacity:.45;cursor:not-allowed}
+.checkout-info-button{padding:7px 13px!important;border:1px solid rgba(71,127,175,.28)!important;border-radius:22px!important;background:rgba(255,255,255,.82)!important;color:#477FAF!important;font-size:12px!important;font-weight:700!important;box-shadow:none!important}
+.checkout-info-button:hover{background:#fff!important}
+.checkout-flow-modal[hidden]{display:none}
+.checkout-flow-modal{position:fixed;inset:0;z-index:11000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(30,57,78,.48);backdrop-filter:blur(5px)}
+.checkout-flow-dialog{position:relative;width:min(460px,100%);max-height:min(82vh,720px);overflow:auto;padding:25px 22px 20px;border:1px solid rgba(255,255,255,.96);border-radius:22px;background:linear-gradient(150deg,#fff,#edf7fd);box-shadow:0 22px 65px rgba(35,75,108,.28);color:#58738D}
+.checkout-flow-dialog h3{margin:0 34px 5px 0;text-align:center;color:#315F85;font-size:19px}
+.checkout-flow-subtitle{text-align:center;color:#8299AD;font-size:12px;margin-bottom:18px}
+.checkout-flow-list{display:grid;gap:12px}
+.checkout-flow-step{display:flex;gap:12px;align-items:flex-start;padding:11px 12px;border:1px solid rgba(118,169,208,.2);border-radius:14px;background:rgba(255,255,255,.78)}
+.checkout-flow-number{width:27px;height:27px;flex:0 0 27px;display:flex;align-items:center;justify-content:center;border-radius:50%;background:#D9ECF9;color:#315F85;font-size:12px;font-weight:900}
+.checkout-flow-step strong{display:block;color:#315F85;font-size:13px;margin-bottom:2px}
+.checkout-flow-step p{margin:0;color:#71869B;font-size:12px;line-height:1.65}
+.checkout-flow-close{position:absolute;top:11px;right:12px;width:30px;height:30px;border-radius:50%;background:#e5f3fc;color:#315F85;font-size:19px;line-height:1}
+.checkout-flow-close-bottom{display:block;margin:17px auto 0;padding:7px 22px;border-radius:22px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:white;font-size:12px;font-weight:700}
+
 @media(max-width:480px){.checkout-entry{justify-content:space-between}.checkout-entry button{padding:10px 17px}}
 .checkout-area{max-width:850px;margin:auto;background:rgba(255,255,255,.9);border:1px solid #fff;border-radius:22px;padding:26px;box-shadow:var(--shadow)}
 .checkout-summary{padding:15px 0;border-bottom:1px solid var(--line);color:#526f89}
@@ -775,7 +790,23 @@ body:has(.payment-modal:not([hidden])) footer{
     <div id="cart-items"><div class="cart-empty">目前還沒有選購商品</div></div>
     <div class="cart-total"><span>商品總計</span><span id="cart-total">NT$0</span></div>
     <p class="cart-note">商品確認無誤後，點選「前往結帳」完成下單。</p>
-    <div class="checkout-entry"><span class="checkout-entry-label">下一步</span><button id="go-checkout-button" type="button" onclick="goToCheckout()" disabled>前往結帳 →</button></div>
+    <div class="checkout-entry"><button class="checkout-info-button" id="checkout-flow-open" type="button">下單流程說明 ⓘ</button><button id="go-checkout-button" type="button" onclick="goToCheckout()" disabled>前往結帳 →</button></div>
+  </div>
+  <div class="checkout-flow-modal" id="checkout-flow-modal" hidden>
+    <div class="checkout-flow-dialog" role="dialog" aria-modal="true" aria-labelledby="checkout-flow-title">
+      <button class="checkout-flow-close" id="checkout-flow-close" type="button" aria-label="關閉">×</button>
+      <h3 id="checkout-flow-title">SOBBLEKING 下單流程</h3>
+      <p class="checkout-flow-subtitle">跟著以下步驟，就能完成訂單</p>
+      <div class="checkout-flow-list">
+        <div class="checkout-flow-step"><span class="checkout-flow-number">1</span><div><strong>確認購物車</strong><p>確認選購商品、數量與訂單總金額。</p></div></div>
+        <div class="checkout-flow-step"><span class="checkout-flow-number">2</span><div><strong>登入 LINE 會員</strong><p>使用 LINE 登入，系統確認會員身分與會員卡餘額。</p></div></div>
+        <div class="checkout-flow-step"><span class="checkout-flow-number">3</span><div><strong>確認付款方式</strong><p>系統優先使用會員卡餘額折抵，若仍有差額，再選擇付款方式。</p></div></div>
+        <div class="checkout-flow-step"><span class="checkout-flow-number">4</span><div><strong>建立訂單並完成付款</strong><p>確認訂單內容，依付款視窗提供的資訊完成付款。</p></div></div>
+        <div class="checkout-flow-step"><span class="checkout-flow-number">5</span><div><strong>填寫遊戲資料</strong><p>依付款視窗提示，填寫代儲所需的遊戲登入資料。</p></div></div>
+        <div class="checkout-flow-step"><span class="checkout-flow-number">6</span><div><strong>等待處理完成</strong><p>待付款與遊戲資料確認後，將依訂單安排代儲。</p></div></div>
+      </div>
+      <button class="checkout-flow-close-bottom" id="checkout-flow-close-bottom" type="button">我知道了</button>
+    </div>
   </div>
 </section>
 
@@ -1883,6 +1914,18 @@ if(memberGuideOpen&&memberGuideModal){
 if(memberGuideClose)memberGuideClose.addEventListener("click",closeMemberGuide);
 if(memberGuideCloseBottom)memberGuideCloseBottom.addEventListener("click",closeMemberGuide);
 document.addEventListener("keydown",event=>{if(event.key==="Escape"&&memberGuideModal&&!memberGuideModal.hidden)closeMemberGuide();});
+
+/* 購物車下單流程說明視窗 */
+const checkoutFlowModal=document.getElementById("checkout-flow-modal");
+function closeCheckoutFlow(){if(checkoutFlowModal)checkoutFlowModal.hidden=true;}
+const checkoutFlowOpen=document.getElementById("checkout-flow-open");
+const checkoutFlowClose=document.getElementById("checkout-flow-close");
+const checkoutFlowCloseBottom=document.getElementById("checkout-flow-close-bottom");
+if(checkoutFlowOpen&&checkoutFlowModal)checkoutFlowOpen.addEventListener("click",()=>{checkoutFlowModal.hidden=false;});
+if(checkoutFlowClose)checkoutFlowClose.addEventListener("click",closeCheckoutFlow);
+if(checkoutFlowCloseBottom)checkoutFlowCloseBottom.addEventListener("click",closeCheckoutFlow);
+if(checkoutFlowModal)checkoutFlowModal.addEventListener("click",event=>{if(event.target===checkoutFlowModal)closeCheckoutFlow();});
+document.addEventListener("keydown",event=>{if(event.key==="Escape"&&checkoutFlowModal&&!checkoutFlowModal.hidden)closeCheckoutFlow();});
 
 /* 網頁載入後執行 */
 try{
