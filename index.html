@@ -157,7 +157,8 @@ body{text-wrap:pretty}
 .payment-method-option input{accent-color:#477FAF}
 .payment-bank-select{display:none;margin-top:13px}
 .payment-bank-select.visible{display:block}
-.payment-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(28,57,82,.48);backdrop-filter:blur(7px)}
+.payment-modal{position:fixed;inset:0;z-index:20000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(28,57,82,.84);backdrop-filter:blur(9px);isolation:isolate}
+.payment-modal-card{position:relative;z-index:1;width:min(100%,430px);max-height:90dvh;overflow:auto;overscroll-behavior:contain}
 .payment-modal[hidden]{display:none}
 .payment-account-number{display:inline-block;white-space:nowrap;letter-spacing:1px;font-variant-numeric:tabular-nums;word-break:keep-all}
 .payment-modal-card{width:min(100%,430px);max-height:90vh;overflow:auto;padding:27px 23px;border:1px solid #fff;border-radius:24px;background:linear-gradient(160deg,#fff,#edf7fd);box-shadow:0 22px 70px rgba(25,65,98,.25);color:#315F85}
@@ -769,7 +770,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
       <div id="credential-status" class="credentials-status" role="status"></div>
     </div>
     <div class="payment-modal-actions">
-      <span class="payment-copy-inline"><a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">付款後聯絡官方 LINE 客服</a><button type="button" data-payment-copy="https://lin.ee/oFWdvvo" aria-label="複製官方 LINE 連結" title="複製官方 LINE 連結"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg></button><span class="payment-copy-status" aria-live="polite"></span></span>
+      <a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">付款後聯絡官方 LINE 客服</a>
       <button type="button" onclick="closePaymentModal()">完成</button>
     </div>
   </div>
