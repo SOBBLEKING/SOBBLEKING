@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     // Match both the order number and verified LINE member. Do not disclose whether another member's order exists.
     const { data: order, error: orderError } = await admin
       .from("sk_orders")
-      .select("order_number,total_amount,payment_status,order_status,payment_method,created_at,paid_at,wallet_amount_used,external_due")
+      .select("id,order_number,total_amount,payment_status,order_status,payment_method,created_at,paid_at,wallet_amount_used,external_due")
       .eq("order_number", orderNumber)
       .eq("customer_id", customer.id)
       .maybeSingle();
@@ -68,10 +68,11 @@ Deno.serve(async (req) => {
     const { data: items, error: itemsError } = await admin
       .from("sk_order_items")
       .select("product_name,unit_price,quantity,subtotal")
-      .eq("order_id", (await admin.from("sk_orders").select("id").eq("order_number", orderNumber).eq("customer_id", customer.id).single()).data?.id ?? "");
+      .eq("order_id", order.id);
     if (itemsError) throw itemsError;
 
-    return respond({ success: true, order, items: items ?? [] });
+    const { id: _internalId, ...safeOrder } = order;
+    return respond({ success: true, order: safeOrder, items: items ?? [] });
   } catch (error) {
     console.error("customer-order-lookup error:", error);
     return respond({ success: false, error: "internal_server_error" }, 500);
