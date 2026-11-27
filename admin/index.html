@@ -152,7 +152,7 @@ const columns={
  orders:[["order_number","訂單編號"],["total_amount","金額"],["payment_method","付款方式"],["payment_status","付款狀態"],["order_status","訂單狀態"],["created_at","建立時間"]],
  topups:[["id","申請編號"],["customer_id","會員編號"],["amount","申請金額"],["payment_method","付款方式"],["payment_bank","銀行"],["status","狀態"],["created_at","申請時間"]],
  topup_campaigns:[["name","活動名稱"],["min_amount","最低儲值"],["bonus_amount","贈送金額"],["starts_at","開始時間"],["ends_at","結束時間"],["is_active","啟用狀態"],["id","操作"]],
- members:[["id","會員編號"],["name","會員名稱"],["line_user_id","LINE User ID"],["created_at","加入時間"]],
+ members:[["id","會員編號"],["name","會員名稱"],["line_user_id","LINE User ID"],["wallet_balance","目前餘額"],["created_at","加入時間"],["wallet_action","餘額調整"]],
  wallet_transactions:[["transaction_type","類型"],["amount","金額"],["balance_before","異動前"],["balance_after","異動後"],["description","說明"],["created_at","時間"]],
  audit_logs:[["admin_email","管理員"],["action","操作"],["target_type","資料類型"],["target_id","資料編號"],["created_at","時間"]]
 };
@@ -173,8 +173,9 @@ async function loadModule(action,query=""){
  currentAction=action;currentSearch=query;$("panelTitle").textContent=labels[action]||"資料列表";$("panelHint").textContent=query?"搜尋結果":"最新 50 筆資料";$("campaignEditor").hidden=action!=="topup_campaigns";
 $("panelMessage").style.display="block";$("panelMessage").textContent="正在讀取資料…";$("dataTable").querySelector("thead").innerHTML="";$("dataTable").querySelector("tbody").innerHTML="";
  document.querySelectorAll("#moduleNav button").forEach(b=>b.classList.toggle("active",b.dataset.action===action));
- try{const apiAction=query&&action==="orders"?"search_orders":query&&action==="members"?"search_members":action;const rows=await adminRequest(apiAction,query);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>x[0]==="order_number"&&action==="orders"?"<td><button class=\"order-link\" type=\"button\" data-order-id=\""+esc(row.id)+"\">"+esc(fmt(row.order_number))+"</button></td>":x[0]==="id"&&action==="topups"?"<td><button class=\"order-link\" type=\"button\" data-topup-id=\""+esc(row.id)+"\">"+esc(String(row.id).slice(0,8).toUpperCase())+"</button></td>":x[0]==="id"&&action==="topup_campaigns"?"<td><button type=\"button\" class=\"order-link\" data-campaign-edit=\""+esc(row.id)+"\">編輯</button></td>":x[0]==="is_active"&&action==="topup_campaigns"?"<td>"+(row.is_active?"啟用中":"已停用")+"</td>":"<td>"+esc(fmt(row[x[0]]))+"</td>").join("")+"</tr>").join("");
+ try{const apiAction=query&&action==="orders"?"search_orders":query&&action==="members"?"search_members":action;const rows=await adminRequest(apiAction,query);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>x[0]==="order_number"&&action==="orders"?"<td><button class=\"order-link\" type=\"button\" data-order-id=\""+esc(row.id)+"\">"+esc(fmt(row.order_number))+"</button></td>":x[0]==="id"&&action==="topups"?"<td><button class=\"order-link\" type=\"button\" data-topup-id=\""+esc(row.id)+"\">"+esc(String(row.id).slice(0,8).toUpperCase())+"</button></td>":x[0]==="id"&&action==="topup_campaigns"?"<td><button type=\"button\" class=\"order-link\" data-campaign-edit=\""+esc(row.id)+"\">編輯</button></td>":x[0]==="is_active"&&action==="topup_campaigns"?"<td>"+(row.is_active?"啟用中":"已停用")+"</td>":x[0]==="wallet_balance"&&action==="members"?"<td>NT$ "+Number(row.wallet_balance||0).toLocaleString("zh-TW")+"</td>":x[0]==="wallet_action"&&action==="members"?"<td><button type=\"button\" class=\"order-link\" data-member-wallet=\""+esc(row.id)+"\">調整餘額</button></td>":"<td>"+esc(fmt(row[x[0]]))+"</td>").join("")+"</tr>").join("");
  if(action==="orders") document.querySelectorAll(".order-link[data-order-id]").forEach(btn=>btn.addEventListener("click",()=>openOrderDetail(btn.dataset.orderId)));
+ if(action==="members") document.querySelectorAll("[data-member-wallet]").forEach(btn=>btn.addEventListener("click",()=>openMemberWallet(rows.find(x=>String(x.id)===btn.dataset.memberWallet))));
  if(action==="topups") document.querySelectorAll(".order-link[data-topup-id]").forEach(btn=>btn.addEventListener("click",()=>openTopupDetail(btn.dataset.topupId))); if(action==="topup_campaigns"){
   document.querySelectorAll("[data-campaign-edit]").forEach(btn=>btn.addEventListener("click",()=>{
    const row=rows.find(x=>x.id===btn.dataset.campaignEdit);if(!row)return;
@@ -258,6 +259,39 @@ async function openOrderDetail(orderId){
    $("copyOrderPassword").addEventListener("click",()=>copyAdminValue($("copyOrderPassword"),g.password));
   }
  }catch(error){content.innerHTML="<div class=\"order-detail-field\">讀取訂單詳細資料失敗："+esc(error.message)+"</div>";}
+}
+async function openMemberWallet(member){
+ if(!member)return;
+ const modal=$("orderDetailModal"),content=$("orderDetailContent");
+ $("orderDetailTitle").textContent="會員錢包餘額調整";
+ const current=Number(member.wallet_balance||0);
+ modal.hidden=false;
+ content.innerHTML="<div class=\"order-detail-grid\">"+
+  [["會員名稱",member.name||"未命名會員"],["會員編號",member.id],["目前餘額","NT$ "+current.toLocaleString("zh-TW")],["LINE User ID",member.line_user_id||"—"]]
+  .map(x=>"<div class=\"order-detail-field\"><small>"+esc(x[0])+"</small><strong>"+esc(x[1])+"</strong></div>").join("")+
+  "</div><div class=\"order-detail-section\"><h3>手動調整餘額</h3>"+
+  "<div class=\"order-detail-grid\"><label class=\"order-detail-field\"><small>調整方向</small><select id=\"walletDirection\" style=\"width:100%;padding:12px;border:1px solid #dceaf5;border-radius:10px\"><option value=\"credit\">增加餘額（加款）</option><option value=\"debit\">扣除餘額（扣款）</option></select></label>"+
+  "<label class=\"order-detail-field\"><small>調整金額（NT$，整數）</small><input id=\"walletAmount\" type=\"number\" min=\"1\" step=\"1\" inputmode=\"numeric\" placeholder=\"輸入金額\" style=\"width:100%;padding:12px;border:1px solid #dceaf5;border-radius:10px\"></label></div>"+
+  "<label class=\"order-detail-field\" style=\"display:block;margin-top:10px\"><small>調整原因（必填）</small><textarea id=\"walletReason\" maxlength=\"500\" rows=\"3\" placeholder=\"請填寫調整原因，將保留於交易及操作紀錄\" style=\"width:100%;padding:12px;border:1px solid #dceaf5;border-radius:10px;resize:vertical\"></textarea></label>"+
+  "<p id=\"walletAdjustMessage\" style=\"font-size:12px;color:#71869b\">每次調整都會留下交易紀錄及管理員稽核紀錄。</p>"+
+  "<button type=\"button\" class=\"primary\" id=\"submitWalletAdjustment\" style=\"width:auto;padding:0 20px;margin:0\">確認調整</button></div>";
+ $("submitWalletAdjustment").addEventListener("click",async()=>{
+  const btn=$("submitWalletAdjustment"),direction=$("walletDirection").value,amount=Number($("walletAmount").value),reason=$("walletReason").value.trim(),msg=$("walletAdjustMessage");
+  if(!Number.isSafeInteger(amount)||amount<=0){msg.textContent="請輸入大於 0 的整數金額。";msg.style.color="#a34d4d";return;}
+  if(!reason){msg.textContent="請填寫調整原因。";msg.style.color="#a34d4d";$("walletReason").focus();return;}
+  const verb=direction==="credit"?"增加":"扣除";
+  if(!confirm("確認要為此會員"+verb+" NT$ "+amount.toLocaleString("zh-TW")+"？\\n\\n原因："+reason+"\\n\\n系統將留下完整交易及稽核紀錄。"))return;
+  btn.disabled=true;btn.textContent="處理中…";msg.textContent="正在安全更新錢包餘額…";msg.style.color="#71869b";
+  try{
+   const result=await adminRequest("manual_wallet_adjustment","",{customer_id:member.id,direction,amount,reason});
+   const d=result?.balance_after!=null?result:result?.[0]||result?.data||{};
+   const newBalance=Number(d.balance_after??d.new_balance??(direction==="credit"?current+amount:current-amount));
+   member.wallet_balance=newBalance;
+   msg.textContent="✓ 調整成功！目前餘額：NT$ "+newBalance.toLocaleString("zh-TW");msg.style.color="#28764d";
+   await loadOverview();await loadModule("members",currentSearch);
+   setTimeout(()=>{if(!modal.hidden)closeOrderDetail();},1200);
+  }catch(error){msg.textContent="調整失敗："+error.message;msg.style.color="#a34d4d";btn.disabled=false;btn.textContent="確認調整";}
+ });
 }
 async function openTopupDetail(requestId){
  const modal=$("orderDetailModal"),content=$("orderDetailContent");
