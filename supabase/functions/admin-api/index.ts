@@ -201,6 +201,34 @@ Deno.serve(async (req) => {
       return reply({ success: true, data: { order: orderWithMemberCode, items: items || [], credentials } });
     }
 
+    if (action === "cancel_order") {
+      const orderId = typeof body.order_id === "string" ? body.order_id : "";
+      const reason = typeof body.reason === "string" ? body.reason.trim().slice(0, 500) : "";
+      if (!orderId || !reason) return reply({ success: false, error: "order_id_and_reason_required" }, 400);
+      const { data: order, error: orderError } = await db.from("sk_orders")
+        .select("id,order_number,payment_status,order_status")
+        .eq("id", orderId).maybeSingle();
+      if (orderError) throw orderError;
+      if (!order) return reply({ success: false, error: "order_not_found" }, 404);
+      if (order.order_status === "cancelled") return reply({ success: true, data: { already_cancelled: true, order_id: orderId } });
+      if (order.payment_status !== "unpaid" || order.order_status !== "pending") {
+        return reply({ success: false, error: "only_unpaid_pending_orders_can_be_cancelled" }, 409);
+      }
+      const now = new Date().toISOString();
+      const { data: updated, error: updateError } = await db.from("sk_orders").update({
+        order_status: "cancelled", updated_at: now,
+      }).eq("id", orderId).eq("payment_status", "unpaid").eq("order_status", "pending")
+        .select("id,order_number,payment_status,order_status,updated_at").maybeSingle();
+      if (updateError) throw updateError;
+      if (!updated) return reply({ success: false, error: "order_status_changed_retry" }, 409);
+      const { error: auditError } = await db.from("sk_admin_audit_logs").insert({
+        admin_email: email, action: "cancel_order", target_type: "order", target_id: orderId,
+        details: { order_number: order.order_number, reason, previous_status: "pending", order_status: "cancelled" },
+      });
+      if (auditError) throw auditError;
+      return reply({ success: true, data: updated });
+    }
+
     if (action === "confirm_order_payment") {
       const orderId = typeof body.order_id === "string" ? body.order_id : "";
       if (!orderId) return reply({ success: false, error: "order_id_required" }, 400);
