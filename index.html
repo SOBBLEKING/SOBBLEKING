@@ -1376,7 +1376,7 @@ function renderWalletHistory(topupHistory, transactionHistory){
 
 function showMember(member,wallet,topupHistory,transactionHistory){
   document.getElementById("member-name").textContent = member.line_display_name || "SOBBSTARS 會員";
-  const rawMemberNo = member.member_no || "會員編號讀取中";
+  const rawMemberNo = member.member_code || member.customer_code || member.member_no || "會員編號讀取中";
   document.getElementById("member-number").textContent = rawMemberNo.replace(/^SB(?=[0-9-])/, "SK");
   if(member.created_at){
     const date = new Date(member.created_at);
