@@ -650,7 +650,7 @@ body:has(.payment-modal:not([hidden])) footer{
   <div class="steps">
     <div class="step"><div class="step-number">01</div><h3>選擇商品</h3><p>挑選需要的皮幣、通行證或活動商品，確認品項與數量後加入購物車。</p></div>
     <div class="step"><div class="step-number">02</div><h3>LINE 會員登入</h3><p>使用 LINE 登入 SOBBSTARS 會員，系統會辨識你的會員資料與錢包餘額。</p></div>
-    <div class="step"><div class="step-number">03</div><h3>確認訂單與付款</h3><p>核對商品及總金額。系統會優先使用會員錢包餘額，不足的部分再選擇無卡存款、銀行匯款或 LINE Pay 付款。</p></div>
+    <div class="step"><div class="step-number">03</div><h3>確認訂單與付款</h3><p>核對商品及總金額。系統會優先使用會員錢包餘額，不足的部分再選擇無卡存款、銀行匯款或 LINE 好友轉帳。</p></div>
     <div class="step"><div class="step-number">04</div><h3>填寫遊戲資料</h3><p>建立訂單後，依畫面提示填寫遊戲名稱、登入方式、登入帳號及密碼，請務必確認資料正確。</p></div>
     <div class="step"><div class="step-number">05</div><h3>等待付款確認與處理</h3><p>外部付款須由管理員核對收款；會員錢包全額付款則依訂單狀態確認。資料與付款確認完成後，客服會開始處理代儲。</p></div>
     <div class="step"><div class="step-number">06</div><h3>完成訂單</h3><p>請留意會員訂單狀態及官方 LINE 客服訊息；如需協助，請提供訂單編號查詢。</p></div>
@@ -827,7 +827,7 @@ body:has(.payment-modal:not([hidden])) footer{
       <div class="payment-methods">
         <label class="payment-method-option"><input type="radio" name="payment-method" value="無卡存款" checked><span>無卡存款</span></label>
         <label class="payment-method-option"><input type="radio" name="payment-method" value="銀行匯款"><span>銀行匯款</span></label>
-        <label class="payment-method-option"><input type="radio" name="payment-method" value="LINE Pay"><span>LINE Pay</span></label>
+        <label class="payment-method-option"><input type="radio" name="payment-method" value="LINE Pay"><span>LINE 好友轉帳</span></label>
       </div>
       <select id="payment-bank" class="checkout-field payment-bank-select visible" aria-label="選擇無卡存款銀行">
         <option value="國泰世華（013）">國泰世華（013）</option>
@@ -871,7 +871,7 @@ body:has(.payment-modal:not([hidden])) footer{
       <div style="margin-top:11px;padding-top:10px;border-top:1px solid #d5e8f5;font-size:11px;line-height:1.75;color:#617f96">
         <strong>付款與入帳提醒</strong><br>
         ・申請建立成功不代表已付款，付款完成也不代表已入帳，請以會員錢包餘額更新為準。<br>
-        ・無卡存款如實際存入金額高於申請金額，客服核對後，超額部分會一併存入錢包；此規則不適用於銀行匯款及 LINE Pay。<br>
+        ・無卡存款如實際存入金額高於申請金額，客服核對後，超額部分會一併存入錢包；此規則不適用於銀行匯款及 LINE 好友轉帳。<br>
         ・非營業時間或遇到申請量較多時，請耐心等候客服處理，請勿重複付款或重複建立申請。
       </div>
     </section>
@@ -884,7 +884,7 @@ body:has(.payment-modal:not([hidden])) footer{
       <div class="payment-methods" role="radiogroup" aria-label="儲值付款方式">
         <label class="payment-method-option"><input type="radio" name="topup-payment-method" value="無卡存款">無卡存款</label>
         <label class="payment-method-option"><input type="radio" name="topup-payment-method" value="銀行匯款">銀行匯款</label>
-        <label class="payment-method-option"><input type="radio" name="topup-payment-method" value="LINE Pay">LINE Pay</label>
+        <label class="payment-method-option"><input type="radio" name="topup-payment-method" value="LINE Pay">LINE 好友轉帳</label>
       </div>
       <select id="wallet-topup-bank" class="payment-bank-select" aria-label="選擇無卡存款銀行">
         <option value="國泰世華（013）">國泰世華（013）</option>
@@ -1299,7 +1299,7 @@ function showPaymentModal(data,payment){
   }else if(payment.method==="銀行匯款"){
     info="<strong>銀行匯款｜郵局（700）</strong><br>銀行代碼：700<br>匯款帳號：<br><strong class=\"payment-account-number\">"+String(paymentBankAccounts["郵局（700）"]).replace(/[,，\s]/g,"")+"</strong>";
   }else{
-    info="<strong>LINE Pay 手機轉帳</strong><br>LINE 名稱：<strong>Wei.</strong><br>請在 LINE 搜尋手機號碼：<br><strong class=\"payment-account-number\">0905302886</strong><br>找到帳號後加入好友，再依畫面指示完成轉帳。";
+    info="<strong>LINE 好友轉帳</strong><br>LINE 名稱：<strong>Wei.</strong><br>請在 LINE 搜尋手機號碼：<br><strong class=\"payment-account-number\">0905302886</strong><br>找到帳號後加入好友，再依畫面指示完成轉帳。";
   }
   document.getElementById("payment-method-info").innerHTML=info;
   document.getElementById("payment-proof-warning").hidden=externalDue<=0;
@@ -1469,7 +1469,7 @@ async function submitWalletTopup(){
     }else if(method==="銀行匯款"){
       info="<strong>銀行匯款｜郵局（700）</strong><br>銀行代碼 700<br>匯款帳號<br><strong class=\"payment-account-number\">"+String(paymentBankAccounts["郵局（700）"]).replace(/[,，\s]/g,"")+"</strong>";
     }else{
-      info="<strong>LINE Pay 手機轉帳</strong><br>LINE 名稱：<strong>Wei.</strong><br>請在 LINE 搜尋手機號碼<br><strong class=\"payment-account-number\">0905302886</strong><br>找到帳號後加入好友，再依畫面指示完成轉帳。";
+      info="<strong>LINE 好友轉帳</strong><br>LINE 名稱：<strong>Wei.</strong><br>請在 LINE 搜尋手機號碼<br><strong class=\"payment-account-number\">0905302886</strong><br>找到帳號後加入好友，再依畫面指示完成轉帳。";
     }
     document.getElementById("wallet-topup-payment-info").innerHTML=
       "<strong>儲值申請編號：</strong>"+String(data.request_id).toUpperCase()+
