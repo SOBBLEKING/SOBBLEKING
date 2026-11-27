@@ -255,7 +255,53 @@ Deno.serve(async (req) => {
       if (!updated) return reply({ success: false, error: "order_status_changed_retry" }, 409);
       const { error: auditError } = await db.from("sk_admin_audit_logs").insert({ admin_email: email, action: "update_order_field", target_type: "order", target_id: orderId, details: { order_number: order.order_number, field, previous_value: order[field], new_value: value } });
       if (auditError) console.error("Order status audit log failed:", auditError.message);
-      return reply({ success: true, data: updated });
+
+      // Notify the customer only when an order first transitions to completed.
+      // Never include account credentials or other sensitive order details in LINE messages.
+      let customerNotification: Record<string, unknown> | null = null;
+      if (field === "order_status" && value === "completed" && order.order_status !== "completed") {
+        try {
+          const [{ data: fullOrder }, { data: customer }, { data: items }] = await Promise.all([
+            db.from("sk_orders").select("id,order_number,total_amount,customer_id").eq("id", orderId).maybeSingle(),
+            db.from("customers").select("line_user_id").eq("id", (await db.from("sk_orders").select("customer_id").eq("id", orderId).maybeSingle()).data?.customer_id ?? "").maybeSingle(),
+            db.from("sk_order_items").select("product_name,quantity").eq("order_id", orderId),
+          ]);
+          const lineToken = Deno.env.get("LINE_CHANNEL_ACCESS_TOKEN") || "";
+          if (!lineToken) {
+            customerNotification = { sent: false, error: "LINE_CHANNEL_ACCESS_TOKEN_missing" };
+          } else if (!customer?.line_user_id) {
+            customerNotification = { sent: false, error: "customer_line_user_id_missing" };
+          } else {
+            const itemLines = (items || []).map((item: any) => `・${String(item.product_name || "商品")} × ${Number(item.quantity || 1)}`);
+            const message = [
+              "🎉 SOBBLEKING 代儲完成通知",
+              "",
+              "你的訂單已完成！",
+              "訂單編號：" + String(fullOrder?.order_number || order.order_number),
+              ...itemLines,
+              "",
+              "感謝你的支持，祝你遊戲愉快！",
+              "SOBBLEKING",
+            ].join("\n");
+            const lineResponse = await fetch("https://api.line.me/v2/bot/message/push", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", "Authorization": "Bearer " + lineToken },
+              body: JSON.stringify({ to: customer.line_user_id, messages: [{ type: "text", text: message }] }),
+            });
+            if (lineResponse.ok) {
+              customerNotification = { sent: true };
+            } else {
+              const detail = (await lineResponse.text()).slice(0, 500);
+              console.error("Customer order completion LINE push failed:", lineResponse.status, detail);
+              customerNotification = { sent: false, error: "LINE HTTP " + lineResponse.status };
+            }
+          }
+        } catch (notifyError) {
+          console.error("Customer order completion LINE notification error:", notifyError);
+          customerNotification = { sent: false, error: "notification_failed" };
+        }
+      }
+      return reply({ success: true, data: updated, customer_notification: customerNotification });
     }
 
     if (action === "confirm_order_payment") {
