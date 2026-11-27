@@ -73,7 +73,13 @@ section{padding:75px 7%;scroll-margin-top:90px}
 .member-button:hover{transform:translateY(-2px);background:linear-gradient(135deg,#315F85,#659CC8)}
 .member-button.secondary{background:rgba(255,255,255,.75);color:#477FAF;border:1px solid rgba(71,127,175,.22);box-shadow:none}
 .member-button:disabled{opacity:.6;cursor:wait;transform:none}
-.wallet-topup-button{display:block;width:max-content;margin:16px auto 0;text-decoration:none;text-align:center}
+.member-tools-row{position:relative;display:flex;align-items:center;justify-content:center;gap:12px;max-width:760px;margin:22px auto 0}
+.member-tools-row .member-card-guide{flex:1 1 0;min-width:0;max-width:none;margin:0;text-align:center}
+.member-tools-row .member-card-guide summary{justify-content:center;min-height:44px;padding:10px 18px}
+.member-tools-row .member-button{flex:1 1 0;min-width:0;min-height:44px;padding:10px 14px;white-space:nowrap;margin:0}
+.member-tools-row .member-card-guide[open]{align-self:center}
+@media(max-width:600px){.member-tools-row{gap:7px}.member-tools-row .member-button{padding:9px 7px;font-size:11px}.member-tools-row .member-card-guide summary{padding:9px 7px;font-size:11px}}
+@media(max-width:380px){.member-tools-row{flex-wrap:wrap}.member-tools-row .member-card-guide,.member-tools-row .member-button{flex:1 1 30%}}
 .wallet-topup-button[hidden]{display:none}
 .member-status{position:relative;min-height:22px;margin-top:16px;color:#71869B;font-size:12px}
 
@@ -541,14 +547,6 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
       <button type="button" class="member-button secondary" id="line-logout-button" hidden>登出會員</button>
     </div>
     <div class="member-status" id="member-status" aria-live="polite">尚未登入會員</div>
-    <details class="member-card-guide">
-      <summary>會員卡介紹</summary>
-      <div class="member-card-guide-copy">
-        <p>正面顯示你的 SOBBSTARS 會員名稱、會員編號與加入日期。</p>
-        <p>點擊會員卡可翻面查看錢包餘額、儲值紀錄及交易明細；結帳時可優先使用會員卡餘額折抵。</p>
-      </div>
-    </details>
-
     <!-- SOBBSTARS 冰晶珍珠會員卡：保留原本動態會員資料 ID -->
     <div class="member-card-info" id="member-card" role="button" tabindex="0" aria-label="會員卡，點擊翻面查看錢包餘額" aria-pressed="false" hidden>
       <div class="member-card-flipper">
@@ -620,8 +618,17 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
       </div>
       </div>
     </div>
-    <button class="member-button wallet-topup-button" id="wallet-topup-button" type="button" onclick="openWalletTopupModal()" hidden>立即儲值</button>
-    <button class="member-button secondary" id="wallet-refresh-button" type="button" onclick="refreshMemberWallet()" hidden style="margin:10px auto 0">更新錢包餘額</button>
+    <div class="member-tools-row">
+      <details class="member-card-guide">
+        <summary>會員卡介紹</summary>
+        <div class="member-card-guide-copy">
+          <p>正面顯示你的 SOBBSTARS 會員名稱、會員編號與加入日期。</p>
+          <p>點擊會員卡可翻面查看錢包餘額、儲值紀錄及交易明細；結帳時可優先使用會員卡餘額折抵。</p>
+        </div>
+      </details>
+      <button class="member-button wallet-topup-button" id="wallet-topup-button" type="button" onclick="openWalletTopupModal()" hidden>立即儲值</button>
+      <button class="member-button secondary wallet-refresh-button" id="wallet-refresh-button" type="button" onclick="refreshMemberWallet()" hidden>更新錢包餘額</button>
+    </div>
   </div>
 </section>
 
@@ -1117,7 +1124,7 @@ function showPaymentModal(data,payment){
   const walletUsed=Number(data.wallet_amount_used||0);
   const externalDue=Number(data.external_due??data.total_amount);
   document.getElementById("payment-order-info").innerHTML =
-    "<strong>訂單編號：</strong>"+data.order_number+
+    "<strong>訂單編號：</strong>"+paymentCopyMarkup(data.order_number,"訂單編號")+
     "<br><strong>訂單總額：</strong>"+amount+
     "<br><strong>會員卡扣款：</strong>NT$"+walletUsed.toLocaleString("en-US")+
     "<br><strong>剩餘應付：</strong>NT$"+externalDue.toLocaleString("en-US") +
