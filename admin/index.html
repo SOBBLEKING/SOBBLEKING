@@ -174,9 +174,9 @@ function resetAdminIdleTimer(){
 const labels={orders:"訂單管理",topups:"儲值管理",topup_campaigns:"儲值活動",members:"會員管理",wallet_transactions:"錢包交易紀錄",audit_logs:"管理員操作紀錄"};
 const columns={
  orders:[["order_number","訂單編號"],["total_amount","金額"],["payment_method","付款方式"],["payment_status","付款狀態"],["order_status","訂單狀態"],["created_at","建立時間"]],
- topups:[["id","申請編號"],["customer_id","會員編號"],["amount","申請金額"],["payment_method","付款方式"],["payment_bank","銀行"],["status","狀態"],["created_at","申請時間"]],
+ topups:[["id","申請編號"],["member_code","會員編號"],["amount","申請金額"],["payment_method","付款方式"],["payment_bank","銀行"],["status","狀態"],["created_at","申請時間"]],
  topup_campaigns:[["name","活動名稱"],["min_amount","最低儲值"],["bonus_amount","贈送金額"],["starts_at","開始時間"],["ends_at","結束時間"],["is_active","啟用狀態"],["id","操作"]],
- members:[["id","會員編號"],["name","會員名稱"],["line_user_id","LINE User ID"],["wallet_balance","目前餘額"],["created_at","加入時間"],["wallet_action","餘額調整"]],
+ members:[["member_code","會員編號"],["name","會員名稱"],["line_user_id","LINE User ID"],["wallet_balance","目前餘額"],["created_at","加入時間"],["wallet_action","餘額調整"]],
  wallet_transactions:[["transaction_type","類型"],["amount","金額"],["balance_before","異動前"],["balance_after","異動後"],["description","說明"],["created_at","時間"]],
  audit_logs:[["admin_email","管理員"],["action","操作"],["target_type","資料類型"],["target_id","資料編號"],["created_at","時間"]]
 };
@@ -235,7 +235,7 @@ async function openOrderDetail(orderId){
   const o=data.order||{},g=data.credentials;
   const items=(data.items||[]).map(item=>esc(item.product_name)+" × "+esc(item.quantity)+"（NT$"+Number(item.subtotal||0).toLocaleString("zh-TW")+"）").join("<br>")||"—";
   const base=[
-   ["訂單編號",o.order_number,true],["會員編號",o.customer_id,true],
+   ["訂單編號",o.order_number,true],["會員編號",o.customer_code||o.member_code||"尚未建立",true],
    ["訂單金額","NT$"+Number(o.total_amount||0).toLocaleString("zh-TW")],
    ["付款方式",o.payment_method],["付款狀態",o.payment_status],["訂單狀態",o.order_status],
    ["建立時間",fmt(o.created_at)],["付款確認時間",fmt(o.paid_at)]
