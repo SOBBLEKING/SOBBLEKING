@@ -78,13 +78,15 @@ async function sendTopupLineNotification(db: any, queueId: string) {
     return { sent: true };
   }
   const raw = (await response.text()).slice(0, 1000);
+  const monthlyLimitReached = response.status === 429 && raw.includes("You have reached your monthly limit");
   const retryMinutes = [1, 5, 15, 60, 360][Math.min(attempts - 1, 4)];
   await db.from("sk_line_notification_queue").update({
     status: "failed", attempts, last_error: "LINE HTTP " + response.status + ": " + raw,
-    next_retry_at: attempts >= 5 ? null : new Date(Date.now() + retryMinutes * 60_000).toISOString(),
+    // A monthly quota failure cannot be fixed by retrying. Keep the event recorded without retrying until the next billing period.
+    next_retry_at: monthlyLimitReached || attempts >= 5 ? null : new Date(Date.now() + retryMinutes * 60_000).toISOString(),
     updated_at: new Date().toISOString(),
   }).eq("id", queueId).neq("status", "sent");
-  return { sent: false, error: "LINE HTTP " + response.status, attempts };
+  return { sent: false, error: monthlyLimitReached ? "LINE monthly message limit reached; retry disabled" : "LINE HTTP " + response.status, attempts };
 }
 
 async function decryptOrderCredentials(encryptedPayload: string, ivBase64: string, keyHex: string) {
