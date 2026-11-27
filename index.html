@@ -463,7 +463,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 
 </style>
 <style id="sobbleking-policy-style">
-.policy-section{max-width:1000px;margin:auto;padding:42px 5% 58px}.policy-intro{max-width:760px;margin:0 auto 22px;text-align:center;color:#71869B;font-size:13px}.policy-list{max-width:900px;margin:auto}.policy-list details{background:rgba(255,255,255,.9);border:1px solid #d7e7f2;border-radius:16px;padding:18px 20px;margin:12px 0}.policy-list summary{font-size:15px;color:#315F85}.policy-copy{padding-top:12px;color:#5c748b;font-size:13px;line-height:1.95}.policy-copy p{margin:8px 0}.policy-copy ul{padding-left:21px;margin:7px 0}.policy-contact{padding:15px 17px;border-radius:14px;background:#f0f8fd;border:1px solid #d7e7f2;margin-top:14px}.policy-footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:9px 18px;margin:12px 0}.policy-footer-links a{color:#477FAF;text-decoration:underline;text-underline-offset:3px;font-size:12px}
+.policy-modal[hidden]{display:none}.policy-modal{position:fixed;inset:0;z-index:30000;display:grid;place-items:center;padding:18px}.policy-modal-backdrop{position:absolute;inset:0;background:rgba(24,49,70,.62);backdrop-filter:blur(5px)}.policy-modal-card{position:relative;z-index:1;width:min(920px,100%);max-height:88vh;overflow:auto;background:#f7fbfe;border:1px solid #d7e7f2;border-radius:22px;box-shadow:0 24px 80px #173b5a55}.policy-modal-card .policy-section{max-width:1000px;margin:auto;padding:30px 5% 38px}.policy-modal-close{position:sticky;top:10px;float:right;margin:10px 12px 0 0;z-index:2;border:1px solid #d7e7f2;background:#fff;border-radius:50%;width:36px;height:36px;font-size:24px;color:#315f85;cursor:pointer}.policy-intro{max-width:760px;margin:0 auto 22px;text-align:center;color:#71869B;font-size:13px}.policy-intro{max-width:760px;margin:0 auto 22px;text-align:center;color:#71869B;font-size:13px}.policy-list{max-width:900px;margin:auto}.policy-list details{background:rgba(255,255,255,.9);border:1px solid #d7e7f2;border-radius:16px;padding:18px 20px;margin:12px 0}.policy-list summary{font-size:15px;color:#315F85}.policy-copy{padding-top:12px;color:#5c748b;font-size:13px;line-height:1.95}.policy-copy p{margin:8px 0}.policy-copy ul{padding-left:21px;margin:7px 0}.policy-contact{padding:15px 17px;border-radius:14px;background:#f0f8fd;border:1px solid #d7e7f2;margin-top:14px}.policy-footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:9px 18px;margin:12px 0}.policy-footer-links a{color:#477FAF;text-decoration:underline;text-underline-offset:3px;font-size:12px}
 </style>
 </head>
 <body>
@@ -783,7 +783,22 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
     <a href="https://www.threads.net/@sobble.king" target="_blank" rel="noopener">Threads</a>
   </div>
 </section>
-<section id="policies" class="policy-section">
+
+</main>
+
+<footer>
+  <strong>SOBBLEKING</strong>
+  <p><a href="mailto:sobblekinggg@gmail.com">sobblekinggg@gmail.com</a></p>
+  <p class="policy-footer-links"><a href="#terms-service">服務條款</a><a href="#terms-refund">退款政策</a><a href="#terms-privacy">隱私權政策</a><a href="#terms-account">帳號安全告知</a><a href="#terms-wallet">錢包規則</a><a href="#terms-dispute">業者資訊</a></p>
+  <p>© 2026 SOBBLEKING. All Rights Reserved.</p>
+  <p><a href="https://line.me/R/ti/p/@864gylln" target="_blank" rel="noopener">LINE 客服</a> | <a href="https://www.threads.net/@sobble.king" target="_blank" rel="noopener">Threads</a></p>
+</footer>
+
+<div id="policyModal" class="policy-modal" hidden role="dialog" aria-modal="true" aria-label="網站條款與服務政策">
+  <div class="policy-modal-backdrop" data-policy-close></div>
+  <div class="policy-modal-card">
+    <button type="button" class="policy-modal-close" data-policy-close aria-label="關閉">×</button>
+    <section id="policies" class="policy-section">
 <div class="section-title"><small>POLICIES & TERMS</small><h2>網站條款與服務政策</h2><p>下單前請先閱讀，了解服務內容與相關權益</p></div>
 <p class="policy-intro">以下政策適用於 SOBBLEKING 淚眼蜥王國網站服務；如與適用法令強制規定不一致，仍以法令規定為準。</p>
 <div class="policy-list">
@@ -823,15 +838,25 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 <ul><li>確認商品、數量、價格及付款方式正確。</li><li>確認所提供的遊戲帳號及登入資料正確，且本人有權授權使用。</li><li>了解提供帳號登入資料予第三方可能產生的帳號安全及服務政策風險。</li><li>付款完成後仍須依訂單流程提供必要資料，並等待客服核對及處理。</li><li>如有問題，請保留訂單編號並聯絡客服。</li></ul>
 </div></details>
 </div></section>
-</main>
+  </div>
+</div>
 
-<footer>
-  <strong>SOBBLEKING</strong>
-  <p><a href="mailto:sobblekinggg@gmail.com">sobblekinggg@gmail.com</a></p>
-  <p class="policy-footer-links"><a href="#terms-service">服務條款</a><a href="#terms-refund">退款政策</a><a href="#terms-privacy">隱私權政策</a><a href="#terms-account">帳號安全告知</a><a href="#terms-wallet">錢包規則</a><a href="#terms-dispute">業者資訊</a></p>
-  <p>© 2026 SOBBLEKING. All Rights Reserved.</p>
-  <p><a href="https://line.me/R/ti/p/@864gylln" target="_blank" rel="noopener">LINE 客服</a> | <a href="https://www.threads.net/@sobble.king" target="_blank" rel="noopener">Threads</a></p>
-</footer>
+<script>
+(function(){
+ const modal=document.getElementById("policyModal");
+ if(!modal)return;
+ document.querySelectorAll(".policy-footer-links a").forEach(link=>link.addEventListener("click",event=>{
+  event.preventDefault();
+  const id=link.getAttribute("href").slice(1);
+  modal.hidden=false;
+  modal.querySelectorAll(".policy-list details").forEach(item=>item.open=item.id===id);
+  const target=document.getElementById(id);
+  if(target)target.scrollIntoView({block:"nearest"});
+ }));
+ modal.querySelectorAll("[data-policy-close]").forEach(el=>el.addEventListener("click",()=>{modal.hidden=true;}));
+ document.addEventListener("keydown",event=>{if(event.key==="Escape"&&!modal.hidden)modal.hidden=true;});
+})();
+</script>
 
 <script>
 /* Supabase 連線設定 */
