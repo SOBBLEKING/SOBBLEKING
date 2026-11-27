@@ -229,7 +229,12 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 .premium-card-name{margin-top:3px;color:#31536B;font-size:clamp(17px,3vw,22px);font-weight:850;letter-spacing:1.5px;overflow-wrap:anywhere;text-shadow:0 1px 0 #fff}
 .premium-card-foot{display:flex;align-items:flex-end;gap:14px;padding-top:13px;border-top:1px solid rgba(91,143,173,.2)}
 .premium-member-number{display:flex;flex-direction:column;gap:3px;min-width:0}
+.premium-number-copy-row{display:flex;align-items:center;gap:7px;min-width:0}
 .premium-number-value{color:#315F85;font-size:clamp(13px,2.5vw,17px);font-weight:900;letter-spacing:1.6px;white-space:nowrap}
+.premium-member-copy{display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;flex:0 0 27px;border:1px solid rgba(112,157,184,.38);border-radius:8px;background:rgba(255,255,255,.78);color:#477FAF;cursor:pointer}
+.premium-member-copy:hover{background:#fff}
+.premium-member-copy svg{width:15px;height:15px;display:block;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.premium-member-copy-status{font-size:10px;color:#477f63;white-space:nowrap}
 .premium-card-date{margin-left:auto;color:#718FA4;font-size:9px;font-weight:700;letter-spacing:.3px;white-space:nowrap;padding-bottom:2px}
 .premium-sk-mark{width:62px;flex:0 0 62px;display:flex;align-items:center;justify-content:center}
 .premium-sk-mark svg{width:60px;height:32px;overflow:visible;filter:drop-shadow(0 2px 2px rgba(49,95,133,.13))}
@@ -556,7 +561,13 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
         <div class="premium-card-foot">
           <div class="premium-member-number">
             <span class="premium-meta-label">MEMBER ID</span>
-            <span class="premium-number-value" id="member-number">SK000000</span>
+            <div class="premium-number-copy-row">
+              <span class="premium-number-value" id="member-number">SK000000</span>
+              <button type="button" class="premium-member-copy" onclick="copyMemberCardNumber()" aria-label="複製會員編號" title="複製會員編號">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg>
+              </button>
+              <span id="member-number-copy-status" class="premium-member-copy-status" aria-live="polite"></span>
+            </div>
           </div>
           <div class="premium-card-date" id="member-date">加入日期：—</div>
         </div>
@@ -1334,6 +1345,23 @@ function setMemberStatus(message){
   memberStatus.textContent = message;
 }
 
+async function copyMemberCardNumber(){
+  const code=String(currentMemberCode||"").trim();
+  const status=document.getElementById("member-number-copy-status");
+  if(!code){if(status)status.textContent="無編號";return;}
+  try{
+    if(navigator.clipboard&&window.isSecureContext){
+      await navigator.clipboard.writeText(code);
+    }else{
+      const helper=document.createElement("textarea");
+      helper.value=code;helper.style.position="fixed";helper.style.opacity="0";
+      document.body.appendChild(helper);helper.select();
+      const copied=document.execCommand("copy");helper.remove();
+      if(!copied)throw new Error("copy failed");
+    }
+    if(status){status.textContent="已複製";setTimeout(()=>{status.textContent="";},1800);}
+  }catch(error){if(status)status.textContent="複製失敗";}
+}
 async function copyCheckoutMemberNumber(){
   const code = String(currentMemberCode || "").trim();
   const status = document.getElementById("checkout-member-copy-status");
