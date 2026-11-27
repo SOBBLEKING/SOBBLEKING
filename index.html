@@ -144,9 +144,12 @@ details p{color:#687F95;font-size:13px;margin-top:12px}
 .cart-total{display:flex;justify-content:space-between;margin-top:22px;font-size:18px;font-weight:900;color:#315F85}
 .cart-note{color:#8799AA;font-size:12px;margin-top:15px;text-align:center}
 
-.checkout-entry{display:flex;justify-content:center;margin-top:22px}
-.checkout-entry button,.checkout-submit{border:0;border-radius:28px;padding:13px 30px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:#fff;font-weight:800;cursor:pointer;box-shadow:0 8px 18px rgba(71,127,175,.2)}
+.checkout-entry{display:flex;justify-content:flex-end;align-items:center;gap:10px;margin-top:16px}
+.checkout-entry-label{color:#71869B;font-size:12px;font-weight:700}
+.checkout-entry button,.checkout-submit{border:0;border-radius:28px;padding:10px 20px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:#fff;font-size:13px;font-weight:800;cursor:pointer;box-shadow:0 6px 15px rgba(71,127,175,.24);transition:transform .2s,box-shadow .2s}
+.checkout-entry button:not(:disabled):hover{transform:translateY(-2px);box-shadow:0 9px 20px rgba(71,127,175,.3)}
 .checkout-entry button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:480px){.checkout-entry{justify-content:space-between}.checkout-entry button{padding:10px 17px}}
 .checkout-area{max-width:850px;margin:auto;background:rgba(255,255,255,.9);border:1px solid #fff;border-radius:22px;padding:26px;box-shadow:var(--shadow)}
 .checkout-summary{padding:15px 0;border-bottom:1px solid var(--line);color:#526f89}
 .checkout-summary-row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;font-size:14px}
@@ -771,8 +774,8 @@ body:has(.payment-modal:not([hidden])) footer{
   <div class="cart-area">
     <div id="cart-items"><div class="cart-empty">目前還沒有選購商品</div></div>
     <div class="cart-total"><span>商品總計</span><span id="cart-total">NT$0</span></div>
-    <p class="cart-note">確認商品與數量後，點選下方按鈕前往下單頁面。</p>
-    <div class="checkout-entry"><button id="go-checkout-button" type="button" onclick="goToCheckout()" disabled>前往下單</button></div>
+    <p class="cart-note">商品確認無誤後，點選「前往結帳」完成下單。</p>
+    <div class="checkout-entry"><span class="checkout-entry-label">下一步</span><button id="go-checkout-button" type="button" onclick="goToCheckout()" disabled>前往結帳 →</button></div>
   </div>
 </section>
 
