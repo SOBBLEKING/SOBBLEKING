@@ -656,9 +656,9 @@ body:has(.payment-modal:not([hidden])) footer{
       <button type="button" class="member-button secondary" id="line-logout-button" hidden>登出會員</button>
     </div>
     <div class="member-status" id="member-status" aria-live="polite">尚未登入會員</div>
-    <section class="customer-order-lookup" id="customer-order-lookup" hidden>
+    <section class="customer-order-lookup" id="customer-order-lookup">
       <h3>訂單查詢</h3>
-      <p>輸入訂單編號，即可查看自己的訂單進度。</p>
+      <p>請先使用 LINE 登入會員，再輸入訂單編號查詢自己的訂單進度。</p>
       <div class="customer-order-form">
         <input id="customer-order-number" type="text" maxlength="60" placeholder="請輸入訂單編號" autocomplete="off">
         <button type="button" id="customer-order-search">查詢訂單</button>
@@ -1856,7 +1856,7 @@ logoutButton.addEventListener("click",()=>{
   document.getElementById("checkout-member-number-row").hidden = true;
   document.getElementById("checkout-member-number").textContent = "";
   memberCard.hidden = true;
-  document.getElementById("customer-order-lookup").hidden = true;
+  document.getElementById("customer-order-lookup").hidden = false;
   document.getElementById("customer-order-number").value = "";
   document.getElementById("customer-order-result").textContent = "";
   memberCard.classList.remove("is-flipped");
