@@ -8,6 +8,18 @@ const cors = {
 const reply = (body: Record<string, unknown>, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, "Content-Type": "application/json" } });
 
+async function attachMemberCodes(db: any, rows: any[]) {
+  const ids = [...new Set((rows || []).map((row: any) => String(row.customer_id ?? row.id ?? "")).filter(Boolean))];
+  if (!ids.length) return (rows || []).map((row: any) => ({ ...row, member_code: null }));
+  const { data, error } = await db.from("customers").select("id,member_code").in("id", ids);
+  if (error) throw error;
+  const codes = new Map((data || []).map((row: any) => [String(row.id), row.member_code]));
+  return (rows || []).map((row: any) => ({
+    ...row,
+    member_code: codes.get(String(row.customer_id ?? row.id ?? "")) ?? null,
+  }));
+}
+
 function hexToBytes(hex: string): Uint8Array {
   return new Uint8Array(hex.match(/.{2}/g)!.map((part) => parseInt(part, 16)));
 }
@@ -184,7 +196,9 @@ Deno.serve(async (req) => {
         });
         if (logError) console.error("Credential access audit log failed:", logError.message);
       }
-      return reply({ success: true, data: { order, items: items || [], credentials } });
+      const [orderWithMemberCode] = await attachMemberCodes(db, [order]);
+      orderWithMemberCode.customer_code = orderWithMemberCode.member_code;
+      return reply({ success: true, data: { order: orderWithMemberCode, items: items || [], credentials } });
     }
 
     if (action === "confirm_order_payment") {
@@ -239,7 +253,7 @@ Deno.serve(async (req) => {
         .ilike("order_number", `%${query}%`)
         .order("created_at", { ascending: false }).limit(100);
       if (error) throw error;
-      return reply({ success: true, data: data || [] });
+      return reply({ success: true, data: await attachMemberCodes(db, data || []) });
     }
 
     if (action === "search_members") {
@@ -251,11 +265,12 @@ Deno.serve(async (req) => {
       if (error) throw error;
       const matchesRaw = (data || []).map((row: Record<string, unknown>) => ({
         id: row.id ?? null,
+        member_code: row.member_code ?? null,
         line_user_id: row.line_user_id ?? null,
         name: row.name ?? row.display_name ?? row.line_display_name ?? row.customer_name ?? "未命名會員",
         created_at: row.created_at ?? null,
       })).filter((row: Record<string, unknown>) =>
-        [row.id, row.line_user_id, row.name].some(value => String(value ?? "").toLowerCase().includes(query))
+        [row.id, row.member_code, row.line_user_id, row.name].some(value => String(value ?? "").toLowerCase().includes(query))
       ).slice(0, 100);
       const ids = matchesRaw.map((row: Record<string, unknown>) => row.id).filter(Boolean);
       const { data: wallets, error: walletError } = ids.length
@@ -273,7 +288,7 @@ Deno.serve(async (req) => {
       const { data, error } = await db.from("sk_orders").select("id,order_number,customer_id,total_amount,payment_status,order_status,payment_method,note,created_at,updated_at,paid_at")
         .order("created_at", { ascending: false }).limit(limit);
       if (error) throw error;
-      return reply({ success: true, data: data || [] });
+      return reply({ success: true, data: await attachMemberCodes(db, data || []) });
     }
 
     if (action === "manual_wallet_adjustment") {
@@ -306,6 +321,7 @@ Deno.serve(async (req) => {
       const balances = new Map((wallets || []).map((w: Record<string, unknown>) => [String(w.customer_id), Number(w.balance || 0)]));
       const safe = (data || []).map((row: Record<string, unknown>) => ({
         id: row.id ?? null,
+        member_code: row.member_code ?? null,
         line_user_id: row.line_user_id ?? null,
         name: row.name ?? row.display_name ?? row.line_display_name ?? row.customer_name ?? "未命名會員",
         wallet_balance: balances.get(String(row.id)) ?? 0,
@@ -430,7 +446,7 @@ Deno.serve(async (req) => {
         .select("id,customer_id,amount,payment_method,payment_bank,status,created_at,updated_at,confirmed_at,received_amount,excess_amount,admin_note,reviewed_at,reviewed_by")
         .order("created_at", { ascending: false }).limit(limit);
       if (error) throw error;
-      return reply({ success: true, data: data || [] });
+      return reply({ success: true, data: await attachMemberCodes(db, data || []) });
     }
 
     if (action === "wallet_transactions") {
@@ -438,7 +454,7 @@ Deno.serve(async (req) => {
         .select("id,wallet_id,customer_id,transaction_type,amount,balance_before,balance_after,reference_id,description,admin_email,created_at")
         .order("created_at", { ascending: false }).limit(limit);
       if (error) throw error;
-      return reply({ success: true, data: data || [] });
+      return reply({ success: true, data: await attachMemberCodes(db, data || []) });
     }
 
     if (action === "audit_logs") {
