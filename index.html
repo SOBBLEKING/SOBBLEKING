@@ -1867,6 +1867,20 @@ logoutButton.addEventListener("click",()=>{
   setMemberStatus("已登出會員。");
 });
 
+/* 會員卡介紹視窗 */
+const memberGuideOpen=document.getElementById("member-guide-open");
+const memberGuideModal=document.getElementById("member-guide-modal");
+const memberGuideClose=document.getElementById("member-guide-close");
+const memberGuideCloseBottom=document.getElementById("member-guide-close-bottom");
+function closeMemberGuide(){if(memberGuideModal)memberGuideModal.hidden=true;}
+if(memberGuideOpen&&memberGuideModal){
+  memberGuideOpen.addEventListener("click",()=>{memberGuideModal.hidden=false;});
+  memberGuideModal.addEventListener("click",event=>{if(event.target===memberGuideModal)closeMemberGuide();});
+}
+if(memberGuideClose)memberGuideClose.addEventListener("click",closeMemberGuide);
+if(memberGuideCloseBottom)memberGuideCloseBottom.addEventListener("click",closeMemberGuide);
+document.addEventListener("keydown",event=>{if(event.key==="Escape"&&memberGuideModal&&!memberGuideModal.hidden)closeMemberGuide();});
+
 /* 網頁載入後執行 */
 try{
   savedPaymentDetails=JSON.parse(sessionStorage.getItem("sobbleking_payment_details")||"null");
