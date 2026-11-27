@@ -130,6 +130,12 @@ details p{color:#687F95;font-size:13px;margin-top:12px}
 .checkout-field input,.checkout-field textarea{width:100%;border:1px solid #d7e7f2;border-radius:12px;padding:12px;background:#fbfdff;color:#315F85;font:inherit}
 .checkout-field textarea{min-height:90px;resize:vertical}
 .checkout-hint{font-size:14px;color:#71869B;line-height:1.8;margin-top:15px}
+.checkout-member-number{display:flex;align-items:center;gap:10px;margin-top:10px;padding:11px 14px;border:1px solid #d7e7f2;border-radius:13px;background:rgba(255,255,255,.82);color:#456783;font-size:13px}
+.checkout-member-number strong{color:#315F85;letter-spacing:.8px;font-weight:800}
+.checkout-member-copy{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;flex:0 0 34px;margin-left:auto;border:1px solid #cfe1ee;border-radius:9px;background:#fff;color:#477FAF;cursor:pointer}
+.checkout-member-copy:hover{background:#edf7fd}
+.checkout-member-copy svg{width:17px;height:17px;display:block;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.checkout-member-copy-status{font-size:11px;color:#5d8b6b;min-width:32px;text-align:right}
 #checkout-result{white-space:pre-line;font-size:17px;line-height:2;color:#315F85;font-weight:700;background:rgba(229,243,252,.72);border:1px solid rgba(118,169,208,.25);border-radius:16px;padding:18px;margin-top:18px}
 #checkout-result.order-success{font-size:19px;color:#244F73;padding:22px}
 @media(max-width:600px){#checkout-result{font-size:16px;padding:16px}#checkout-result.order-success{font-size:18px}}
@@ -621,6 +627,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
       ① 請先登入 LINE 會員。② 系統會優先使用會員卡餘額折抵。③ 若仍有應付款項，請選擇付款方式並完成付款。④ 訂單建立後，請依付款視窗提示填寫遊戲登入資料。外部付款及遊戲資料均確認後，才會安排代儲。
     </div>
     <div id="checkout-member-state" class="checkout-hint">會員登入狀態確認中⋯</div>
+    <div id="checkout-member-number-row" class="checkout-member-number" hidden><span>會員編號</span><strong id="checkout-member-number"></strong><span id="checkout-member-copy-status" class="checkout-member-copy-status" aria-live="polite"></span><button type="button" class="checkout-member-copy" onclick="copyCheckoutMemberNumber()" aria-label="複製會員編號" title="複製會員編號"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg></button></div>
     <div id="checkout-summary" class="checkout-summary"></div>
     <div class="checkout-grand-total"><span>訂單總額</span><span id="checkout-total">NT$0</span></div>
     <div id="wallet-checkout-summary" class="checkout-hint" style="margin-top:10px;padding:13px 15px;border:1px solid #cfe1ee;border-radius:13px;background:#f2f9fd;line-height:1.8">會員卡餘額：登入後讀取</div>
@@ -802,6 +809,7 @@ const PRODUCT_DESCRIPTIONS = {
 let products = [];
 let cart = {};
 let currentCustomerId = null;
+let currentMemberCode = "";
 let currentWalletBalance = 0;
 let checkoutRequestId = null;
 let orderWasCreated = false;
@@ -1326,6 +1334,29 @@ function setMemberStatus(message){
   memberStatus.textContent = message;
 }
 
+async function copyCheckoutMemberNumber(){
+  const code = String(currentMemberCode || "").trim();
+  const status = document.getElementById("checkout-member-copy-status");
+  if(!code){ if(status) status.textContent = "無編號"; return; }
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(code);
+    }else{
+      const helper = document.createElement("textarea");
+      helper.value = code;
+      helper.setAttribute("readonly","");
+      helper.style.position = "fixed"; helper.style.opacity = "0";
+      document.body.appendChild(helper); helper.select();
+      const copied = document.execCommand("copy");
+      helper.remove();
+      if(!copied) throw new Error("copy_failed");
+    }
+    if(status){ status.textContent = "已複製"; setTimeout(()=>{status.textContent="";},1800); }
+  }catch(error){
+    if(status) status.textContent = "複製失敗";
+  }
+}
+
 function appendHistoryItem(container, title, detail){
   const item = document.createElement("div");
   item.className = "wallet-history-item";
@@ -1376,8 +1407,11 @@ function renderWalletHistory(topupHistory, transactionHistory){
 
 function showMember(member,wallet,topupHistory,transactionHistory){
   document.getElementById("member-name").textContent = member.line_display_name || "SOBBSTARS 會員";
-  const rawMemberNo = member.member_code || member.customer_code || member.member_no || "會員編號讀取中";
-  document.getElementById("member-number").textContent = rawMemberNo.replace(/^SB(?=[0-9-])/, "SK");
+  const rawMemberNo = member.member_code || member.customer_code || member.member_no || "";
+  currentMemberCode = String(rawMemberNo).replace(/^SB(?=[0-9-])/, "SK");
+  document.getElementById("member-number").textContent = currentMemberCode || "會員編號讀取中";
+  document.getElementById("checkout-member-number").textContent = currentMemberCode;
+  document.getElementById("checkout-member-number-row").hidden = !currentMemberCode;
   if(member.created_at){
     const date = new Date(member.created_at);
     document.getElementById("member-date").textContent = "加入日期：" + date.toLocaleDateString("zh-TW");
@@ -1484,6 +1518,9 @@ logoutButton.addEventListener("click",()=>{
   if(!window.liff || !liff.isLoggedIn()) return;
   liff.logout();
   currentCustomerId = null;
+  currentMemberCode = "";
+  document.getElementById("checkout-member-number-row").hidden = true;
+  document.getElementById("checkout-member-number").textContent = "";
   memberCard.hidden = true;
   memberCard.classList.remove("is-flipped");
   memberCard.setAttribute("aria-pressed","false");
