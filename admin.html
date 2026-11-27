@@ -151,119 +151,80 @@ async function adminRequest(action,query="",extra={}) {
  if(!res.ok||!json.success)throw new Error(json.error||"讀取資料失敗");
  return json.data;
 }
-function detailField(label,value){return '<div class="detail-item"><small>'+esc(label)+'</small><strong>'+esc(value??"—")+'</strong></div>'}
+function detailNode(label,value){
+  const box=document.createElement("div");box.className="detail-item";
+  const small=document.createElement("small");small.textContent=label;
+  const strong=document.createElement("strong");strong.textContent=value==null||value===""?"—":String(value);
+  box.append(small,strong);return box;
+}
+function addCredentialRow(parent,label,value){
+  const row=document.createElement("div");row.className="credential-line";
+  const span=document.createElement("span");
+  const small=document.createElement("small");small.textContent=label;
+  const valueNode=document.createElement("div");valueNode.textContent=value||"—";
+  span.append(small,valueNode);row.append(span);
+  if(value){const copy=document.createElement("button");copy.type="button";copy.className="order-action";copy.textContent="複製";
+    copy.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(String(value));copy.textContent="已複製";}catch(e){alert("複製失敗，請手動選取資料。");}});
+    row.append(copy);}
+  parent.append(row);
+}
 async function openOrderDetail(orderId){
   $("orderDetailModal").style.display="flex";
   $("orderDetailContent").textContent="正在讀取訂單與遊戲資料…";
-  $("orderDetailActions").innerHTML="";
+  $("orderDetailActions").replaceChildren();
   try{
     const d=await adminRequest("order_credentials","",{order_id:orderId});
-    const o=d.order||{}, c=d.credentials||null, items=d.items||[];
-    const fields=[
-      detailField("訂單編號",o.order_number),
-      detailField("訂單總額","NT$"+Number(o.total_amount||0).toLocaleString("zh-TW")),
-      detailField("付款狀態",o.payment_status==="paid"?"已付款":"待確認"),
-      detailField("訂單狀態",o.order_status),
-      detailField("會員編號",o.customer_id),
-      detailField("付款方式",o.payment_method),
-      detailField("建立時間",fmt(o.created_at)),
-      detailField("付款時間",fmt(o.paid_at))
-    ].join("");
-    const itemHtml=items.length?items.map(x=>'<div class="credential-line"><span>'+esc(x.product_name)+' × '+esc(x.quantity)+'</span><strong>NT
- try{const d=await adminRequest("overview");$("statOrders").textContent=d.order_count+" 筆";$("statRevenue").textContent="NT$ "+Number(d.paid_revenue||0).toLocaleString("en-US");$("statMembers").textContent=d.member_count+" 位";$("statTopups").textContent=d.pending_topups+" 筆待確認";}catch(e){["statOrders","statRevenue","statMembers","statTopups"].forEach(id=>$(id).textContent="暫時無法讀取");$("panelMessage").textContent="總覽資料載入失敗："+e.message}
-}
-async function loadModule(action,query=""){
- currentAction=action;currentSearch=query;$("panelTitle").textContent=labels[action]||"資料列表";$("panelHint").textContent=query?"搜尋結果":"最新 50 筆資料";
-$("panelMessage").style.display="block";$("panelMessage").textContent="正在讀取資料…";$("dataTable").querySelector("thead").innerHTML="";$("dataTable").querySelector("tbody").innerHTML="";
- document.querySelectorAll("#moduleNav button").forEach(b=>b.classList.toggle("active",b.dataset.action===action));
- try{const apiAction=query&&action==="orders"?"search_orders":query&&action==="members"?"search_members":action;const rows=await adminRequest(apiAction,query);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>"<td>"+esc(fmt(row[x[0]]))+"</td>").join("")+(action==="orders"?"<td><button class=\\"order-action\\" type=\\"button\\" data-order-detail=\\""+esc(row.id)+"\\">查看訂單</button></td>":"")+"</tr>").join("");if(action==="orders")$("dataTable").querySelector("thead tr").insertAdjacentHTML("beforeend","<th>操作</th>");}
- catch(e){$("panelMessage").style.display="block";$("panelMessage").textContent="讀取失敗："+e.message}
-}
-
-document.querySelectorAll("#moduleNav button").forEach(b=>b.addEventListener("click",()=>loadModule(b.dataset.action)));
-$("dataTable").querySelector("tbody").addEventListener("click",e=>{const b=e.target.closest("[data-order-detail]");if(b)openOrderDetail(b.dataset.orderDetail);});
-$("closeOrderDetail").addEventListener("click",()=>$("orderDetailModal").style.display="none");
-$("orderDetailModal").addEventListener("click",e=>{if(e.target===$("orderDetailModal"))$("orderDetailModal").style.display="none";});
-async function runSearch(action,inputId){const q=$(inputId).value.trim();if(!q){$(inputId).focus();return}await loadModule(action,q);document.querySelector(".data-panel:last-of-type")?.scrollIntoView({behavior:"smooth",block:"start"});}
-$("orderSearchBtn").addEventListener("click",()=>runSearch("orders","orderSearchInput"));
-$("memberSearchBtn").addEventListener("click",()=>runSearch("members","memberSearchInput"));
-$("walletAdjustBtn").addEventListener("click",async()=>{
- const btn=$("walletAdjustBtn"),result=$("walletAdjustResult");
- const customerId=$("walletCustomerId").value.trim(),direction=$("walletDirection").value;
- const amount=Number($("walletAmount").value),reason=$("walletReason").value.trim();
- if(!customerId||!Number.isSafeInteger(amount)||amount<=0||!reason){result.textContent="請填寫會員編號、正整數金額及調整原因。";return;}
- if(!confirm((direction==="credit"?"增加":"扣除")+"會員餘額 NT$"+amount+"？此操作會立即入帳並留下紀錄。"))return;
- btn.disabled=true;result.textContent="正在處理…";
- try{
-   const data=await adminRequest("manual_wallet_adjustment","",{customer_id:customerId,direction,amount,reason});
-   result.textContent="調整成功！餘額："+Number(data.balance_before).toLocaleString("zh-TW")+" → "+Number(data.balance_after).toLocaleString("zh-TW");
-   $("walletAmount").value="";$("walletReason").value="";
-   if(currentAction==="members")await loadModule("members",currentSearch);
- }catch(e){result.textContent="調整失敗："+e.message;}
- finally{btn.disabled=false;}
-});
-$("orderSearchInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("orderSearchBtn").click()});
-$("memberSearchInput").addEventListener("keydown",e=>{if(e.key==="Enter")$("memberSearchBtn").click()});
-
-$("refreshBtn").addEventListener("click",()=>{loadOverview();loadModule(currentAction,currentSearch)});
-async function checkForNewOrders(initial=false){
- try{
-   const rows=await adminRequest("orders");
-   const newest=rows?.[0];
-   if(!newest?.id){if(!orderPollReady){lastSeenOrderId=null;orderPollReady=true;}return;}
-   if(!orderPollReady||initial){lastSeenOrderId=newest.id;orderPollReady=true;return;}
-   if(newest.id!==lastSeenOrderId){
-     lastSeenOrderId=newest.id;
-     const toast=$("newOrderToast");
-     toast.textContent="🛎️ 有新訂單！訂單編號："+(newest.order_number||"新訂單")+"　點此查看訂單";
-     toast.style.display="block";
-     toast.onclick=()=>{loadModule("orders");$("panelTitle").scrollIntoView({behavior:"smooth",block:"center"});};
-     if("Notification" in window && Notification.permission==="granted"){
-       new Notification("SOBBLEKING｜收到新訂單",{body:"訂單編號："+(newest.order_number||"新訂單")});
-     }
-     if(toastHideTimer)clearTimeout(toastHideTimer);
-     toastHideTimer=setTimeout(()=>{if(toast)toast.style.display="none";},15000);
-   }
- }catch(e){console.warn("new order polling failed",e);}
-}
-function startOrderPolling(){
- if(orderPollTimer)clearInterval(orderPollTimer);
- orderPollReady=false;lastSeenOrderId=null;
- checkForNewOrders(true);
- orderPollTimer=setInterval(()=>checkForNewOrders(false),30000);
-}
-$("testLineBtn").addEventListener("click",async()=>{
- const btn=$("testLineBtn");btn.disabled=true;btn.textContent="正在測試…";
- try{await adminRequest("test_line");alert("LINE 測試通知已送出！請查看你的 LINE。");}
- catch(e){alert("LINE 測試失敗："+e.message+"。請確認 Supabase Secrets 與 LINE Channel 設定。");}
- finally{btn.disabled=false;btn.textContent="💬 測試 LINE 通知";}
-});
-$("enableNotificationsBtn").addEventListener("click",async()=>{
- if(!("Notification" in window)){alert("此瀏覽器不支援桌面通知，仍會在管理後台顯示新訂單提醒。");return;}
- const permission=await Notification.requestPermission();
- $("enableNotificationsBtn").textContent=permission==="granted"?"✓ 桌面通知已開啟": "🔔 重新開啟桌面通知";
- if(permission!=="granted")alert("尚未允許桌面通知；管理後台內的新訂單彈出提醒仍會正常運作。");
-});
-
-$("logoutBtn").addEventListener("click",async()=>{if(orderPollTimer)clearInterval(orderPollTimer);await client.auth.signOut();$("dashboard").style.display="none";$("authView").style.display="grid";$("password").value="";message("已安全登出。")});
-client.auth.getSession().then(({data})=>{if(data.session)authorize(data.session)});
-</script>
-</body>
-</html>+Number(x.subtotal||0).toLocaleString("zh-TW")+'</strong></div>').join(""):"尚無商品明細";
-    const credHtml=c?'<div class="credential-box"><strong>遊戲登入資料</strong>'+
-      [['遊戲名稱／暱稱',c.game_nickname],['登入方式',c.login_method],['登入帳號',c.account],['登入密碼',c.password],['備註',c.note]].map(([label,value])=>'<div class="credential-line"><span><small>'+esc(label)+'</small><br>'+esc(value||"—")+'</span>'+(value?'<button class="order-action" type="button" data-copy="'+esc(value)+'">複製</button>':"")+'</div>').join("")+
-      '<p style="font-size:11px;color:#7890a5;margin:10px 0 0">資料已加密保存；每次查看均會留下存取紀錄。</p></div>':'<div class="credential-box"><strong>尚未收到遊戲登入資料</strong><p style="margin:6px 0 0;color:#7890a5;font-size:12px">客人完成付款後可提交遊戲資料。</p></div>';
-    $("orderDetailContent").innerHTML='<div class="detail-grid">'+fields+'</div><div class="credential-box"><strong>商品明細</strong>'+itemHtml+'</div>'+credHtml+(o.note?'<div class="credential-box"><strong>訂單備註</strong><p>'+esc(o.note)+'</p></div>':"");
-    $("orderDetailActions").innerHTML=(o.payment_status==="unpaid"?'<button type="button" id="confirmOrderPaymentBtn">確認已收到款項</button>':"")+'<button type="button" class="secondary" id="copyOrderNumberBtn">複製訂單編號</button>';
-    $("orderDetailContent").querySelectorAll("[data-copy]").forEach(btn=>btn.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(btn.dataset.copy);btn.textContent="已複製";}catch(e){alert("複製失敗，請手動選取資料。");}}));
-    $("copyOrderNumberBtn").addEventListener("click",async()=>{try{await navigator.clipboard.writeText(o.order_number||"");$("copyOrderNumberBtn").textContent="已複製";}catch(e){alert("複製失敗。");}});
-    const confirmBtn=$("confirmOrderPaymentBtn");
-    if(confirmBtn)confirmBtn.addEventListener("click",async()=>{
-      if(!confirm("確認已實際收到這筆訂單的全部剩餘款項？確認後訂單將進入處理狀態。"))return;
-      confirmBtn.disabled=true;confirmBtn.textContent="確認中…";
-      try{await adminRequest("confirm_order_payment","",{order_id:orderId});await openOrderDetail(orderId);await loadModule("orders",currentSearch);}
-      catch(err){alert("付款確認失敗："+err.message);confirmBtn.disabled=false;confirmBtn.textContent="確認已收到款項";}
-    });
+    const o=d.order||{},c=d.credentials||null,items=d.items||[];
+    const content=$("orderDetailContent");content.replaceChildren();
+    const grid=document.createElement("div");grid.className="detail-grid";
+    grid.append(
+      detailNode("訂單編號",o.order_number),
+      detailNode("訂單總額","NT$"+Number(o.total_amount||0).toLocaleString("zh-TW")),
+      detailNode("會員卡扣款","NT$"+Number(o.wallet_amount_used||0).toLocaleString("zh-TW")),
+      detailNode("剩餘應付","NT$"+Number(o.external_due||0).toLocaleString("zh-TW")),
+      detailNode("付款狀態",o.payment_status==="paid"?"已付款":"待確認"),
+      detailNode("訂單狀態",o.order_status),
+      detailNode("會員編號",o.customer_id),
+      detailNode("付款方式",o.payment_method),
+      detailNode("建立時間",fmt(o.created_at)),
+      detailNode("付款時間",fmt(o.paid_at))
+    );
+    content.append(grid);
+    const itemBox=document.createElement("div");itemBox.className="credential-box";
+    const itemTitle=document.createElement("strong");itemTitle.textContent="商品明細";itemBox.append(itemTitle);
+    if(items.length){items.forEach(x=>{const row=document.createElement("div");row.className="credential-line";const name=document.createElement("span");name.textContent=(x.product_name||"商品")+" × "+x.quantity;const price=document.createElement("strong");price.textContent="NT$"+Number(x.subtotal||0).toLocaleString("zh-TW");row.append(name,price);itemBox.append(row);});}
+    else{const empty=document.createElement("p");empty.textContent="尚無商品明細";itemBox.append(empty);}
+    content.append(itemBox);
+    if(c){
+      const box=document.createElement("div");box.className="credential-box";
+      const title=document.createElement("strong");title.textContent="遊戲登入資料";box.append(title);
+      addCredentialRow(box,"遊戲名稱／暱稱",c.game_nickname);
+      addCredentialRow(box,"登入方式",c.login_method);
+      addCredentialRow(box,"登入帳號",c.account);
+      addCredentialRow(box,"登入密碼",c.password);
+      addCredentialRow(box,"備註",c.note);
+      const hint=document.createElement("p");hint.style.cssText="font-size:11px;color:#7890a5;margin:10px 0 0";hint.textContent="資料已加密保存；每次查看均會留下存取紀錄。";box.append(hint);
+      content.append(box);
+    }else{
+      const box=document.createElement("div");box.className="credential-box";
+      const title=document.createElement("strong");title.textContent="尚未收到遊戲登入資料";box.append(title);
+      const hint=document.createElement("p");hint.textContent="客人完成付款後可提交遊戲資料。";box.append(hint);content.append(box);
+    }
+    if(o.note){const note=document.createElement("div");note.className="credential-box";const title=document.createElement("strong");title.textContent="訂單備註";const p=document.createElement("p");p.textContent=o.note;note.append(title,p);content.append(note);}
+    const actions=$("orderDetailActions");
+    if(o.payment_status==="unpaid"){
+      const confirmBtn=document.createElement("button");confirmBtn.type="button";confirmBtn.textContent="確認已收到款項";
+      confirmBtn.addEventListener("click",async()=>{
+        if(!confirm("確認已實際收到這筆訂單的全部剩餘款項？確認後訂單將進入處理狀態。"))return;
+        confirmBtn.disabled=true;confirmBtn.textContent="確認中…";
+        try{await adminRequest("confirm_order_payment","",{order_id:orderId});await openOrderDetail(orderId);await loadModule("orders",currentSearch);}
+        catch(err){alert("付款確認失敗："+err.message);confirmBtn.disabled=false;confirmBtn.textContent="確認已收到款項";}
+      });
+      actions.append(confirmBtn);
+    }
+    const copyOrder=document.createElement("button");copyOrder.type="button";copyOrder.className="secondary";copyOrder.textContent="複製訂單編號";
+    copyOrder.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(o.order_number||"");copyOrder.textContent="已複製";}catch(e){alert("複製失敗。");}});
+    actions.append(copyOrder);
   }catch(e){$("orderDetailContent").textContent="讀取訂單失敗："+e.message;}
 }
 async function loadOverview(){
@@ -273,7 +234,7 @@ async function loadModule(action,query=""){
  currentAction=action;currentSearch=query;$("panelTitle").textContent=labels[action]||"資料列表";$("panelHint").textContent=query?"搜尋結果":"最新 50 筆資料";
 $("panelMessage").style.display="block";$("panelMessage").textContent="正在讀取資料…";$("dataTable").querySelector("thead").innerHTML="";$("dataTable").querySelector("tbody").innerHTML="";
  document.querySelectorAll("#moduleNav button").forEach(b=>b.classList.toggle("active",b.dataset.action===action));
- try{const apiAction=query&&action==="orders"?"search_orders":query&&action==="members"?"search_members":action;const rows=await adminRequest(apiAction,query);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>"<td>"+esc(fmt(row[x[0]]))+"</td>").join("")+(action==="orders"?"<td><button class=\\"order-action\\" type=\\"button\\" data-order-detail=\\""+esc(row.id)+"\\">查看訂單</button></td>":"")+"</tr>").join("");if(action==="orders")$("dataTable").querySelector("thead tr").insertAdjacentHTML("beforeend","<th>操作</th>");}
+ try{const apiAction=query&&action==="orders"?"search_orders":query&&action==="members"?"search_members":action;const rows=await adminRequest(apiAction,query);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>"<td>"+esc(fmt(row[x[0]]))+"</td>").join("")+"</tr>").join("");if(action==="orders"){$("dataTable").querySelector("thead tr").insertAdjacentHTML("beforeend","<th>操作</th>");$("dataTable").querySelector("tbody").querySelectorAll("tr").forEach((tr,i)=>{const td=document.createElement("td");const b=document.createElement("button");b.type="button";b.className="order-action";b.dataset.orderDetail=rows[i].id;b.textContent="查看訂單";td.append(b);tr.append(td);});}}
  catch(e){$("panelMessage").style.display="block";$("panelMessage").textContent="讀取失敗："+e.message}
 }
 
