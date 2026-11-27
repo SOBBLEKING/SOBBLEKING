@@ -82,6 +82,20 @@ section{padding:75px 7%;scroll-margin-top:90px}
 @media(max-width:380px){.member-tools-row{flex-wrap:wrap}.member-tools-row .member-card-guide,.member-tools-row .member-button{flex:1 1 30%}}
 .wallet-topup-button[hidden]{display:none}
 .member-status{position:relative;min-height:22px;margin-top:16px;color:#71869B;font-size:12px}
+.customer-order-lookup{position:relative;max-width:620px;margin:22px auto 0;padding:22px;border:1px solid rgba(118,169,208,.25);border-radius:18px;background:rgba(255,255,255,.78);text-align:left}
+.customer-order-lookup[hidden]{display:none}
+.customer-order-lookup h3{color:#315F85;font-size:18px;text-align:center;margin:0 0 6px}
+.customer-order-lookup>p{color:#71869B;font-size:12px;text-align:center;margin:5px 0 14px}
+.customer-order-form{display:flex;gap:9px}
+.customer-order-form input{flex:1;min-width:0;padding:12px 14px;border:1px solid #d7e7f2;border-radius:12px;background:#fff;color:#315F85;font:inherit}
+.customer-order-form button{padding:11px 20px;border:0;border-radius:24px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:#fff;font-weight:700;white-space:nowrap;cursor:pointer}
+.customer-order-form button:disabled{opacity:.6;cursor:wait}
+.customer-order-result{margin-top:14px;color:#526f89;font-size:13px;line-height:1.8}
+.customer-order-card{padding:15px;border:1px solid #d7e7f2;border-radius:14px;background:#fff}
+.customer-order-card h4{color:#315F85;font-size:16px;margin:0 0 8px}
+.customer-order-card p{margin:4px 0}
+.customer-order-items{margin:8px 0 0;padding-left:20px}
+@media(max-width:480px){.customer-order-lookup{padding:16px}.customer-order-form{flex-direction:column}.customer-order-form button{width:100%}}
 
 /* SOBBSTARS 冰晶珍珠橫式會員卡：全文字銀色浮雕效果 */
 .member-card-info{position:relative;width:100%;max-width:620px;aspect-ratio:1.72/1;margin:30px auto 0;padding:0;overflow:hidden;text-align:left;border-radius:23px;border:1px solid rgba(255,255,255,.98);background:radial-gradient(ellipse at 13% 10%,rgba(255,255,255,.98),transparent 32%),radial-gradient(ellipse at 88% 88%,rgba(255,255,255,.82),transparent 34%),linear-gradient(132deg,#DDF7FF 0%,#A9DFF4 27%,#F3FDFF 52%,#A4D5EA 77%,#F8FEFF 100%);box-shadow:0 24px 52px rgba(70,139,174,.22),0 5px 15px rgba(78,145,180,.13),inset 0 1px 0 #fff;isolation:isolate;transition:transform .35s ease,box-shadow .35s ease;color:#52758D}
@@ -638,6 +652,15 @@ body:has(.payment-modal:not([hidden])) footer{
       <button type="button" class="member-button secondary" id="line-logout-button" hidden>登出會員</button>
     </div>
     <div class="member-status" id="member-status" aria-live="polite">尚未登入會員</div>
+    <section class="customer-order-lookup" id="customer-order-lookup" hidden>
+      <h3>訂單查詢</h3>
+      <p>輸入訂單編號，即可查看自己的訂單進度。</p>
+      <div class="customer-order-form">
+        <input id="customer-order-number" type="text" maxlength="60" placeholder="請輸入訂單編號" autocomplete="off">
+        <button type="button" id="customer-order-search">查詢訂單</button>
+      </div>
+      <div class="customer-order-result" id="customer-order-result" aria-live="polite"></div>
+    </section>
     <!-- SOBBSTARS 冰晶珍珠會員卡：保留原本動態會員資料 ID -->
     <div class="member-card-info" id="member-card" role="button" tabindex="0" aria-label="會員卡，點擊翻面查看錢包餘額" aria-pressed="false" hidden>
       <div class="member-card-flipper">
@@ -980,6 +1003,7 @@ const MEMBER_LOGIN_URL = "https://ksellpcaecuihxjxsolr.supabase.co/functions/v1/
 const CREATE_ORDER_URL = "https://ksellpcaecuihxjxsolr.supabase.co/functions/v1/create-order";
 const ORDER_CREDENTIALS_URL = "https://ksellpcaecuihxjxsolr.supabase.co/functions/v1/submit-order-credentials";
 const CREATE_TOPUP_REQUEST_URL = "https://ksellpcaecuihxjxsolr.supabase.co/functions/v1/create-topup-request";
+const CUSTOMER_ORDER_LOOKUP_URL = "https://ksellpcaecuihxjxsolr.supabase.co/functions/v1/customer-order-lookup";
 
 /* 商品資料庫 ID 與顯示順序 */
 const PRODUCT_ORDER = [
@@ -1692,8 +1716,263 @@ function showMember(member,wallet,topupHistory,transactionHistory){
   document.getElementById("wallet-refresh-button").hidden = false;
   loginButton.hidden = true;
   logoutButton.hidden = false;
+  document.getElementById("customer-order-lookup").hidden = false;
   setMemberStatus("LINE 會員登入成功！");
 }
+
+function escapeOrderLookupHtml(value){
+  return String(value ?? "").replace(/[&<>"']/g, char => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char]));
+}
+function orderStatusLabel(value){
+  return ({pending:"待處理",processing:"處理中",completed:"已完成",cancelled:"已取消"})[value] || value || "—";
+}
+function paymentStatusLabel(value){
+  return ({unpaid:"待付款",paid:"已付款",refunded:"已退款"})[value] || value || "—";
+}
+async function lookupCustomerOrder(){
+  const input=document.getElementById("customer-order-number");
+  const button=document.getElementById("customer-order-search");
+  const resultBox=document.getElementById("customer-order-result");
+  const orderNumber=input.value.trim();
+  if(!orderNumber){resultBox.textContent="請先輸入訂單編號。";input.focus();return;}
+  if(!window.liff || !liff.isLoggedIn()){resultBox.textContent="請先使用 LINE 登入會員。";return;}
+  const accessToken=liff.getAccessToken();
+  if(!accessToken){resultBox.textContent="登入憑證已失效，請重新登入會員。";return;}
+  button.disabled=true;button.textContent="查詢中⋯";resultBox.textContent="正在查詢訂單⋯";
+  try{
+    const response=await fetch(CUSTOMER_ORDER_LOOKUP_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+accessToken},
+      body:JSON.stringify({access_token:accessToken,order_number:orderNumber})
+    });
+    const data=await response.json();
+    if(!response.ok || !data.success){
+      if(data.error==="order_not_found") throw new Error("查無此訂單，請確認訂單編號，並確認已登入建立訂單的 LINE 會員。");
+      if(data.error==="line_authentication_failed") throw new Error("LINE 登入已失效，請重新登入會員。");
+      throw new Error("目前無法查詢訂單，請稍後再試。");
+    }
+    const order=data.order||{};
+    const items=Array.isArray(data.items)?data.items:[];
+    const itemHtml=items.length?'<ul class="customer-order-items">'+items.map(item=>'<li>'+escapeOrderLookupHtml(item.product_name)+' × '+escapeOrderLookupHtml(item.quantity)+'（NT
+ const button=document.getElementById("wallet-refresh-button");button.disabled=true;button.textContent="更新中⋯";
+ try{
+  await registerOrLoginMember();
+  if(!memberStatus.textContent.includes("成功")) throw new Error(memberStatus.textContent||"更新失敗");
+  button.textContent="已更新";setTimeout(()=>{button.textContent="更新錢包餘額";button.disabled=false;},1000);
+ }catch(error){button.textContent="更新失敗，請重試";button.disabled=false;}
+}
+/* 將 LINE Access Token 傳給 Supabase Edge Function */
+async function registerOrLoginMember(){
+  try{
+    setMemberStatus("正在確認 LINE 會員資料⋯");
+    const accessToken = liff.getAccessToken();
+    if(!accessToken) throw new Error("無法取得 LINE 登入憑證，請重新登入。");
+    const response = await fetch(MEMBER_LOGIN_URL,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "apikey":SUPABASE_KEY,
+        "Authorization":"Bearer " + accessToken
+      },
+      body:JSON.stringify({access_token:accessToken})
+    });
+    const result = await response.json();
+    if(!response.ok || !result.success) throw new Error(result.error || "會員登入失敗，請稍後再試。");
+    // 保留舊版登入行為：會員資料成功回傳即可顯示，不因 customer_id 欄位缺漏而阻擋登入。
+    const memberData = result.member || result.customer || {};
+    currentCustomerId =
+      result.customer_id ||
+      result.customer?.id ||
+      result.member?.customer_id ||
+      result.member?.id ||
+      result.wallet?.customer_id ||
+      null;
+    showMember(memberData,result.wallet,result.topup_history,result.transaction_history);
+  }catch(error){
+    console.error("LINE 會員登入錯誤：",error);
+    setMemberStatus(error.message || "會員登入失敗，請稍後再試。");
+  }
+}
+
+/* 初始化 LIFF */
+async function initializeLIFF(){
+  loginButton.disabled = true;
+  setMemberStatus("正在初始化 LINE 會員系統⋯");
+  try{
+    await liff.init({liffId:LIFF_ID});
+    if(liff.isLoggedIn()){
+      setMemberStatus("已偵測到 LINE 登入，正在讀取會員資料⋯");
+      await registerOrLoginMember();
+    }else{
+      setMemberStatus("尚未登入會員，請使用 LINE 登入。");
+      loginButton.disabled = false;
+    }
+  }catch(error){
+    console.error("LIFF 初始化失敗：",error);
+    setMemberStatus("LINE 會員系統載入失敗，請確認 LIFF 設定或稍後再試。");
+    loginButton.disabled = false;
+  }
+}
+
+/* 點擊 LINE 登入 */
+loginButton.addEventListener("click",()=>{
+  if(!window.liff){
+    setMemberStatus("LINE 登入元件尚未載入，請重新整理頁面。");
+    return;
+  }
+  if(!liff.isLoggedIn()){
+    liff.login({redirectUri:window.location.href});
+  }else{
+    registerOrLoginMember();
+  }
+});
+
+/* 登出 LINE 會員 */
+logoutButton.addEventListener("click",()=>{
+  if(!window.liff || !liff.isLoggedIn()) return;
+  liff.logout();
+  currentCustomerId = null;
+  currentMemberCode = "";
+  document.getElementById("checkout-member-number-row").hidden = true;
+  document.getElementById("checkout-member-number").textContent = "";
+  memberCard.hidden = true;
+  document.getElementById("customer-order-lookup").hidden = true;
+  document.getElementById("customer-order-number").value = "";
+  document.getElementById("customer-order-result").textContent = "";
+  memberCard.classList.remove("is-flipped");
+  memberCard.setAttribute("aria-pressed","false");
+  logoutButton.hidden = true;
+  loginButton.hidden = false;
+  loginButton.disabled = false;
+  setMemberStatus("已登出會員。");
+});
+
+/* 網頁載入後執行 */
+try{
+  savedPaymentDetails=JSON.parse(sessionStorage.getItem("sobbleking_payment_details")||"null");
+  if(savedPaymentDetails){
+    orderWasCreated=true;
+    document.getElementById("reopen-payment-button").hidden=false;
+  }
+}catch(error){savedPaymentDetails=null;}
+loadProducts();
+initializeLIFF();
+</script>
+</body>
+</html>+Number(item.subtotal||0).toLocaleString("en-US")+'）</li>').join("")+'</ul>':'<p>商品明細：—</p>';
+    const date=order.created_at?new Date(order.created_at).toLocaleString("zh-TW"):"—";
+    resultBox.innerHTML='<div class="customer-order-card"><h4>訂單 '+escapeOrderLookupHtml(order.order_number)+'</h4><p>建立時間：'+escapeOrderLookupHtml(date)+'</p><p>訂單狀態：<strong>'+escapeOrderLookupHtml(orderStatusLabel(order.order_status))+'</strong></p><p>付款狀態：<strong>'+escapeOrderLookupHtml(paymentStatusLabel(order.payment_status))+'</strong></p><p>付款方式：'+escapeOrderLookupHtml(order.payment_method||"—")+'</p><p>訂單金額：NT
+ const button=document.getElementById("wallet-refresh-button");button.disabled=true;button.textContent="更新中⋯";
+ try{
+  await registerOrLoginMember();
+  if(!memberStatus.textContent.includes("成功")) throw new Error(memberStatus.textContent||"更新失敗");
+  button.textContent="已更新";setTimeout(()=>{button.textContent="更新錢包餘額";button.disabled=false;},1000);
+ }catch(error){button.textContent="更新失敗，請重試";button.disabled=false;}
+}
+/* 將 LINE Access Token 傳給 Supabase Edge Function */
+async function registerOrLoginMember(){
+  try{
+    setMemberStatus("正在確認 LINE 會員資料⋯");
+    const accessToken = liff.getAccessToken();
+    if(!accessToken) throw new Error("無法取得 LINE 登入憑證，請重新登入。");
+    const response = await fetch(MEMBER_LOGIN_URL,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "apikey":SUPABASE_KEY,
+        "Authorization":"Bearer " + accessToken
+      },
+      body:JSON.stringify({access_token:accessToken})
+    });
+    const result = await response.json();
+    if(!response.ok || !result.success) throw new Error(result.error || "會員登入失敗，請稍後再試。");
+    // 保留舊版登入行為：會員資料成功回傳即可顯示，不因 customer_id 欄位缺漏而阻擋登入。
+    const memberData = result.member || result.customer || {};
+    currentCustomerId =
+      result.customer_id ||
+      result.customer?.id ||
+      result.member?.customer_id ||
+      result.member?.id ||
+      result.wallet?.customer_id ||
+      null;
+    showMember(memberData,result.wallet,result.topup_history,result.transaction_history);
+  }catch(error){
+    console.error("LINE 會員登入錯誤：",error);
+    setMemberStatus(error.message || "會員登入失敗，請稍後再試。");
+  }
+}
+
+/* 初始化 LIFF */
+async function initializeLIFF(){
+  loginButton.disabled = true;
+  setMemberStatus("正在初始化 LINE 會員系統⋯");
+  try{
+    await liff.init({liffId:LIFF_ID});
+    if(liff.isLoggedIn()){
+      setMemberStatus("已偵測到 LINE 登入，正在讀取會員資料⋯");
+      await registerOrLoginMember();
+    }else{
+      setMemberStatus("尚未登入會員，請使用 LINE 登入。");
+      loginButton.disabled = false;
+    }
+  }catch(error){
+    console.error("LIFF 初始化失敗：",error);
+    setMemberStatus("LINE 會員系統載入失敗，請確認 LIFF 設定或稍後再試。");
+    loginButton.disabled = false;
+  }
+}
+
+/* 點擊 LINE 登入 */
+loginButton.addEventListener("click",()=>{
+  if(!window.liff){
+    setMemberStatus("LINE 登入元件尚未載入，請重新整理頁面。");
+    return;
+  }
+  if(!liff.isLoggedIn()){
+    liff.login({redirectUri:window.location.href});
+  }else{
+    registerOrLoginMember();
+  }
+});
+
+/* 登出 LINE 會員 */
+logoutButton.addEventListener("click",()=>{
+  if(!window.liff || !liff.isLoggedIn()) return;
+  liff.logout();
+  currentCustomerId = null;
+  currentMemberCode = "";
+  document.getElementById("checkout-member-number-row").hidden = true;
+  document.getElementById("checkout-member-number").textContent = "";
+  memberCard.hidden = true;
+  document.getElementById("customer-order-lookup").hidden = true;
+  document.getElementById("customer-order-number").value = "";
+  document.getElementById("customer-order-result").textContent = "";
+  memberCard.classList.remove("is-flipped");
+  memberCard.setAttribute("aria-pressed","false");
+  logoutButton.hidden = true;
+  loginButton.hidden = false;
+  loginButton.disabled = false;
+  setMemberStatus("已登出會員。");
+});
+
+/* 網頁載入後執行 */
+try{
+  savedPaymentDetails=JSON.parse(sessionStorage.getItem("sobbleking_payment_details")||"null");
+  if(savedPaymentDetails){
+    orderWasCreated=true;
+    document.getElementById("reopen-payment-button").hidden=false;
+  }
+}catch(error){savedPaymentDetails=null;}
+loadProducts();
+initializeLIFF();
+</script>
+</body>
+</html>+Number(order.total_amount||0).toLocaleString("en-US")+'</p>'+itemHtml+'</div>';
+  }catch(error){resultBox.textContent=error.message||"查詢失敗，請稍後再試。";}
+  finally{button.disabled=false;button.textContent="查詢訂單";}
+}
+document.getElementById("customer-order-search").addEventListener("click",lookupCustomerOrder);
+document.getElementById("customer-order-number").addEventListener("keydown",event=>{if(event.key==="Enter")lookupCustomerOrder();});
 
 async function refreshMemberWallet(){
  const button=document.getElementById("wallet-refresh-button");button.disabled=true;button.textContent="更新中⋯";
@@ -1778,6 +2057,9 @@ logoutButton.addEventListener("click",()=>{
   document.getElementById("checkout-member-number-row").hidden = true;
   document.getElementById("checkout-member-number").textContent = "";
   memberCard.hidden = true;
+  document.getElementById("customer-order-lookup").hidden = true;
+  document.getElementById("customer-order-number").value = "";
+  document.getElementById("customer-order-result").textContent = "";
   memberCard.classList.remove("is-flipped");
   memberCard.setAttribute("aria-pressed","false");
   logoutButton.hidden = true;
