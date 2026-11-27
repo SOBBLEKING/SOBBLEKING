@@ -993,6 +993,19 @@ document.querySelectorAll('input[name="payment-method"]').forEach(input=>{
     bank.classList.toggle("visible",method==="無卡存款");
   });
 });
+function decoratePaymentInfo(container){
+  if(!container)return;
+  container.querySelectorAll(".payment-account-number").forEach(node=>{
+    if(node.parentElement?.querySelector("[data-payment-copy]"))return;
+    const value=node.textContent.trim();if(!value)return;
+    const wrap=document.createElement("span");wrap.className="payment-copy-inline";
+    node.parentNode.insertBefore(wrap,node);wrap.appendChild(node);
+    const button=document.createElement("button");button.type="button";button.setAttribute("data-payment-copy",value);button.setAttribute("aria-label","複製付款資訊");button.title="複製";
+    button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg>';
+    const status=document.createElement("span");status.className="payment-copy-status";status.setAttribute("aria-live","polite");
+    wrap.append(button,status);
+  });
+}
 function paymentCopyMarkup(value,label){
   const safe=String(value??"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
   return '<span class="payment-copy-inline"><strong class="payment-account-number">'+safe+'</strong><button type="button" data-payment-copy="'+safe+'" aria-label="複製'+label+'" title="複製'+label+'"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg></button><span class="payment-copy-status" aria-live="polite"></span></span>';
@@ -1044,6 +1057,7 @@ function showPaymentModal(data,payment){
   document.getElementById("payment-method-info").innerHTML=info+(externalDue>0 ?
     "<br><br>完成剩餘款項付款後，請將付款截圖傳給官方 LINE 客服，並附上訂單編號。"+
     "<br><br><strong>付款提醒</strong><br>若於非營業時間匯款，請耐心等待客服確認收款，感謝您的理解與配合。" : "");
+  decoratePaymentInfo(document.getElementById("payment-method-info"));
   savedPaymentDetails={data,payment};
   try{sessionStorage.setItem("sobbleking_payment_details",JSON.stringify(savedPaymentDetails));}catch(error){console.warn("付款資訊暫存失敗",error);}
   document.getElementById("reopen-payment-button").hidden=false;
@@ -1215,6 +1229,7 @@ async function submitWalletTopup(){
       "<strong>儲值申請編號：</strong>"+String(data.request_id).toUpperCase()+
       "<br><strong>儲值金額：</strong>NT$"+Number(data.amount).toLocaleString("en-US")+
       "<br><strong>申請狀態：</strong>待管理員確認收款<br><small>款項核對完成後才會入帳；無卡存款若有超額，確認後會一併存入錢包。</small><br><br>"+info;
+    decoratePaymentInfo(document.getElementById("wallet-topup-payment-info"));
     document.getElementById("wallet-topup-form").hidden=true;
     document.getElementById("wallet-topup-result").hidden=false;
     document.getElementById("wallet-topup-title").textContent="儲值申請已建立";
