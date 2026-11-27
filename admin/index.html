@@ -441,12 +441,23 @@ $("testLineBtn").addEventListener("click",async()=>{
  catch(e){alert("LINE 測試失敗："+e.message+"。請確認 Supabase Secrets 與 LINE Channel 設定。");}
  finally{btn.disabled=false;btn.textContent="💬 測試 LINE 通知";}
 });
+function syncDesktopNotificationState(){
+ const btn=$("enableNotificationsBtn");
+ if(!btn)return;
+ if(!("Notification" in window)){btn.textContent="此瀏覽器不支援桌面通知";btn.disabled=true;return;}
+ const permission=Notification.permission;
+ btn.disabled=permission==="denied";
+ btn.textContent=permission==="granted"?"✓ 桌面通知已開啟":permission==="denied"?"桌面通知已被瀏覽器封鎖":"🔔 開啟桌面通知";
+}
 $("enableNotificationsBtn").addEventListener("click",async()=>{
  if(!("Notification" in window)){alert("此瀏覽器不支援桌面通知，仍會在管理後台顯示新訂單提醒。");return;}
+ if(Notification.permission==="denied"){alert("桌面通知目前被瀏覽器封鎖。請到網址列左側的網站設定，將「通知」改為允許，再重新整理頁面。");return;}
  const permission=await Notification.requestPermission();
- $("enableNotificationsBtn").textContent=permission==="granted"?"✓ 桌面通知已開啟": "🔔 重新開啟桌面通知";
- if(permission!=="granted")alert("尚未允許桌面通知；管理後台內的新訂單彈出提醒仍會正常運作。");
+ syncDesktopNotificationState();
+ if(permission!=="granted")alert("尚未允許桌面通知；管理後台內的新訂單提醒仍會正常運作。");
 });
+syncDesktopNotificationState();
+document.addEventListener("visibilitychange",syncDesktopNotificationState);
 
 $("logoutBtn").addEventListener("click",async()=>{if(idleLogoutTimer)clearTimeout(idleLogoutTimer);idleLogoutTimer=null;adminSession=null;if(orderPollTimer)clearInterval(orderPollTimer);await client.auth.signOut();$("dashboard").style.display="none";$("authView").style.display="grid";$("password").value="";message("已安全登出。")});
 client.auth.getSession().then(({data})=>{if(data.session)authorize(data.session)});
