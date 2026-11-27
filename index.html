@@ -166,6 +166,11 @@ body{text-wrap:pretty}
 .payment-modal-sub{text-align:center;color:#71869B;font-size:13px;margin-bottom:18px}
 .payment-info{padding:16px;border-radius:15px;background:rgba(217,237,250,.62);line-height:1.9;overflow-wrap:anywhere}
 .payment-info strong{color:#244F73}
+.payment-copy-inline{display:inline-flex;align-items:center;gap:7px;max-width:100%;vertical-align:middle}
+.payment-copy-inline button{display:inline-flex;align-items:center;justify-content:center;width:27px;height:27px;flex:0 0 27px;border:1px solid #cfe1ee;border-radius:8px;background:#fff;color:#477FAF;cursor:pointer}
+.payment-copy-inline button:hover{background:#edf7fd}
+.payment-copy-inline svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.payment-copy-status{font-size:10px;color:#477f63;white-space:nowrap}
 .payment-copy{display:block;width:100%;margin-top:12px;padding:11px;border:1px solid #cfe1ee;border-radius:12px;background:white;color:#477FAF;font-weight:750}
 .payment-modal-actions{display:grid;gap:10px;margin-top:17px}
 .payment-modal-actions a,.payment-modal-actions button{display:block;text-align:center;padding:12px;border-radius:25px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:white;font-weight:750}
@@ -761,7 +766,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
       <div id="credential-status" class="credentials-status" role="status"></div>
     </div>
     <div class="payment-modal-actions">
-      <a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">付款後聯絡官方 LINE 客服</a>
+      <span class="payment-copy-inline"><a href="https://lin.ee/oFWdvvo" target="_blank" rel="noopener">付款後聯絡官方 LINE 客服</a><button type="button" data-payment-copy="https://lin.ee/oFWdvvo" aria-label="複製官方 LINE 連結" title="複製官方 LINE 連結"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg></button><span class="payment-copy-status" aria-live="polite"></span></span>
       <button type="button" onclick="closePaymentModal()">完成</button>
     </div>
   </div>
@@ -987,6 +992,29 @@ document.querySelectorAll('input[name="payment-method"]').forEach(input=>{
     const bank=document.getElementById("payment-bank");
     bank.classList.toggle("visible",method==="無卡存款");
   });
+});
+function paymentCopyMarkup(value,label){
+  const safe=String(value??"").replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  return '<span class="payment-copy-inline"><strong class="payment-account-number">'+safe+'</strong><button type="button" data-payment-copy="'+safe+'" aria-label="複製'+label+'" title="複製'+label+'"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="8" y="8" width="12" height="12" rx="2"></rect><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"></path></svg></button><span class="payment-copy-status" aria-live="polite"></span></span>';
+}
+async function copyPaymentValue(value,button){
+  try{
+    if(navigator.clipboard&&window.isSecureContext) await navigator.clipboard.writeText(value);
+    else{
+      const helper=document.createElement("textarea");helper.value=value;helper.style.position="fixed";helper.style.opacity="0";
+      document.body.appendChild(helper);helper.select();const copied=document.execCommand("copy");helper.remove();
+      if(!copied)throw new Error("copy failed");
+    }
+    const status=button?.parentElement?.querySelector(".payment-copy-status");
+    if(status){status.textContent="已複製";setTimeout(()=>{status.textContent="";},1800);}
+  }catch(error){
+    const status=button?.parentElement?.querySelector(".payment-copy-status");
+    if(status)status.textContent="複製失敗";
+  }
+}
+document.addEventListener("click",event=>{
+  const button=event.target.closest("[data-payment-copy]");
+  if(button)copyPaymentValue(button.getAttribute("data-payment-copy")||"",button);
 });
 function getSelectedPayment(){
   const method=document.querySelector('input[name="payment-method"]:checked')?.value || "";
