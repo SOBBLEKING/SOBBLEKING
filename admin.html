@@ -15,6 +15,240 @@ button,input{font:inherit}.shell{max-width:1120px;margin:auto;padding:26px}.top{
 @media(max-width:600px){.shell{padding:18px}.auth-card{padding:27px 22px}.grid{grid-template-columns:1fr}.dash-head h1{font-size:22px}.top{margin-bottom:15px}}
 
 .module-nav{display:flex;gap:9px;flex-wrap:wrap;margin:20px 0}.module-nav button{border:1px solid var(--line);background:#fff;border-radius:11px;padding:11px 15px;color:var(--ink);font-weight:700;cursor:pointer}.module-nav button.active{background:#477fae;color:#fff;border-color:#477fae}.data-panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadow);margin-top:16px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.panel-head h2{font-size:18px;margin:0}.panel-head p{font-size:12px;color:var(--muted);margin:5px 0}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:13px;min-width:650px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid #edf2f7;white-space:nowrap}th{color:#7890a5;background:#f7fbfe;font-size:12px}td{color:#456783}.pending{margin-top:12px}.module-nav button:disabled{opacity:.5}
+.order-action{border:1px solid #cfe1ef;background:#f4f9fd;color:#315f85;border-radius:9px;padding:7px 10px;font-weight:700;cursor:pointer}.order-status-select{min-width:112px;max-width:145px;height:36px;border:1px solid #cfe1ef;border-radius:9px;background:#f7fbfe;color:#315f85;padding:0 8px;font:inherit;font-weight:700;cursor:pointer}.order-status-select:disabled{opacity:.55;cursor:wait}.detail-modal{position:fixed;inset:0;z-index:1000;background:#17324d88;display:none;align-items:center;justify-content:center;padding:16px}.detail-card{width:min(100%,680px);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 20px 60px #0003}.detail-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.detail-head h2{margin:0;font-size:20px}.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}.detail-item{background:#f6fafe;border:1px solid #e4eef6;border-radius:11px;padding:11px;min-width:0}.detail-item small{display:block;color:#7890a5;margin-bottom:5px}.detail-item strong{overflow-wrap:anywhere}.credential-box{border:1px solid #dceaf5;border-radius:13px;padding:14px;margin-top:12px}.credential-line{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #edf2f7}.credential-line:last-child{border-bottom:0}.credential-line span{overflow-wrap:anywhere;min-width:0}.detail-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.detail-actions button{border:0;border-radius:10px;padding:11px 14px;background:#477fae;color:#fff;font-weight:800;cursor:pointer}.detail-actions button.secondary{background:#edf5fb;color:#315f85}@media(max-width:520px){.detail-grid{grid-template-columns:1fr}.detail-card{padding:16px}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="top"><div class="brand">SOBBLEKING<small>ADMINISTRATION</small></div><div class="secure">🔒 管理員專用</div></header>
+  <main id="authView" class="auth-wrap">
+    <section class="auth-card">
+      <div class="eyebrow">SOBBLE PARADISE · CONTROL CENTER</div>
+      <h1 id="formTitle">管理員登入</h1>
+      <p class="sub" id="formSub">請使用已授權的管理員帳號登入。</p>
+      <form id="authForm">
+        <div class="field"><label for="email">管理員 Email</label><input id="email" type="email" autocomplete="username" placeholder="sobblekinggg@gmail.com" required></div>
+        <div class="field"><label for="password">密碼</label><input id="password" type="password" autocomplete="current-password" placeholder="請輸入密碼" minlength="8" required></div>
+        <button class="primary" id="submitBtn" type="submit">登入管理後台</button>
+      </form>
+      <p class="switch" style="margin-top:12px"><button id="forgotPasswordBtn" type="button">忘記密碼？寄送重設連結</button></p>
+      <p class="switch" id="switchLine">第一次使用？<button id="switchMode" type="button">建立管理員帳號</button></p>
+      <div class="notice" id="notice" role="status"></div>
+      <div class="foot">僅限授權管理員使用 · SOBBLEKING</div>
+    </section>
+  </main>
+  <main id="dashboard" class="dashboard">
+    <div class="dash-head"><div><h1>管理總覽</h1><p id="adminEmail"></p></div><button class="logout" id="logoutBtn">登出</button></div>
+<section class="data-panel" id="quickSearchPanel" style="margin-top:0;margin-bottom:18px;border:2px solid #79acd1;background:#fff">
+      <article style="margin:0 0 18px;padding:0;background:transparent;border:0;box-shadow:none">
+        <div class="panel-head"><div><h2 style="font-size:20px">🔎 快速查詢訂單</h2><p>輸入完整或部分訂單編號</p></div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="orderSearchInput" type="search" placeholder="例如：SK202611..." style="flex:1;min-width:0;height:48px;font-size:16px;border:1px solid var(--line);border-radius:11px;padding:0 12px;color:var(--ink)"><button class="primary" id="orderSearchBtn" type="button" style="width:auto;min-width:112px;padding:0 20px;margin:0;height:48px">查詢訂單</button></div>
+      </article>
+      <article style="margin:0;padding:0;background:transparent;border:0;box-shadow:none">
+        <div class="panel-head"><div><h2 style="font-size:20px">👤 快速查詢會員</h2><p>可搜尋會員名稱、LINE User ID 或會員編號</p></div></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><input id="memberSearchInput" type="search" placeholder="輸入會員資料關鍵字" style="flex:1;min-width:150px;height:44px;border:1px solid var(--line);border-radius:11px;padding:0 12px;color:var(--ink)"><button class="primary" id="memberSearchBtn" type="button" style="width:auto;padding:0 20px;margin:0">查詢會員</button></div>
+        <div style="margin-top:18px;padding:16px;border:1px solid var(--line);border-radius:15px;background:#f7fbfe">
+          <h3 style="margin:0 0 5px;font-size:16px">💳 手動調整會員餘額</h3><p style="font-size:12px;color:var(--muted);margin:0 0 12px">先查詢會員，複製會員編號，再進行增加或扣除。每筆調整都會留下稽核紀錄。</p>
+          <input id="walletCustomerId" placeholder="會員編號（Customer ID）" style="width:100%;height:43px;border:1px solid var(--line);border-radius:10px;padding:0 12px;margin-bottom:9px;color:var(--ink)">
+          <div style="display:flex;gap:8px;flex-wrap:wrap"><select id="walletDirection" style="flex:1;min-width:110px;height:43px;border:1px solid var(--line);border-radius:10px;padding:0 10px;color:var(--ink)"><option value="credit">增加餘額</option><option value="debit">扣除餘額</option></select><input id="walletAmount" type="number" min="1" step="1" placeholder="金額（NT$）" style="flex:1;min-width:120px;height:43px;border:1px solid var(--line);border-radius:10px;padding:0 12px;color:var(--ink)"></div>
+          <input id="walletReason" placeholder="調整原因（必填）" maxlength="500" style="width:100%;height:43px;border:1px solid var(--line);border-radius:10px;padding:0 12px;margin-top:9px;color:var(--ink)">
+          <button class="primary" id="walletAdjustBtn" type="button" style="margin-top:10px">確認調整餘額</button><p id="walletAdjustResult" style="font-size:12px;color:var(--muted);margin:9px 0 0"></p>
+        </div>
+      </article>
+    </section>
+    <section class="welcome"><h2>歡迎回來，管理員</h2><p>SOBBLEKING 管理中心已登入。以下管理模組將逐步啟用。</p></section>
+    <section class="grid" id="statsGrid">
+      <article class="tile"><div class="ico">🧾</div><h3>訂單總數</h3><p id="statOrders">載入中…</p></article>
+      <article class="tile"><div class="ico">💰</div><h3>已收款營業額</h3><p id="statRevenue">載入中…</p></article>
+      <article class="tile"><div class="ico">👥</div><h3>會員人數</h3><p id="statMembers">載入中…</p></article>
+      <article class="tile"><div class="ico">💳</div><h3>待處理儲值</h3><p id="statTopups">載入中…</p></article>
+    </section>
+        <div id="newOrderToast" role="status" style="display:none;position:sticky;top:12px;z-index:20;margin:14px 0;padding:16px 18px;border-radius:15px;background:#fff3d9;border:1px solid #f1d18a;color:#805719;box-shadow:0 8px 24px #0001;font-weight:700;cursor:pointer"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:12px"><button class="logout" id="testLineBtn" type="button">💬 測試 LINE 通知</button><button class="logout" id="enableNotificationsBtn" type="button">🔔 開啟桌面通知</button></div>
+    <nav class="module-nav" id="moduleNav">
+      <button data-action="orders">訂單管理</button><button data-action="topups">儲值管理</button><button data-action="members">會員管理</button><button data-action="wallet_transactions">錢包交易</button><button data-action="audit_logs">操作紀錄</button>
+    </nav>
+    <section class="data-panel">
+      <div class="panel-head"><div><h2 id="panelTitle">近期訂單</h2><p id="panelHint">最新 50 筆資料</p></div><button class="logout" id="refreshBtn">重新整理</button></div>
+      <div id="panelMessage" class="pending">正在讀取資料…</div>
+      <div class="table-wrap"><table id="dataTable"><thead></thead><tbody></tbody></table></div>
+    </section>
+    <div id="orderDetailModal" class="detail-modal" role="dialog" aria-modal="true" aria-labelledby="orderDetailTitle">
+      <section class="detail-card">
+        <div class="detail-head"><h2 id="orderDetailTitle">訂單詳細資料</h2><button class="logout" type="button" id="closeOrderDetail">關閉</button></div>
+        <div id="orderDetailContent" class="pending">載入中…</div>
+        <div class="detail-actions" id="orderDetailActions"></div>
+      </section>
+    </div>
+  </main>
+</div>
+<script>
+const SUPABASE_URL="https://ksellpcaecuihxjxsolr.supabase.co";
+const SUPABASE_KEY="sb_publishable_a9RhpMmIROPkSD6Vp0bVvg_rcRYGE_s";
+let mode="login";
+const $=id=>document.getElementById(id);
+function message(text,error=false){$("notice").textContent=text;$("notice").className="notice show"+(error?" error":"")}
+window.addEventListener("error",e=>message("頁面程式發生錯誤："+(e.message||"未知錯誤"),true));
+window.addEventListener("unhandledrejection",e=>message("登入程序發生錯誤："+(e.reason?.message||String(e.reason||"未知錯誤")),true));
+if(!window.supabase||!window.supabase.createClient){message("登入元件尚未載入。請重新整理；若持續發生，請稍後再試。",true);throw new Error("Supabase client library unavailable")}
+const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+client.auth.onAuthStateChange((event, session)=>{
+  if(event === "PASSWORD_RECOVERY"){
+    setTimeout(async()=>{
+      const first = prompt("請輸入新的管理員密碼（至少 8 個字元）：");
+      if(!first) { message("你已取消密碼重設。請重新點擊信件連結再設定。",true); return; }
+      if(first.length < 8) { message("密碼至少需要 8 個字元，請重新申請重設連結。",true); return; }
+      const second = prompt("請再次輸入新密碼確認：");
+      if(first !== second) { message("兩次輸入的密碼不一致，請重新申請重設連結。",true); return; }
+      const {error} = await client.auth.updateUser({password:first});
+      if(error) { message("密碼更新失敗："+error.message,true); return; }
+      message("管理員密碼已更新！請返回登入頁，使用新密碼登入。");
+      await client.auth.signOut();
+      $("authView").style.display="grid";
+      $("dashboard").style.display="none";
+    }, 0);
+  }
+});
+$("forgotPasswordBtn").addEventListener("click", async()=>{
+  const email = $("email").value.trim().toLowerCase();
+  if(!email){ message("請先在 Email 欄位輸入管理員信箱。",true); $("email").focus(); return; }
+  if(email !== "sobblekinggg@gmail.com"){ message("請使用已授權的管理員 Email 申請重設。",true); return; }
+  const btn=$("forgotPasswordBtn"); btn.disabled=true;
+  try{
+    const {error}=await client.auth.resetPasswordForEmail(email,{redirectTo:location.origin+location.pathname});
+    if(error) throw error;
+    message("已提出密碼重設申請。請到 sobblekinggg@gmail.com 收信，點擊重設連結後依照畫面設定新密碼。");
+  }catch(err){message("寄送重設信失敗："+(err.message||String(err)),true);}
+  finally{btn.disabled=false;}
+});
+function setMode(next){mode=next;$("formTitle").textContent=mode==="signup"?"建立管理員帳號":"管理員登入";$("formSub").textContent=mode==="signup"?"僅限白名單中的管理員 Email 建立帳號，請自行設定密碼。":"請使用已授權的管理員帳號登入。";$("submitBtn").textContent=mode==="signup"?"建立帳號":"登入管理後台";$("switchLine").innerHTML=mode==="signup"?'已經有帳號？<button id="switchMode" type="button">返回登入</button>':'第一次使用？<button id="switchMode" type="button">建立管理員帳號</button>';$("switchMode").addEventListener("click",()=>setMode(mode==="signup"?"login":"signup"));$("notice").className="notice"}
+async function authorize(session){if(!session){message("登入未建立有效工作階段，請重新登入；若持續發生，請告訴我。",true);return false}adminSession=session;message("登入成功，正在確認管理員授權…");if(!session.user?.email){message("登入工作階段缺少 Email，無法驗證管理員身份。",true);return false}let result;try{result=await client.from("sk_admin_emails").select("email").eq("email",session.user.email.toLowerCase()).eq("is_active",true).maybeSingle()}catch(e){message("已登入，但讀取管理員授權時發生錯誤："+(e.message||String(e)),true);return false}const {data,error}=result;if(error){message("已登入，但無法讀取管理員授權資料："+error.message,true);return false}if(!data){await client.auth.signOut();adminSession=null;$("authView").style.display="grid";$("dashboard").style.display="none";message("此 Email 尚未獲授權，無法進入管理後台。",true);return false}$("authView").style.display="none";$("dashboard").style.display="block";$("adminEmail").textContent=session.user.email;loadOverview();loadModule("orders");startOrderPolling();return true}
+$("switchMode").addEventListener("click",()=>setMode("signup"));
+$("authForm").addEventListener("submit",async e=>{e.preventDefault();const email=$("email").value.trim().toLowerCase(),password=$("password").value;$("submitBtn").disabled=true;message("正在連線驗證，請稍候…");try{if(mode==="signup"){if(email!=="sobblekinggg@gmail.com"){message("目前僅開放指定管理員 Email 建立帳號。",true);return}const {data,error}=await client.auth.signUp({email,password,options:{emailRedirectTo:location.origin+location.pathname}});if(error)throw error;if(data.session){await authorize(data.session)}else{message("帳號申請已送出！請到管理員信箱收取驗證信，完成驗證後再回到此頁登入。")}}else{const {data,error}=await client.auth.signInWithPassword({email,password});if(error)throw error;let session=data.session;if(!session){const current=await client.auth.getSession();session=current.data?.session}if(!session){message("登入請求完成，但 Supabase 沒有回傳有效登入狀態。請確認 Email 驗證是否完成，然後再試一次。",true);return}await authorize(session)}}catch(err){message(err.message||"操作失敗，請稍後再試。",true)}finally{$("submitBtn").disabled=false}});
+
+let currentAction="orders";
+let currentSearch="";
+let orderPollTimer=null;
+let toastHideTimer=null;
+let lastSeenOrderId=null;
+let orderPollReady=false;
+let adminSession=null;
+const labels={orders:"訂單管理",topups:"儲值管理",members:"會員管理",wallet_transactions:"錢包交易紀錄",audit_logs:"管理員操作紀錄"};
+const columns={
+ orders:[["order_number","訂單編號"],["total_amount","金額"],["wallet_amount_used","會員卡扣款"],["external_due","剩餘應付"],["payment_method","付款方式"],["payment_status","付款狀態"],["order_status","訂單狀態"],["created_at","建立時間"]],
+ topups:[["id","申請編號"],["amount","儲值金額"],["payment_method","付款方式"],["payment_bank","銀行"],["status","狀態"],["created_at","申請時間"]],
+ members:[["id","會員編號"],["name","會員名稱"],["line_user_id","LINE User ID"],["wallet_balance","錢包餘額"],["created_at","加入時間"]],
+ wallet_transactions:[["transaction_type","類型"],["amount","金額"],["balance_before","異動前"],["balance_after","異動後"],["description","說明"],["created_at","時間"]],
+ audit_logs:[["admin_email","管理員"],["action","操作"],["target_type","資料類型"],["target_id","資料編號"],["created_at","時間"]]
+};
+function esc(v){return String(v??"—").replace(/[&<>"']/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[ch]))}
+function fmt(v){if(v==null||v==="")return "—";if(typeof v==="string"&&v.includes("T"))return new Date(v).toLocaleString("zh-TW");return v}
+async function adminRequest(action,query="",extra={}) {
+ const {data:{session}}=await client.auth.getSession();
+ if(!session?.access_token)throw new Error("登入已逾時，請重新登入。");
+ const res=await fetch(SUPABASE_URL+"/functions/v1/admin-api",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY,"Authorization":"Bearer "+session.access_token},body:JSON.stringify({action,limit:50,query,...extra})});
+ const json=await res.json().catch(()=>({}));
+ if(!res.ok||!json.success)throw new Error(json.error||"讀取資料失敗");
+ return json.data;
+}
+function detailNode(label,value){
+  const box=document.createElement("div");box.className="detail-item";
+  const small=document.createElement("small");small.textContent=label;
+  const strong=document.createElement("strong");strong.textContent=value==null||value===""?"—":String(value);
+  box.append(small,strong);return box;
+}
+function addCredentialRow(parent,label,value){
+  const row=document.createElement("div");row.className="credential-line";
+  const span=document.createElement("span");
+  const small=document.createElement("small");small.textContent=label;
+  const valueNode=document.createElement("div");valueNode.textContent=value||"—";
+  span.append(small,valueNode);row.append(span);
+  if(value){const copy=document.createElement("button");copy.type="button";copy.className="order-action";copy.textContent="複製";
+    copy.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(String(value));copy.textContent="已複製";}catch(e){alert("複製失敗，請手動選取資料。");}});
+    row.append(copy);}
+  parent.append(row);
+}
+async function openOrderDetail(orderId){
+  $("orderDetailModal").style.display="flex";
+  $("orderDetailContent").textContent="正在讀取訂單與遊戲資料…";
+  $("orderDetailActions").replaceChildren();
+  try{
+    const d=await adminRequest("order_credentials","",{order_id:orderId});
+    const o=d.order||{},c=d.credentials||null,items=d.items||[];
+    const content=$("orderDetailContent");content.replaceChildren();
+    const grid=document.createElement("div");grid.className="detail-grid";
+    grid.append(
+      detailNode("訂單編號",o.order_number),
+      detailNode("訂單總額","NT$"+Number(o.total_amount||0).toLocaleString("zh-TW")),
+      detailNode("會員卡扣款","NT$"+Number(o.wallet_amount_used||0).toLocaleString("zh-TW")),
+      detailNode("剩餘應付","NT$"+Number(o.external_due||0).toLocaleString("zh-TW")),
+      detailNode("付款狀態",o.payment_status==="paid"?"已付款":"待確認"),
+      detailNode("訂單狀態",o.order_status),
+      detailNode("會員編號",o.customer_id),
+      detailNode("付款方式",o.payment_method),
+      detailNode("建立時間",fmt(o.created_at)),
+      detailNode("付款時間",fmt(o.paid_at))
+    );
+    content.append(grid);
+    const itemBox=document.createElement("div");itemBox.className="credential-box";
+    const itemTitle=document.createElement("strong");itemTitle.textContent="商品明細";itemBox.append(itemTitle);
+    if(items.length){items.forEach(x=>{const row=document.createElement("div");row.className="credential-line";const name=document.createElement("span");name.textContent=(x.product_name||"商品")+" × "+x.quantity;const price=document.createElement("strong");price.textContent="NT$"+Number(x.subtotal||0).toLocaleString("zh-TW");row.append(name,price);itemBox.append(row);});}
+    else{const empty=document.createElement("p");empty.textContent="尚無商品明細";itemBox.append(empty);}
+    content.append(itemBox);
+    if(c){
+      const box=document.createElement("div");box.className="credential-box";
+      const title=document.createElement("strong");title.textContent="遊戲登入資料";box.append(title);
+      addCredentialRow(box,"遊戲名稱／暱稱",c.game_nickname);
+      addCredentialRow(box,"登入方式",c.login_method);
+      addCredentialRow(box,"登入帳號",c.account);
+      addCredentialRow(box,"登入密碼",c.password);
+      addCredentialRow(box,"備註",c.note);
+      const hint=document.createElement("p");hint.style.cssText="font-size:11px;color:#7890a5;margin:10px 0 0";hint.textContent="資料已加密保存；每次查看均會留下存取紀錄。";box.append(hint);
+      content.append(box);
+    }else{
+      const box=document.createElement("div");box.className="credential-box";
+      const title=document.createElement("strong");title.textContent="尚未收到遊戲登入資料";box.append(title);
+      const hint=document.createElement("p");hint.textContent="客人完成付款後可提交遊戲資料。";box.append(hint);content.append(box);
+    }
+    if(o.note){const note=document.createElement("div");note.className="credential-box";const title=document.createElement("strong");title.textContent="訂單備註";const p=document.createElement("p");p.textContent=o.note;note.append(title,p);content.append(note);}
+    const actions=$("orderDetailActions");
+    if(o.payment_status==="unpaid"){
+      const confirmBtn=document.createElement("button");confirmBtn.type="button";confirmBtn.textContent="確認已收到款項";
+      confirmBtn.addEventListener("click",async()=>{
+        if(!confirm("確認已實際收到這筆訂單的全部剩餘款項？確認後訂單將進入處理狀態。"))return;
+        confirmBtn.disabled=true;confirmBtn.textContent="確認中…";
+        try{await adminRequest("confirm_order_payment","",{order_id:orderId});await openOrderDetail(orderId);await loadModule("orders",currentSearch);}
+        catch(err){alert("付款確認失敗："+err.message);confirmBtn.disabled=false;confirmBtn.textContent="確認已收到款項";}
+      });
+      actions.append(confirmBtn);
+    }
+    const copyOrder=document.createElement("button");copyOrder.type="button";copyOrder.className="secondary";copyOrder.textContent="複製訂單編號";
+    copyOrder.addEventListener("click",async()=>{try{await navigator.clipboard.writeText(o.order_number||"");copyOrder.textContent="已複製";}catch(e){alert("複製失敗。");}});
+    actions.append(copyOrder);
+  }catch(e){$("orderDetailContent").textContent="讀取訂單失敗："+e.message;}
+}
+async function loadOverview(){
+ try{const d=await adminRequest("overview");$("statOrders").textContent=d.order_count+" 筆";$("statRevenue").textContent="NT$ "+Number(d.paid_revenue||0).toLocaleString("en-US");$("statMembers").textContent=d.member_count+" 位";$("statTopups").textContent=d.pending_topups+" 筆待確認";}catch(e){["statOrders","statRevenue","statMembers","statTopups"].forEach(id=>$(id).textContent="暫時無法讀取");$("panelMessage").textContent="總覽資料載入失敗："+e.message}
+}
+async function loadModule(action,query=""){
+ currentAction=action;currentSearch=query;$("panelTitle").textContent=labels[action]||"資料列表";$("panelHint").textContent=query?"搜尋結果":"最新 50 筆資料";
+$("panelMessage").style.display="block";$("panelMessage").textContent="正在讀取資料…";$("dataTable").querySelector("thead").innerHTML="";$("dataTable").querySelector("tbody").innerHTML="";
+ document.querySelectorAll("#moduleNav button").forEach(b=>b.classList.toggle("active",b.dataset.action===action));
+ try{const apiAction=query&&action==="orders"?"search_orders":query&&action==="members"?"search_members":action;const rows=await adminRequest(apiAction,query);const cols=columns[action]||[];$("panelMessage").style.display=rows.length?"none":"block";$("panelMessage").textContent=rows.length?"":"目前沒有資料";$("dataTable").querySelector("thead").innerHTML="<tr>"+cols.map(x=>"<th>"+esc(x[1])+"</th>").join("")+"</tr>";$("dataTable").querySelector("tbody").innerHTML=rows.map(row=>"<tr>"+cols.map(x=>{if(action==="orders"&&(x[0]==="payment_status"||x[0]==="order_status")){const isPayment=x[0]==="payment_status";const options=isPayment?[["unpaid","待付款"],["paid","已付款"],["refunded","已退款"]]:[["pending","待付款"],["processing","處理中"],["completed","已完成"],["cancelled","已取消"]];const current=String(row[x[0]]??"");return "<td><select class=\\"order-status-select\\" data-order-field=\\""+x[0]+"\\" data-order-id=\\""+esc(row.id)+"\\">"+options.map(o=>"<option value=\\""+o[0]+"\\" "+(current===o[0]?"selected":"")+">"+o[1]+"</option>").join("")+"</select></td>"}return "<td>"+esc(fmt(row[x[0]]))+"</td>";ad>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#EAF4FC">
+<title>SOBBLEKING ADMIN｜管理後台</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--ink:#315f85;--muted:#71869b;--line:#dceaf5;--bg:#edf6fc;--white:#fff;--blue:#568fbd;--shadow:0 18px 55px rgba(49,95,133,.10)}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,"Noto Sans TC","Microsoft JhengHei",sans-serif;color:var(--ink);background:radial-gradient(circle at 15% 8%,#fff 0,transparent 32%),linear-gradient(145deg,#e5f2fb,#f8fbfe 55%,#e9f4fc)}
+button,input{font:inherit}.shell{max-width:1120px;margin:auto;padding:26px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:34px}.brand{font-weight:900;letter-spacing:2px;font-size:20px}.brand small{display:block;font-size:10px;letter-spacing:4px;color:#91a8bc;margin-top:3px}.secure{font-size:12px;color:#6c8da9;background:#fff9;padding:8px 13px;border:1px solid var(--line);border-radius:30px}
+.auth-wrap{min-height:calc(100vh - 115px);display:grid;place-items:center}.auth-card{width:min(100%,430px);background:#ffffffeb;border:1px solid #fff;border-radius:25px;padding:36px;box-shadow:var(--shadow);backdrop-filter:blur(15px)}.eyebrow{font-size:11px;letter-spacing:3px;color:#91a8bc;font-weight:800}.auth-card h1{font-size:26px;margin:8px 0 6px}.sub{font-size:13px;color:var(--muted);margin:0 0 27px}.field{margin:17px 0}.field label{display:block;font-size:12px;font-weight:700;margin-bottom:8px}.field input{width:100%;height:48px;border:1px solid var(--line);border-radius:12px;padding:0 14px;background:#fbfdff;color:var(--ink);outline:none}.field input:focus{border-color:#79acd1;box-shadow:0 0 0 3px #79acd122}.primary{width:100%;height:48px;border:0;border-radius:13px;background:linear-gradient(120deg,#477fae,#83b8df);color:white;font-weight:800;cursor:pointer;margin-top:9px}.primary:disabled{opacity:.55;cursor:wait}.switch{text-align:center;font-size:12px;color:var(--muted);margin:19px 0 0}.switch button{border:0;background:none;color:#477fae;font-weight:800;cursor:pointer}.notice{display:none;margin-top:16px;padding:12px 14px;border-radius:12px;font-size:12px;line-height:1.6;background:#edf6fc;color:#456b8b}.notice.error{background:#fff0f0;color:#a34d4d}.notice.show{display:block}.foot{text-align:center;font-size:11px;color:#9aafc1;margin-top:24px}
+.dashboard{display:none}.dash-head{display:flex;justify-content:space-between;align-items:center;gap:16px;margin:25px 0}.dash-head h1{font-size:27px;margin:0}.dash-head p{color:var(--muted);font-size:13px;margin:5px 0}.logout{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 15px;color:var(--ink);cursor:pointer}.welcome{background:linear-gradient(120deg,#477fae,#83b8df);color:#fff;padding:25px;border-radius:20px;box-shadow:var(--shadow);margin-bottom:20px}.welcome h2{margin:0 0 5px;font-size:20px}.welcome p{margin:0;font-size:13px;opacity:.9}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}#quickSearchPanel{display:block!important}#quickSearchPanel input{font-size:16px!important}.tile{background:#ffffffdf;border:1px solid #fff;border-radius:18px;padding:22px;min-height:125px;box-shadow:0 8px 25px #315f850b}.tile .ico{font-size:22px}.tile h3{margin:10px 0 4px;font-size:16px}.tile p{margin:0;color:var(--muted);font-size:12px}.pending{margin-top:20px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;color:var(--muted);font-size:13px;line-height:1.7}
+@media(max-width:600px){.shell{padding:18px}.auth-card{padding:27px 22px}.grid{grid-template-columns:1fr}.dash-head h1{font-size:22px}.top{margin-bottom:15px}}
+
+.module-nav{display:flex;gap:9px;flex-wrap:wrap;margin:20px 0}.module-nav button{border:1px solid var(--line);background:#fff;border-radius:11px;padding:11px 15px;color:var(--ink);font-weight:700;cursor:pointer}.module-nav button.active{background:#477fae;color:#fff;border-color:#477fae}.data-panel{background:#fff;border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:var(--shadow);margin-top:16px}.panel-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:12px}.panel-head h2{font-size:18px;margin:0}.panel-head p{font-size:12px;color:var(--muted);margin:5px 0}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;font-size:13px;min-width:650px}th,td{text-align:left;padding:12px 10px;border-bottom:1px solid #edf2f7;white-space:nowrap}th{color:#7890a5;background:#f7fbfe;font-size:12px}td{color:#456783}.pending{margin-top:12px}.module-nav button:disabled{opacity:.5}
 .order-action{border:1px solid #cfe1ef;background:#f4f9fd;color:#315f85;border-radius:9px;padding:7px 10px;font-weight:700;cursor:pointer}.detail-modal{position:fixed;inset:0;z-index:1000;background:#17324d88;display:none;align-items:center;justify-content:center;padding:16px}.detail-card{width:min(100%,680px);max-height:90vh;overflow:auto;background:#fff;border-radius:18px;padding:22px;box-shadow:0 20px 60px #0003}.detail-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.detail-head h2{margin:0;font-size:20px}.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:16px 0}.detail-item{background:#f6fafe;border:1px solid #e4eef6;border-radius:11px;padding:11px;min-width:0}.detail-item small{display:block;color:#7890a5;margin-bottom:5px}.detail-item strong{overflow-wrap:anywhere}.credential-box{border:1px solid #dceaf5;border-radius:13px;padding:14px;margin-top:12px}.credential-line{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:1px solid #edf2f7}.credential-line:last-child{border-bottom:0}.credential-line span{overflow-wrap:anywhere;min-width:0}.detail-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.detail-actions button{border:0;border-radius:10px;padding:11px 14px;background:#477fae;color:#fff;font-weight:800;cursor:pointer}.detail-actions button.secondary{background:#edf5fb;color:#315f85}@media(max-width:520px){.detail-grid{grid-template-columns:1fr}.detail-card{padding:16px}}
 </style>
 </head>
@@ -239,7 +473,8 @@ $("panelMessage").style.display="block";$("panelMessage").textContent="正在讀
 }
 
 document.querySelectorAll("#moduleNav button").forEach(b=>b.addEventListener("click",()=>loadModule(b.dataset.action)));
-$("dataTable").querySelector("tbody").addEventListener("click",async e=>{const pay=e.target.closest("[data-confirm-payment]");if(pay){const orderId=pay.dataset.confirmPayment;if(!confirm("請確認已實際收到這筆訂單的全部應付款項？確認後會標記為已付款。"))return;pay.disabled=true;pay.textContent="確認中…";try{await adminRequest("confirm_order_payment","",{order_id:orderId});await loadModule("orders",currentSearch);await loadOverview();}catch(err){alert("付款確認失敗："+err.message);pay.disabled=false;pay.textContent="待確認 · 確認收款";}return;}const b=e.target.closest("[data-order-detail]");if(b)openOrderDetail(b.dataset.orderDetail);});
+$("dataTable").querySelector("tbody").addEventListener("change",async e=>{const select=e.target.closest("[data-order-field]");if(!select)return;const orderId=select.dataset.orderId,field=select.dataset.orderField,value=select.value;if(field==="payment_status"&&value==="paid"&&!confirm("請確認已實際收到這筆訂單的全部應付款項，確定要標記為已付款？")){await loadModule("orders",currentSearch);return;}if(field==="payment_status"&&value==="refunded"&&!confirm("請確認已完成退款，確定要將付款狀態改為已退款？")){await loadModule("orders",currentSearch);return;}select.disabled=true;try{await adminRequest("update_order_field","",{order_id:orderId,field,value});await loadModule("orders",currentSearch);await loadOverview();}catch(err){alert("狀態更新失敗："+err.message);await loadModule("orders",currentSearch);}});
+$("dataTable").querySelector("tbody").addEventListener("click",e=>{const b=e.target.closest("[data-order-detail]");if(b)openOrderDetail(b.dataset.orderDetail);});
 $("closeOrderDetail").addEventListener("click",()=>$("orderDetailModal").style.display="none");
 $("orderDetailModal").addEventListener("click",e=>{if(e.target===$("orderDetailModal"))$("orderDetailModal").style.display="none";});
 async function runSearch(action,inputId){const q=$(inputId).value.trim();if(!q){$(inputId).focus();return}await loadModule(action,q);document.querySelector(".data-panel:last-of-type")?.scrollIntoView({behavior:"smooth",block:"start"});}
