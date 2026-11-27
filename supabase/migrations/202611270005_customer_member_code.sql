@@ -56,19 +56,46 @@ returns trigger
 language plpgsql
 security definer
 set search_path = public
-as $$
+as $
 begin
   if new.member_code is null or btrim(new.member_code) = '' then
     new.member_code := public.sk_generate_member_code();
   end if;
   return new;
 end;
-$$;
+$;
 
 drop trigger if exists sk_customers_member_code_before_write on public.customers;
 create trigger sk_customers_member_code_before_write
 before insert or update of member_code on public.customers
 for each row execute function public.sk_set_customer_member_code();
+
+-- The storefront's LINE member card is backed by sobbstars_members.
+-- Keep its public member code identical to customers when the LINE userId matches.
+do $
+begin
+  if to_regclass('public.sobbstars_members') is not null then
+    execute 'alter table public.sobbstars_members add column if not exists member_code text';
+    execute $sql$
+      update public.sobbstars_members as m
+      set member_code = c.member_code
+      from public.customers as c
+      where m.line_user_id = c.line_user_id
+        and coalesce(m.member_code, '') = ''
+        and coalesce(c.line_user_id, '') <> ''
+    $sql$;
+    execute $sql$
+      update public.sobbstars_members
+      set member_code = public.sk_generate_member_code()
+      where member_code is null or btrim(member_code) = ''
+    $sql$;
+    execute 'create unique index if not exists sobbstars_members_member_code_uidx on public.sobbstars_members(member_code)';
+    execute 'alter table public.sobbstars_members alter column member_code set not null';
+    execute 'drop trigger if exists sk_sobbstars_members_member_code_before_write on public.sobbstars_members';
+    execute 'create trigger sk_sobbstars_members_member_code_before_write before insert or update of member_code on public.sobbstars_members for each row execute function public.sk_set_customer_member_code()';
+  end if;
+end;
+$;
 
 revoke all on function public.sk_generate_member_code() from public, anon, authenticated;
 revoke all on function public.sk_set_customer_member_code() from public, anon, authenticated;
