@@ -229,6 +229,33 @@ Deno.serve(async (req) => {
       return reply({ success: true, data: updated });
     }
 
+    if (action === "update_order_field") {
+      const orderId = typeof body.order_id === "string" ? body.order_id : "";
+      const field = body.field === "payment_status" || body.field === "order_status" ? body.field : "";
+      const value = typeof body.value === "string" ? body.value : "";
+      if (!orderId || !field) return reply({ success: false, error: "invalid_order_update_input" }, 400);
+      const { data: order, error: orderError } = await db.from("sk_orders").select("id,order_number,payment_status,order_status").eq("id", orderId).maybeSingle();
+      if (orderError) throw orderError;
+      if (!order) return reply({ success: false, error: "order_not_found" }, 404);
+      const allowed = field === "payment_status" ? ["unpaid", "paid", "refunded"] : ["pending", "processing", "completed", "cancelled"];
+      if (!allowed.includes(value)) return reply({ success: false, error: "unsupported_order_status" }, 400);
+      if (field === "payment_status") {
+        if (value === "paid" && order.payment_status !== "unpaid") return reply({ success: false, error: "only_unpaid_orders_can_be_marked_paid" }, 409);
+        if (value === "unpaid" && order.payment_status !== "unpaid") return reply({ success: false, error: "paid_or_refunded_orders_cannot_be_reverted_to_unpaid" }, 409);
+        if (value === "refunded" && order.payment_status !== "paid") return reply({ success: false, error: "only_paid_orders_can_be_marked_refunded" }, 409);
+      }
+      if (field === "order_status" && value === "cancelled" && order.payment_status !== "unpaid") return reply({ success: false, error: "paid_orders_cannot_be_cancelled_without_refund" }, 409);
+      const now = new Date().toISOString();
+      const update: Record<string, unknown> = { [field]: value, updated_at: now };
+      if (field === "payment_status" && value === "paid") { update.paid_at = now; if (order.order_status === "pending") update.order_status = "processing"; }
+      const { data: updated, error: updateError } = await db.from("sk_orders").update(update).eq("id", orderId).eq(field, order[field]).select("id,order_number,payment_status,order_status,paid_at,updated_at").maybeSingle();
+      if (updateError) throw updateError;
+      if (!updated) return reply({ success: false, error: "order_status_changed_retry" }, 409);
+      const { error: auditError } = await db.from("sk_admin_audit_logs").insert({ admin_email: email, action: "update_order_field", target_type: "order", target_id: orderId, details: { order_number: order.order_number, field, previous_value: order[field], new_value: value } });
+      if (auditError) console.error("Order status audit log failed:", auditError.message);
+      return reply({ success: true, data: updated });
+    }
+
     if (action === "confirm_order_payment") {
       const orderId = typeof body.order_id === "string" ? body.order_id : "";
       if (!orderId) return reply({ success: false, error: "order_id_required" }, 400);
