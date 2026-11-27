@@ -73,13 +73,17 @@ section{padding:75px 7%;scroll-margin-top:90px}
 .member-button:hover{transform:translateY(-2px);background:linear-gradient(135deg,#315F85,#659CC8)}
 .member-button.secondary{background:rgba(255,255,255,.75);color:#477FAF;border:1px solid rgba(71,127,175,.22);box-shadow:none}
 .member-button:disabled{opacity:.6;cursor:wait;transform:none}
-.member-tools-row{position:relative;display:flex;align-items:center;justify-content:center;gap:12px;max-width:760px;margin:22px auto 0}
-.member-tools-row .member-card-guide{flex:1 1 0;min-width:0;max-width:none;margin:0;text-align:center}
-.member-tools-row .member-card-guide summary{display:flex;align-items:center;justify-content:center;box-sizing:border-box;width:100%;min-height:44px;padding:10px 14px;border:0;border-radius:30px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:#fff;font-size:13px;font-weight:700;letter-spacing:0;box-shadow:0 5px 15px rgba(71,127,175,.18);transition:transform .2s,background .2s;white-space:nowrap}.member-tools-row .member-card-guide summary:hover{transform:translateY(-2px);background:linear-gradient(135deg,#315F85,#659CC8)}.member-tools-row .member-card-guide summary:after{color:rgba(255,255,255,.9)}
-.member-tools-row .member-button{flex:1 1 0;min-width:0;min-height:44px;padding:10px 14px;white-space:nowrap;margin:0}
-.member-tools-row .member-card-guide[open]{align-self:center}
-@media(max-width:600px){.member-tools-row{gap:7px}.member-tools-row .member-button{padding:9px 7px;font-size:11px}.member-tools-row .member-card-guide summary{padding:9px 7px;font-size:11px;min-height:40px}}
-@media(max-width:380px){.member-tools-row{flex-wrap:wrap}.member-tools-row .member-card-guide,.member-tools-row .member-button{flex:1 1 30%}}
+.member-tools-row{position:relative;display:flex;align-items:center;justify-content:center;gap:9px;max-width:620px;margin:18px auto 0;flex-wrap:wrap}
+.member-tools-row .member-button,.member-tools-row .member-guide-trigger{flex:0 0 auto;min-width:0;min-height:34px;height:34px;padding:6px 15px;margin:0;border-radius:22px;font-size:12px;line-height:1.2;white-space:nowrap}
+.member-tools-row .member-guide-trigger{border:1px solid rgba(71,127,175,.22);background:rgba(255,255,255,.82);color:#477FAF;font-weight:700;cursor:pointer;box-shadow:none}
+.member-tools-row .member-guide-trigger:hover{background:#fff}
+.member-guide-modal[hidden]{display:none}
+.member-guide-modal{position:fixed;inset:0;z-index:10050;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(30,57,78,.42);backdrop-filter:blur(5px)}
+.member-guide-dialog{position:relative;width:min(420px,100%);padding:25px 22px 20px;border:1px solid rgba(255,255,255,.95);border-radius:22px;background:linear-gradient(145deg,#fff,#edf7fd);box-shadow:0 20px 60px rgba(35,75,108,.25);color:#58738D}
+.member-guide-dialog h3{margin:0 32px 14px 0;color:#315F85;font-size:19px;text-align:center}
+.member-guide-dialog p{margin:8px 0;font-size:13px;line-height:1.85}
+.member-guide-close{position:absolute;top:10px;right:12px;width:30px;height:30px;border-radius:50%;background:#e5f3fc;color:#315F85;font-size:19px;line-height:1}
+.member-guide-close-bottom{display:block;margin:18px auto 0;padding:7px 22px;border-radius:22px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:white;font-size:12px;font-weight:700}
 .wallet-topup-button[hidden]{display:none}
 .member-status{position:relative;min-height:22px;margin-top:16px;color:#71869B;font-size:12px}
 .customer-order-lookup{position:relative;max-width:620px;margin:22px auto 0;padding:22px;border:1px solid rgba(118,169,208,.25);border-radius:18px;background:rgba(255,255,255,.78);text-align:left}
@@ -733,15 +737,19 @@ body:has(.payment-modal:not([hidden])) footer{
       </div>
     </div>
     <div class="member-tools-row">
-      <details class="member-card-guide">
-        <summary>會員卡介紹</summary>
-        <div class="member-card-guide-copy">
-          <p>正面顯示你的 SOBBSTARS 會員名稱、會員編號與加入日期。</p>
-          <p>點擊會員卡可翻面查看錢包餘額、儲值紀錄及交易明細；結帳時可優先使用會員卡餘額折抵。</p>
-        </div>
-      </details>
+      <button class="member-guide-trigger" id="member-guide-open" type="button">會員卡介紹</button>
       <button class="member-button wallet-topup-button" id="wallet-topup-button" type="button" onclick="openWalletTopupModal()" hidden>立即儲值</button>
       <button class="member-button secondary wallet-refresh-button" id="wallet-refresh-button" type="button" onclick="refreshMemberWallet()" hidden>更新錢包餘額</button>
+    </div>
+    <div class="member-guide-modal" id="member-guide-modal" hidden>
+      <div class="member-guide-dialog" role="dialog" aria-modal="true" aria-labelledby="member-guide-title">
+        <button class="member-guide-close" id="member-guide-close" type="button" aria-label="關閉">×</button>
+        <h3 id="member-guide-title">SOBBSTARS 會員卡介紹</h3>
+        <p>會員卡正面會顯示你的會員名稱、會員編號與加入日期。</p>
+        <p>點擊會員卡即可翻面查看錢包餘額、儲值紀錄及交易明細。</p>
+        <p>結帳時可依頁面顯示，使用會員卡餘額折抵訂單金額。</p>
+        <button class="member-guide-close-bottom" id="member-guide-close-bottom" type="button">我知道了</button>
+      </div>
     </div>
   </div>
 </section>
@@ -1846,6 +1854,15 @@ logoutButton.addEventListener("click",()=>{
   loginButton.disabled = false;
   setMemberStatus("已登出會員。");
 });
+
+/* 會員卡介紹彈出視窗 */
+const memberGuideModal = document.getElementById("member-guide-modal");
+function closeMemberGuide(){ memberGuideModal.hidden = true; }
+document.getElementById("member-guide-open").addEventListener("click",()=>{ memberGuideModal.hidden = false; });
+document.getElementById("member-guide-close").addEventListener("click",closeMemberGuide);
+document.getElementById("member-guide-close-bottom").addEventListener("click",closeMemberGuide);
+memberGuideModal.addEventListener("click",event=>{ if(event.target === memberGuideModal) closeMemberGuide(); });
+document.addEventListener("keydown",event=>{ if(event.key === "Escape" && !memberGuideModal.hidden) closeMemberGuide(); });
 
 /* 網頁載入後執行 */
 try{
