@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
       .eq("id", orderId).eq("customer_id", customer.id).maybeSingle();
     if (orderError) throw orderError;
     if (!order) return respond({ success: false, error: "order_not_found_or_not_owned" }, 404);
-    if (order.payment_status !== "paid") return respond({ success: false, error: "payment_not_confirmed" }, 403);
+    // Customers may submit credentials after making payment; admin receipt confirmation remains required before processing.
 
     const payload = JSON.stringify({ game_nickname: gameNickname, login_method: loginMethod, account, password, note });
     const iv = crypto.getRandomValues(new Uint8Array(12));
