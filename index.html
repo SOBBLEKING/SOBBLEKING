@@ -492,11 +492,21 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 </section>
 
 <section id="process">
-  <div class="section-title"><small>HOW TO ORDER</small><h2>儲值流程</h2><p>簡單幾個步驟，完成你的訂單</p></div>
+  <div class="section-title"><small>HOW TO ORDER</small><h2>下單流程</h2><p>從挑選商品到完成代儲，跟著步驟安心下單</p></div>
   <div class="steps">
-    <div class="step"><div class="step-number">01</div><h3>選擇商品</h3><p>挑選需要的皮幣或通行證商品，加入購物車。</p></div>
-    <div class="step"><div class="step-number">02</div><h3>建立訂單</h3><p>依照訂單流程填寫必要資料及選擇付款方式。</p></div>
-    <div class="step"><div class="step-number">03</div><h3>完成儲值</h3><p>付款確認後，由我們為你處理儲值服務。</p></div>
+    <div class="step"><div class="step-number">01</div><h3>選擇商品</h3><p>挑選需要的皮幣、通行證或活動商品，確認品項與數量後加入購物車。</p></div>
+    <div class="step"><div class="step-number">02</div><h3>LINE 會員登入</h3><p>使用 LINE 登入 SOBBSTARS 會員，系統會辨識你的會員資料與錢包餘額。</p></div>
+    <div class="step"><div class="step-number">03</div><h3>確認訂單與付款</h3><p>核對商品及總金額。系統會優先使用會員錢包餘額，不足的部分再選擇無卡存款、銀行匯款或 LINE Pay 付款。</p></div>
+    <div class="step"><div class="step-number">04</div><h3>填寫遊戲資料</h3><p>建立訂單後，依畫面提示填寫遊戲名稱、登入方式、登入帳號及密碼，請務必確認資料正確。</p></div>
+    <div class="step"><div class="step-number">05</div><h3>等待付款確認與處理</h3><p>外部付款須由管理員核對收款；會員錢包全額付款則依訂單狀態確認。資料與付款確認完成後，客服會開始處理代儲。</p></div>
+    <div class="step"><div class="step-number">06</div><h3>完成訂單</h3><p>請留意會員訂單狀態及官方 LINE 客服訊息；如需協助，請提供訂單編號查詢。</p></div>
+  </div>
+  <div style="max-width:900px;margin:18px auto 0;padding:15px 18px;border:1px solid #d7e7f2;border-radius:15px;background:#f3f9fd;color:#456783;font-size:13px;line-height:1.85">
+    <strong style="color:#315F85">下單前請留意</strong><br>
+    ・建立訂單不代表已完成付款或代儲；請依照訂單成立後顯示的付款資訊完成付款。<br>
+    ・若會員錢包餘額不足，系統會先扣除可用餘額，再由你支付剩餘金額；若餘額足夠，則可直接使用會員錢包付款。<br>
+    ・請在訂單建立後完成遊戲資料填寫。付款尚未確認或遊戲資料不完整時，訂單可能暫時無法開始處理。<br>
+    ・請勿重複付款或重複建立相同訂單；遇到問題時，請透過官方 LINE 提供訂單編號聯絡客服。
   </div>
 </section>
 
@@ -604,8 +614,12 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 </section>
 
 <section id="checkout" hidden>
-  <div class="section-title"><small>ORDER CHECKOUT</small><h2>確認下單</h2><p>請確認商品內容，並填寫訂單備註</p></div>
+  <div class="section-title"><small>ORDER CHECKOUT</small><h2>確認下單</h2><p>核對商品、付款方式與會員錢包使用金額後，即可建立訂單</p></div>
   <div class="checkout-area">
+    <div style="margin-bottom:14px;padding:14px 16px;border:1px solid #d7e7f2;border-radius:14px;background:#f3f9fd;color:#456783;font-size:12px;line-height:1.8">
+      <strong style="display:block;color:#315F85;font-size:14px;margin-bottom:5px">下單提醒</strong>
+      ① 請先登入 LINE 會員。② 系統會優先使用會員卡餘額折抵。③ 若仍有應付款項，請選擇付款方式並完成付款。④ 訂單建立後，請依付款視窗提示填寫遊戲登入資料。外部付款及遊戲資料均確認後，才會安排代儲。
+    </div>
     <div id="checkout-member-state" class="checkout-hint">會員登入狀態確認中⋯</div>
     <div id="checkout-summary" class="checkout-summary"></div>
     <div class="checkout-grand-total"><span>訂單總額</span><span id="checkout-total">NT$0</span></div>
@@ -701,7 +715,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 <div id="payment-modal" class="payment-modal" hidden role="dialog" aria-modal="true" aria-labelledby="payment-modal-title">
   <div class="payment-modal-card">
     <h3 id="payment-modal-title">訂單已建立</h3>
-    <p class="payment-modal-sub">請依照以下資訊完成付款</p>
+    <p class="payment-modal-sub">請先核對訂單與付款資訊，再依序完成付款及遊戲資料填寫</p>
     <div id="payment-order-info" class="payment-info"></div>
     <div id="payment-method-info" class="payment-info" style="margin-top:12px"></div>
     <div class="payment-modal-actions">
