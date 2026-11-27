@@ -114,14 +114,14 @@ Deno.serve(async (req) => {
 
     if (!orderId) return respond({ success: false, error: "order_id_missing" }, 500);
 
-    // Notify the administrator only for a newly created order, never for an idempotent retry.
-    const emailEndpoint = Deno.env.get("ADMIN_ORDER_EMAIL_URL");
-    const emailToken = Deno.env.get("ADMIN_ORDER_EMAIL_TOKEN");
-    if (emailEndpoint && emailToken && order.reused !== true) {
+    // Send a Resend email to the administrator only for a newly created order.
+    // Email failure must never undo a successfully created order.
+    const resendApiKey = Deno.env.get("RESEND_API_KEY");
+    if (resendApiKey && order.reused !== true) {
       try {
         const [{ data: savedOrder }, { data: savedItems }] = await Promise.all([
           admin.from("sk_orders")
-            .select("order_number,total_amount,created_at,note,customer_id")
+            .select("order_number,total_amount,created_at,note")
             .eq("id", orderId)
             .maybeSingle(),
           admin.from("sk_order_items")
@@ -129,42 +129,69 @@ Deno.serve(async (req) => {
             .eq("order_id", orderId),
         ]);
 
-        const customerInfo: Record<string, unknown> = {};
-        const customerFields = ["name", "display_name", "line_display_name", "customer_name", "phone", "customer_code", "member_code", "member_number"];
-        for (const field of customerFields) {
-          const value = customer[field];
-          if (typeof value === "string" && value.trim()) customerInfo[field] = value;
-        }
+        const orderData = savedOrder ?? order;
+        const orderNumber = String(orderData.order_number ?? orderId);
+        const customerName = String(
+          customer.display_name ?? customer.line_display_name ?? customer.name ?? profile.displayName ?? "LINE 會員"
+        );
+        const escapeHtml = (value: unknown) => String(value ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#39;");
+        const money = (value: unknown) => `NT$ ${Number(value ?? 0).toLocaleString("zh-TW")}`;
+        const itemRows = (savedItems ?? []).map((item: any) =>
+          `<tr><td style="padding:8px;border-bottom:1px solid #eee;">${escapeHtml(item.product_name)}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:center;">${escapeHtml(item.quantity)}</td><td style="padding:8px;border-bottom:1px solid #eee;text-align:right;">${money(item.subtotal)}</td></tr>`
+        ).join("");
+        const noteText = String(orderData.note ?? "");
+        const html = `
+          <div style="font-family:Arial,'Noto Sans TC',sans-serif;color:#222;max-width:640px;margin:auto;">
+            <h2 style="color:#245b52;">SOBBLEKING｜收到新訂單</h2>
+            <p>網站剛收到一筆新訂單，請登入管理後台確認付款與訂單資料。</p>
+            <p><strong>訂單編號：</strong>${escapeHtml(orderNumber)}<br>
+            <strong>會員：</strong>${escapeHtml(customerName)}<br>
+            <strong>建立時間：</strong>${escapeHtml(orderData.created_at ?? new Date().toISOString())}<br>
+            <strong>付款方式：</strong>${escapeHtml(effectivePaymentMethod)}<br>
+            ${effectivePaymentBank ? `<strong>存款銀行：</strong>${escapeHtml(effectivePaymentBank)}<br>` : ""}
+            <strong>訂單總額：</strong>${money(orderData.total_amount)}<br>
+            <strong>會員錢包折抵：</strong>${money(walletAmountUsed)}<br>
+            <strong>尚需付款：</strong>${money(externalDue)}</p>
+            <h3>商品明細</h3>
+            <table style="width:100%;border-collapse:collapse;">
+              <thead><tr><th style="text-align:left;padding:8px;">商品</th><th style="padding:8px;">數量</th><th style="text-align:right;padding:8px;">小計</th></tr></thead>
+              <tbody>${itemRows || '<tr><td colspan="3" style="padding:8px;">無商品明細</td></tr>'}</tbody>
+            </table>
+            ${noteText ? `<p><strong>訂單備註：</strong><br>${escapeHtml(noteText).replaceAll("\\n", "<br>")}</p>` : ""}
+            <p style="margin-top:24px;"><a href="https://sobbleking-admin.vercel.app/" style="color:#245b52;">開啟 SOBBLEKING 管理後台</a></p>
+          </div>`;
 
-        const emailResponse = await fetch(emailEndpoint, {
+        const emailResponse = await fetch("https://api.resend.com/emails", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Authorization": `Bearer ${resendApiKey}`,
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({
-            token: emailToken,
-            order: savedOrder ?? order,
-            items: savedItems ?? [],
-            customer: customerInfo,
-            paymentMethod: effectivePaymentMethod,
-            paymentBank: effectivePaymentBank,
-            walletAmountUsed,
-            externalDue,
-            verificationCode,
+            from: "SOBBLEKING <onboarding@resend.dev>",
+            to: ["sobblekinggg@gmail.com"],
+            subject: `【SOBBLEKING】新訂單通知｜${orderNumber}`,
+            html,
           }),
         });
-        const emailResult = (await emailResponse.text()).trim();
-        if (!emailResponse.ok || emailResult !== "ok") {
-          console.error("Admin order email failed:", emailResponse.status, emailResult);
+        const emailResult = await emailResponse.text();
+        if (!emailResponse.ok) {
+          console.error("Resend admin order email failed:", emailResponse.status, emailResult);
+        } else {
+          console.log("Resend admin order email sent:", emailResult);
         }
       } catch (emailError) {
-        // Email failure must not undo a successfully created order.
-        console.error("Admin order email error:", emailError);
+        console.error("Resend admin order email error:", emailError);
       }
+    } else if (!resendApiKey) {
+      console.warn("RESEND_API_KEY is not configured; admin order email was skipped.");
     }
-    // Routine new-order alerts are handled by administrator email and the admin dashboard.
-    // Reserve LINE push quota for important events (for example, confirmed top-ups).
-    if (!emailEndpoint || !emailToken) {
-      console.warn("Admin order email is not configured; set ADMIN_ORDER_EMAIL_URL and ADMIN_ORDER_EMAIL_TOKEN.");
-    }
+    // Routine new-order alerts use email and the admin dashboard; preserve LINE push quota.
 
     return respond(order);
   } catch (error) {
