@@ -1874,9 +1874,124 @@ try{
 }catch(error){savedPaymentDetails=null;}
 loadProducts();
 initializeLIFF();
-+Number(item.subtotal||0).toLocaleString("en-US")+'）</li>').join("")+'</ul>':'<p>商品明細：—</p>';
+</script>
+</body>
+</html>+Number(item.subtotal||0).toLocaleString("en-US")+'）</li>').join("")+'</ul>':'<p>商品明細：—</p>';
     const date=order.created_at?new Date(order.created_at).toLocaleString("zh-TW"):"—";
     resultBox.innerHTML='<div class="customer-order-card"><h4>訂單 '+escapeOrderLookupHtml(order.order_number)+'</h4><p>建立時間：'+escapeOrderLookupHtml(date)+'</p><p>訂單狀態：<strong>'+escapeOrderLookupHtml(orderStatusLabel(order.order_status))+'</strong></p><p>付款狀態：<strong>'+escapeOrderLookupHtml(paymentStatusLabel(order.payment_status))+'</strong></p><p>付款方式：'+escapeOrderLookupHtml(order.payment_method||"—")+'</p><p>訂單金額：NT
+ const button=document.getElementById("wallet-refresh-button");button.disabled=true;button.textContent="更新中⋯";
+ try{
+  await registerOrLoginMember();
+  if(!memberStatus.textContent.includes("成功")) throw new Error(memberStatus.textContent||"更新失敗");
+  button.textContent="已更新";setTimeout(()=>{button.textContent="更新錢包餘額";button.disabled=false;},1000);
+ }catch(error){button.textContent="更新失敗，請重試";button.disabled=false;}
+}
+/* 將 LINE Access Token 傳給 Supabase Edge Function */
+async function registerOrLoginMember(){
+  try{
+    setMemberStatus("正在確認 LINE 會員資料⋯");
+    const accessToken = liff.getAccessToken();
+    if(!accessToken) throw new Error("無法取得 LINE 登入憑證，請重新登入。");
+    const response = await fetch(MEMBER_LOGIN_URL,{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "apikey":SUPABASE_KEY,
+        "Authorization":"Bearer " + accessToken
+      },
+      body:JSON.stringify({access_token:accessToken})
+    });
+    const result = await response.json();
+    if(!response.ok || !result.success) throw new Error(result.error || "會員登入失敗，請稍後再試。");
+    // 保留舊版登入行為：會員資料成功回傳即可顯示，不因 customer_id 欄位缺漏而阻擋登入。
+    const memberData = result.member || result.customer || {};
+    currentCustomerId =
+      result.customer_id ||
+      result.customer?.id ||
+      result.member?.customer_id ||
+      result.member?.id ||
+      result.wallet?.customer_id ||
+      null;
+    showMember(memberData,result.wallet,result.topup_history,result.transaction_history);
+  }catch(error){
+    console.error("LINE 會員登入錯誤：",error);
+    setMemberStatus(error.message || "會員登入失敗，請稍後再試。");
+  }
+}
+
+/* 初始化 LIFF */
+async function initializeLIFF(){
+  loginButton.disabled = true;
+  setMemberStatus("正在初始化 LINE 會員系統⋯");
+  try{
+    await liff.init({liffId:LIFF_ID});
+    if(liff.isLoggedIn()){
+      setMemberStatus("已偵測到 LINE 登入，正在讀取會員資料⋯");
+      await registerOrLoginMember();
+    }else{
+      setMemberStatus("尚未登入會員，請使用 LINE 登入。");
+      loginButton.disabled = false;
+    }
+  }catch(error){
+    console.error("LIFF 初始化失敗：",error);
+    setMemberStatus("LINE 會員系統載入失敗，請確認 LIFF 設定或稍後再試。");
+    loginButton.disabled = false;
+  }
+}
+
+/* 點擊 LINE 登入 */
+loginButton.addEventListener("click",()=>{
+  if(!window.liff){
+    setMemberStatus("LINE 登入元件尚未載入，請重新整理頁面。");
+    return;
+  }
+  if(!liff.isLoggedIn()){
+    liff.login({redirectUri:window.location.href});
+  }else{
+    registerOrLoginMember();
+  }
+});
+
+/* 登出 LINE 會員 */
+logoutButton.addEventListener("click",()=>{
+  if(!window.liff || !liff.isLoggedIn()) return;
+  liff.logout();
+  currentCustomerId = null;
+  currentMemberCode = "";
+  document.getElementById("checkout-member-number-row").hidden = true;
+  document.getElementById("checkout-member-number").textContent = "";
+  memberCard.hidden = true;
+  document.getElementById("customer-order-lookup").hidden = true;
+  document.getElementById("customer-order-number").value = "";
+  document.getElementById("customer-order-result").textContent = "";
+  memberCard.classList.remove("is-flipped");
+  memberCard.setAttribute("aria-pressed","false");
+  logoutButton.hidden = true;
+  loginButton.hidden = false;
+  loginButton.disabled = false;
+  setMemberStatus("已登出會員。");
+});
+
+/* 網頁載入後執行 */
+try{
+  savedPaymentDetails=JSON.parse(sessionStorage.getItem("sobbleking_payment_details")||"null");
+  if(savedPaymentDetails){
+    orderWasCreated=true;
+    document.getElementById("reopen-payment-button").hidden=false;
+  }
+}catch(error){savedPaymentDetails=null;}
+loadProducts();
+initializeLIFF();
+</script>
+</body>
+</html>+Number(order.total_amount||0).toLocaleString("en-US")+'</p>'+itemHtml+'</div>';
+  }catch(error){resultBox.textContent=error.message||"查詢失敗，請稍後再試。";}
+  finally{button.disabled=false;button.textContent="查詢訂單";}
+}
+document.getElementById("customer-order-search").addEventListener("click",lookupCustomerOrder);
+document.getElementById("customer-order-number").addEventListener("keydown",event=>{if(event.key==="Enter")lookupCustomerOrder();});
+
+async function refreshMemberWallet(){
  const button=document.getElementById("wallet-refresh-button");button.disabled=true;button.textContent="更新中⋯";
  try{
   await registerOrLoginMember();
