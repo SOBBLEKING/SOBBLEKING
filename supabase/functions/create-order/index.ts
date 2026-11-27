@@ -160,33 +160,10 @@ Deno.serve(async (req) => {
         console.error("Admin order email error:", emailError);
       }
     }
-    // LINE push notification is independent of email. Configure LINE_CHANNEL_ACCESS_TOKEN
-    // and ADMIN_LINE_USER_ID as Supabase secrets. Notification failure never rolls back an order.
-    const lineToken = Deno.env.get("LINE_CHANNEL_ACCESS_TOKEN");
-    const adminLineUserId = Deno.env.get("ADMIN_LINE_USER_ID");
-    if (lineToken && adminLineUserId && order.reused !== true) {
-      try {
-        const { data: lineOrder } = await admin.from("sk_orders")
-          .select("order_number,total_amount,created_at")
-          .eq("id", orderId).maybeSingle();
-        const lineText = [
-          "🛎️ SOBBLEKING 新訂單成立",
-          "訂單編號：" + String(lineOrder?.order_number || order.order_number || orderId),
-          "訂單金額：NT$" + Number(lineOrder?.total_amount ?? order.total_amount ?? 0).toLocaleString("zh-TW"),
-          "會員卡扣款：NT$" + walletAmountUsed.toLocaleString("zh-TW"),
-          "剩餘應付：NT$" + externalDue.toLocaleString("zh-TW"),
-          "付款方式：" + (externalDue > 0 ? effectivePaymentMethod + (effectivePaymentBank ? "（" + effectivePaymentBank + "）" : "") : "會員卡餘額（已付款）"),
-          "請登入管理後台確認訂單。"
-        ].join("\n");
-        const lineResponse = await fetch("https://api.line.me/v2/bot/message/push", {
-          method: "POST",
-          headers: {"Content-Type":"application/json","Authorization":"Bearer " + lineToken},
-          body: JSON.stringify({to:adminLineUserId,messages:[{type:"text",text:lineText}]})
-        });
-        if (!lineResponse.ok) console.error("Admin LINE push failed:",lineResponse.status,(await lineResponse.text()).slice(0,500));
-      } catch (lineError) {
-        console.error("Admin LINE push error:",lineError);
-      }
+    // Routine new-order alerts are handled by administrator email and the admin dashboard.
+    // Reserve LINE push quota for important events (for example, confirmed top-ups).
+    if (!emailEndpoint || !emailToken) {
+      console.warn("Admin order email is not configured; set ADMIN_ORDER_EMAIL_URL and ADMIN_ORDER_EMAIL_TOKEN.");
     }
 
     return respond(order);
