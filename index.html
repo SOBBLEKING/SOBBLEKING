@@ -750,15 +750,15 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 <div id="payment-modal" class="payment-modal" hidden role="dialog" aria-modal="true" aria-labelledby="payment-modal-title">
   <div class="payment-modal-card">
     <h3 id="payment-modal-title">訂單已建立</h3>
-    <p class="payment-modal-sub">請先核對訂單與付款資訊，再依序完成付款及遊戲資料填寫</p>
+    <p class="payment-modal-sub">請先核對訂單與付款資訊，現在就可以填寫遊戲登入資料，不必等待收款確認</p>
     <div id="payment-order-info" class="payment-info"></div>
     <div id="payment-method-info" class="payment-info" style="margin-top:12px"></div>
     <div class="payment-modal-actions">
-      <button id="open-credentials-form" type="button" onclick="openOrderCredentialsForm()">已完成付款，填寫遊戲資料</button>
+      <button id="open-credentials-form" type="button" onclick="openOrderCredentialsForm()">立即填寫遊戲資料</button>
     </div>
     <div id="order-credentials-form" class="credentials-entry" hidden>
       <h4>填寫遊戲登入資料</h4>
-      <p>請確認資料正確，方便客服為你完成代儲。付款仍需由管理員確認收款後才會開始處理。</p>
+      <p>訂單成立後即可先提交遊戲登入資料，不必等待付款確認。客服確認收款後才會開始處理訂單。</p>
       <label class="checkout-field">遊戲帳號名稱／遊戲暱稱
         <input id="credential-game-nickname" type="text" maxlength="100" placeholder="請輸入遊戲內顯示的名稱" autocomplete="off" required>
       </label>
@@ -1142,15 +1142,15 @@ function showPaymentModal(data,payment){
   const credentialButton=document.getElementById("open-credentials-form");
   const credentialForm=document.getElementById("order-credentials-form");
   const credentialStatus=document.getElementById("credential-status");
-  credentialForm.hidden=true;
+  credentialForm.hidden=!data.order_id;
   credentialStatus.textContent="";
-  credentialButton.hidden=false;
+  credentialButton.hidden=true;
   credentialButton.disabled=!data.order_id;
   if(data.credentials_submitted){
     credentialButton.textContent="✓ 遊戲資料已送出";
     credentialButton.disabled=true;
   }else{
-    credentialButton.textContent=externalDue<=0 ? "已完成付款，填寫遊戲資料" : "完成付款後，填寫遊戲資料";
+    credentialButton.textContent="立即填寫遊戲資料";
   }
   document.getElementById("payment-modal").hidden=false;
 }
@@ -1202,7 +1202,7 @@ async function submitOrderCredentials(){
     if(!response.ok || !result.success) throw new Error(result.error||"資料送出失敗");
     savedPaymentDetails.data.credentials_submitted=true;
     try{sessionStorage.setItem("sobbleking_payment_details",JSON.stringify(savedPaymentDetails));}catch(error){console.warn("訂單資料暫存失敗",error);}
-    status.textContent="✓ 遊戲資料已安全送出！管理員確認收款後即可查看並開始處理。";
+    status.textContent="✓ 遊戲資料已安全送出！客服確認收款後即可開始處理。";
     button.textContent="已成功送出";
     button.disabled=true;
     document.getElementById("credential-password").value="";
