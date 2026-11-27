@@ -157,7 +157,7 @@ Deno.serve(async (req) => {
         return reply({ success: false, error: "credentials_encryption_key_missing" }, 503);
       }
       const { data: order, error: orderError } = await db.from("sk_orders")
-        .select("id,order_number,customer_id,total_amount,payment_method,payment_status,order_status,note,created_at,paid_at")
+        .select("id,order_number,customer_id,total_amount,wallet_amount_used,external_due,payment_method,payment_status,order_status,note,created_at,paid_at")
         .eq("id", orderId).maybeSingle();
       if (orderError) throw orderError;
       if (!order) return reply({ success: false, error: "order_not_found" }, 404);
