@@ -1299,7 +1299,7 @@ function showPaymentModal(data,payment){
   }else if(payment.method==="銀行匯款"){
     info="<strong>銀行匯款｜郵局（700）</strong><br>銀行代碼：700<br>匯款帳號：<br><strong class=\"payment-account-number\">"+String(paymentBankAccounts["郵局（700）"]).replace(/[,，\s]/g,"")+"</strong>";
   }else{
-    info="<strong>LINE Pay 手機轉帳</strong><br>請在 LINE 搜尋手機號碼：<br><strong class=\"payment-account-number\">0905302886</strong><br>找到帳號後加入好友，再依畫面指示完成轉帳。";
+    info="<strong>LINE Pay 手機轉帳</strong><br>LINE 名稱：<strong>Wei.</strong><br>請在 LINE 搜尋手機號碼：<br><strong class=\"payment-account-number\">0905302886</strong><br>找到帳號後加入好友，再依畫面指示完成轉帳。";
   }
   document.getElementById("payment-method-info").innerHTML=info;
   document.getElementById("payment-proof-warning").hidden=externalDue<=0;
@@ -1469,7 +1469,7 @@ async function submitWalletTopup(){
     }else if(method==="銀行匯款"){
       info="<strong>銀行匯款｜郵局（700）</strong><br>銀行代碼 700<br>匯款帳號<br><strong class=\"payment-account-number\">"+String(paymentBankAccounts["郵局（700）"]).replace(/[,，\s]/g,"")+"</strong>";
     }else{
-      info="<strong>LINE Pay 手機轉帳</strong><br>請在 LINE 搜尋手機號碼<br><strong class=\"payment-account-number\">0905302886</strong><br>找到帳號後加入好友，再依畫面指示完成轉帳。";
+      info="<strong>LINE Pay 手機轉帳</strong><br>LINE 名稱：<strong>Wei.</strong><br>請在 LINE 搜尋手機號碼<br><strong class=\"payment-account-number\">0905302886</strong><br>找到帳號後加入好友，再依畫面指示完成轉帳。";
     }
     document.getElementById("wallet-topup-payment-info").innerHTML=
       "<strong>儲值申請編號：</strong>"+String(data.request_id).toUpperCase()+
