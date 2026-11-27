@@ -99,6 +99,7 @@ section{padding:75px 7%;scroll-margin-top:90px}
 .member-number-label,.member-field-label{font-size:9px;font-weight:800;letter-spacing:2px;opacity:.9}
 .member-card-name,.member-number{font-size:clamp(13px,2.2vw,16px);font-weight:850;letter-spacing:1.8px;overflow-wrap:anywhere}
  .member-card-bottom{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding-top:10px;border-top:1px solid rgba(88,145,176,.25)}
+.member-card-guide{position:relative;max-width:620px;margin:12px auto 0;text-align:left;font-size:12px;color:#71869B}.member-card-guide summary{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border:1px solid rgba(118,169,208,.28);border-radius:20px;background:rgba(255,255,255,.58);color:#6385A2;font-size:11px;font-weight:650;letter-spacing:.3px;list-style:none;cursor:pointer}.member-card-guide summary::-webkit-details-marker{display:none}.member-card-guide summary:after{content:"＋";font-size:12px}.member-card-guide[open] summary:after{content:"－"}.member-card-guide-copy{margin-top:8px;padding:10px 13px;border:1px solid rgba(118,169,208,.2);border-radius:12px;background:rgba(255,255,255,.58);line-height:1.8;color:#687F95}.member-card-guide-copy p+p{margin-top:4px}
 .member-card-sk{width:66px;height:34px;flex:0 0 auto;display:block;filter:drop-shadow(0 2px 2px rgba(49,95,133,.18))}
 .member-card-sk path{fill:none;stroke:url(#skCardMetal);stroke-width:7;stroke-linecap:round;stroke-linejoin:round}
 .member-card-sk .sk-spark{fill:#8FC8EB;stroke:#FFFFFF;stroke-width:1.2}
@@ -540,6 +541,13 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
       <button type="button" class="member-button secondary" id="line-logout-button" hidden>登出會員</button>
     </div>
     <div class="member-status" id="member-status" aria-live="polite">尚未登入會員</div>
+    <details class="member-card-guide">
+      <summary>會員卡介紹</summary>
+      <div class="member-card-guide-copy">
+        <p>正面顯示你的 SOBBSTARS 會員名稱、會員編號與加入日期。</p>
+        <p>點擊會員卡可翻面查看錢包餘額、儲值紀錄及交易明細；結帳時可優先使用會員卡餘額折抵。</p>
+      </div>
+    </details>
 
     <!-- SOBBSTARS 冰晶珍珠會員卡：保留原本動態會員資料 ID -->
     <div class="member-card-info" id="member-card" role="button" tabindex="0" aria-label="會員卡，點擊翻面查看錢包餘額" aria-pressed="false" hidden>
