@@ -57,6 +57,14 @@ button,input{font:inherit}.shell{max-width:1120px;margin:auto;padding:26px}.top{
       </article>
     </section>
     <section class="welcome"><h2>歡迎回來，管理員</h2><p>SOBBLEKING 管理中心已登入。以下管理模組將逐步啟用。</p></section>
+    <section class="data-panel" id="customerMessageTemplates">
+      <div class="panel-head"><div><h2>💬 LINE 客人通知公版</h2><p>複製文字後，請到 LINE 官方帳號手動傳送給客人。</p></div></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="order-action" id="copyTopupTemplate" type="button">複製｜會員加值成功</button>
+        <button class="order-action" id="copyServiceTemplate" type="button">複製｜代儲完成通知</button>
+      </div>
+      <p id="templateCopyResult" aria-live="polite" style="font-size:12px;color:#71869b;margin:12px 0 0">公版內的空格請在傳送前填入客人資料。</p>
+    </section>
     <section class="grid" id="statsGrid">
       <article class="tile"><div class="ico">🧾</div><h3>訂單總數</h3><p id="statOrders">載入中…</p></article>
       <article class="tile"><div class="ico">💰</div><h3>已收款營業額</h3><p id="statRevenue">載入中…</p></article>
@@ -550,6 +558,23 @@ $("enableNotificationsBtn").addEventListener("click",async()=>{
  if(permission!=="granted")alert("尚未允許桌面通知；管理後台內的新訂單彈出提醒仍會正常運作。");
 });
 
+async function copyCustomerTemplate(kind){
+ const templates={
+  topup:"🎉【SOBBLEKING｜會員加值成功通知】\n\n親愛的會員您好！\n\n您的會員錢包已成功加值，以下為本次加值明細：\n\n💰 加值金額：NT$＿＿＿\n🎁 活動贈送：NT$＿＿＿\n💳 本次入帳：NT$＿＿＿\n🏦 目前錢包餘額：NT$＿＿＿\n\n感謝您對 SOBBLEKING 的支持！\n祝您使用愉快 ♡\n\nSOBBLEKING 敬上",
+  service:"🎉【SOBBLEKING｜代儲完成通知】\n\n親愛的客人您好！\n\n您的 Pokémon GO 商品已成功代儲，請登入遊戲確認商品是否到帳。\n\n📦 訂單編號：＿＿＿＿＿＿\n🛍️ 購買商品：＿＿＿＿＿＿\n📌 訂單狀態：已完成\n\n感謝您選擇 SOBBLEKING！\n期待下次再次為您服務 ♡\n\nSOBBLEKING 敬上"
+ };
+ const text=templates[kind];
+ try{
+  if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);}
+  else{
+   const temp=document.createElement("textarea");temp.value=text;temp.style.position="fixed";temp.style.opacity="0";document.body.append(temp);temp.select();
+   const ok=document.execCommand("copy");temp.remove();if(!ok)throw new Error("clipboard_unavailable");
+  }
+  $("templateCopyResult").textContent="✓ 已複製公版！請到 LINE 官方帳號貼上，填妥資料後手動傳送。";
+ }catch(e){$("templateCopyResult").textContent="複製失敗，請確認瀏覽器允許剪貼簿權限後再試。";}
+}
+$("copyTopupTemplate").addEventListener("click",()=>copyCustomerTemplate("topup"));
+$("copyServiceTemplate").addEventListener("click",()=>copyCustomerTemplate("service"));
 $("logoutBtn").addEventListener("click",async()=>{if(orderPollTimer)clearInterval(orderPollTimer);await client.auth.signOut();$("dashboard").style.display="none";$("authView").style.display="grid";$("password").value="";message("已安全登出。")});
 client.auth.getSession().then(({data})=>{if(data.session)authorize(data.session)});
 </script>
