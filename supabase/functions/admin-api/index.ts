@@ -261,11 +261,13 @@ Deno.serve(async (req) => {
       let customerNotification: Record<string, unknown> | null = null;
       if (field === "order_status" && value === "completed" && order.order_status !== "completed") {
         try {
-          const [{ data: fullOrder }, { data: customer }, { data: items }] = await Promise.all([
-            db.from("sk_orders").select("id,order_number,total_amount,customer_id").eq("id", orderId).maybeSingle(),
-            db.from("customers").select("line_user_id").eq("id", (await db.from("sk_orders").select("customer_id").eq("id", orderId).maybeSingle()).data?.customer_id ?? "").maybeSingle(),
+          const [{ data: fullOrder }, { data: items }] = await Promise.all([
+            db.from("sk_orders").select("id,order_number,customer_id").eq("id", orderId).maybeSingle(),
             db.from("sk_order_items").select("product_name,quantity").eq("order_id", orderId),
           ]);
+          const { data: customer } = fullOrder?.customer_id
+            ? await db.from("customers").select("line_user_id").eq("id", fullOrder.customer_id).maybeSingle()
+            : { data: null };
           const lineToken = Deno.env.get("LINE_CHANNEL_ACCESS_TOKEN") || "";
           if (!lineToken) {
             customerNotification = { sent: false, error: "LINE_CHANNEL_ACCESS_TOKEN_missing" };
