@@ -39,6 +39,12 @@ button,input{font:inherit}.shell{max-width:1120px;margin:auto;padding:26px}.top{
 .order-password-row button{border:1px solid var(--line);background:#fff;color:#477fae;border-radius:9px;padding:6px 10px;cursor:pointer}
 .order-detail-note{white-space:pre-wrap;overflow-wrap:anywhere}
 @media(max-width:520px){.order-detail-grid{grid-template-columns:1fr}.order-detail-card{padding:17px}}
+
+/* 申請編號與訂單編號一致：放大、可辨識、直接點擊 */
+.order-link{font-size:16px;line-height:1.5;min-height:34px}
+.topup-id-cell{min-width:300px;max-width:480px;gap:10px}
+.topup-id-full{font-size:18px;line-height:1.6;min-height:36px;letter-spacing:.2px}
+.topup-id-cell .copy-order-number{flex:0 0 30px;width:30px;height:30px}
 </style>
 <!-- Admin deployment trigger 2026-11-27 -->
 </head>
@@ -258,7 +264,7 @@ if(action==="orders") document.querySelectorAll(".order-link[data-order-id]").fo
  if(action==="orders") document.querySelectorAll(".copy-order-number[data-copy-order-number]").forEach(btn=>btn.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();copyAdminValue(btn,btn.dataset.copyOrderNumber);}));
  if(action==="topups") document.querySelectorAll(".copy-order-number[data-copy-topup-id]").forEach(btn=>btn.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();copyAdminValue(btn,btn.dataset.copyTopupId);}));
  if(action==="members") document.querySelectorAll("[data-member-wallet]").forEach(btn=>btn.addEventListener("click",()=>openMemberWallet(rows.find(x=>String(x.id)===btn.dataset.memberWallet))));
- if(action==="topups") document.querySelectorAll(".order-link[data-topup-id]").forEach(btn=>btn.addEventListener("click",()=>openTopupDetail(btn.dataset.topupId))); if(action==="topup_campaigns"){
+ if(action==="topups") document.querySelectorAll(".topup-id-full[data-topup-id]").forEach(btn=>btn.addEventListener("click",()=>openTopupDetail(btn.dataset.topupId))); if(action==="topup_campaigns"){
   document.querySelectorAll("[data-campaign-edit]").forEach(btn=>btn.addEventListener("click",()=>{
    const row=rows.find(x=>x.id===btn.dataset.campaignEdit);if(!row)return;
    $("campaignId").value=row.id;$("campaignName").value=row.name||"";$("campaignMin").value=row.min_amount;$("campaignBonus").value=row.bonus_amount;
