@@ -297,7 +297,7 @@ async function openOrderDetail(orderId){
    ["付款方式",o.payment_method],["付款狀態",o.payment_status],["訂單狀態",o.order_status],
    ["建立時間",fmt(o.created_at)],["付款確認時間",fmt(o.paid_at)]
   ];
-  let html="<div class=\"order-detail-grid\">"+base.map(x=>"<div class=\"order-detail-field\"><small>"+esc(x[0])+"</small><div class=\"order-copy-row\"><strong>"+esc(x[1]||"—")+"</strong>"+(x[2]?"<button type=\"button\" class=\"copy-value-button\" data-copy-value=\""+esc(x[1]||"") + "\">複製</button>":"")+"</div></div>").join("")+"</div>";
+  let html="<div class=\"order-detail-grid\">"+base.map(x=>"<div class=\"order-detail-field\"><small>"+esc(x[0])+"</small><div class=\"order-copy-row\"><strong>"+esc(x[1]||"—")+"</strong>"+(x[2]?"<button type=\"button\" class=\"copy-value-button\" data-copy-value=\""+esc(x[1]||"") + "\" title=\"複製\" aria-label=\"複製\"><svg viewBox=\"0 0 24 24\" width=\"16\" height=\"16\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"8\" y=\"8\" width=\"12\" height=\"12\" rx=\"2\"/><path d=\"M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2\"/></svg></button>":"")+"</div></div>").join("")+"</div>";
   html+="<div class=\"order-detail-section\"><h3>訂單管理</h3><div class=\"order-detail-field\">";
   if(o.payment_status==="unpaid" && o.order_status==="pending"){
    html+="<p style=\"margin:0 0 12px;color:#8a6730\">此訂單尚未付款，可在確認原因後取消。取消只變更訂單狀態，不會刪除訂單、商品或付款紀錄。</p><button type=\"button\" class=\"logout\" id=\"cancelOrderBtn\" style=\"color:#a34d4d;border-color:#e8caca\">取消訂單</button>";
