@@ -24,7 +24,7 @@ header{width:100%;padding:16px 5%;display:flex;justify-content:space-between;ali
 .logo{color:#315F85;font-weight:900;letter-spacing:2px;font-size:20px;white-space:nowrap;text-shadow:0 1px 0 #fff}
 nav{display:flex;gap:10px;align-items:center;justify-content:flex-end;white-space:nowrap}
 nav a{color:#58738D;font-size:13px;padding:8px 13px;border-radius:30px;transition:.2s}
-nav a:hover{background:#E5F3FC;color:#315F85}.nav-login{padding:8px 13px;border-radius:30px;background:linear-gradient(135deg,#477FAF,#78B5E2);color:#fff;font-size:13px;font-weight:700;white-space:nowrap;transition:.2s}.nav-login:hover{background:#315F85}.nav-cart{background:linear-gradient(135deg,#477FAF,#78B5E2);color:white}.nav-cart:hover{background:#315F85;color:white}
+nav a:hover{background:#E5F3FC;color:#315F85}.nav-cart{background:linear-gradient(135deg,#477FAF,#78B5E2);color:white}.nav-cart:hover{background:#315F85;color:white}
 .hero{min-height:calc(100vh - 68px);min-height:calc(100svh - 68px);padding:100px 20px 110px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 .hero .welcome{color:#7189A2;font-size:15px;letter-spacing:5px;font-weight:600;margin-bottom:16px}
 .hero h1{color:#315F85;font-size:clamp(43px,9vw,76px);font-weight:900;letter-spacing:5px;line-height:1.25;text-shadow:0 3px 12px rgba(49,95,133,.12)}
@@ -244,7 +244,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 @media(max-width:600px){
  header{padding:12px 10px;gap:5px}.logo{font-size:14px;letter-spacing:1px}
  nav{flex:1;justify-content:flex-end;gap:2px;overflow-x:auto;scrollbar-width:none}
- nav::-webkit-scrollbar{display:none}nav a{font-size:10px;padding:7px 7px}.nav-login{font-size:10px;padding:7px 8px}.nav-cart{padding:7px 9px}
+ nav::-webkit-scrollbar{display:none}nav a{font-size:10px;padding:7px 7px}.nav-cart{padding:7px 9px}
  .hero{min-height:calc(100vh - 52px);min-height:calc(100svh - 52px);padding:75px 15px 90px}
  #products{padding-top:75px}#products .section-title{margin-bottom:35px}.section-title{margin-bottom:35px}
  .hero .brand-cn{font-size:16px;letter-spacing:5px}.hero .subtitle{letter-spacing:4px}
@@ -625,7 +625,7 @@ body:has(.payment-modal:not([hidden])) footer{
   <nav>
     <a href="#member">會員</a>
     <a href="#faq">常見問題</a>
-    <button type="button" class="nav-login" onclick="document.getElementById('line-login-button').click()">登入</button>
+    <a href="#member" onclick="document.getElementById('line-login-button').click();return false;">登入</a>
     <a href="#cart" class="nav-cart">購物車 <span id="cart-count">0</span></a>
   </nav>
 </header>
