@@ -396,7 +396,7 @@ Deno.serve(async (req) => {
     }
 
     if (action === "orders") {
-      const { data, error } = await db.from("sk_orders").select("id,order_number,customer_id,total_amount,payment_status,order_status,payment_method,note,created_at,updated_at,paid_at")
+      const { data, error } = await db.from("sk_orders").select("id,order_number,customer_id,total_amount,wallet_amount_used,external_due,payment_status,order_status,payment_method,note,created_at,updated_at,paid_at")
         .order("created_at", { ascending: false }).limit(limit);
       if (error) throw error;
       return reply({ success: true, data: await attachMemberCodes(db, data || []) });
