@@ -34,6 +34,27 @@ Deno.serve(async (req) => {
       const active = (campaigns || []).filter((c: any) => (!c.starts_at || new Date(c.starts_at).getTime() <= now) && (!c.ends_at || new Date(c.ends_at).getTime() > now));
       return respond({ success: true, campaigns: active });
     }
+    if (body.action === "lookup_request") {
+      const lookupToken = typeof body.access_token === "string" ? body.access_token : "";
+      const requestId = typeof body.request_id === "string" ? body.request_id.trim() : "";
+      if (!lookupToken) return respond({ success: false, error: "line_authentication_failed" }, 401);
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) return respond({ success: false, error: "invalid_request_id" }, 400);
+      const profileResponse = await fetch("https://api.line.me/v2/profile", { headers: { Authorization: `Bearer ${lookupToken}` } });
+      if (!profileResponse.ok) return respond({ success: false, error: "line_authentication_failed" }, 401);
+      const profile = await profileResponse.json();
+      if (typeof profile.userId !== "string" || !profile.userId) return respond({ success: false, error: "line_user_not_found" }, 401);
+      const lookupAdmin = createClient(supabaseUrl, serviceRoleKey, { auth: { persistSession: false, autoRefreshToken: false } });
+      const { data: lookupCustomer, error: lookupCustomerError } = await lookupAdmin.from("customers").select("id,member_code").eq("line_user_id", profile.userId).maybeSingle();
+      if (lookupCustomerError) throw lookupCustomerError;
+      if (!lookupCustomer?.id) return respond({ success: false, error: "member_record_not_found" }, 404);
+      const { data: request, error: requestError } = await lookupAdmin.from("sk_wallet_topup_requests")
+        .select("id,amount,payment_method,payment_bank,status,created_at,updated_at,confirmed_at")
+        .eq("id", requestId).eq("customer_id", lookupCustomer.id).maybeSingle();
+      if (requestError) throw requestError;
+      if (!request) return respond({ success: false, error: "topup_request_not_found" }, 404);
+      return respond({ success: true, request });
+    }
+
     const accessToken = typeof body.access_token === "string" ? body.access_token : "";
     const amount = Number(body.amount);
     const paymentMethod = typeof body.payment_method === "string" ? body.payment_method : "";
@@ -66,7 +87,7 @@ Deno.serve(async (req) => {
     });
     const { data: customer, error: customerError } = await admin
       .from("customers")
-      .select("id,member_code,name,display_name,line_display_name,customer_name")
+      .select("id,member_code")
       .eq("line_user_id", profile.userId).maybeSingle();
     if (customerError) throw customerError;
     if (!customer?.id) return respond({ success: false, error: "member_record_not_found" }, 404);
