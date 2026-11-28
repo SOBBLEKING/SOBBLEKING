@@ -1509,7 +1509,7 @@ async function submitWalletTopup(){
     }else{
       info="<strong>LINE 好友轉帳</strong><br>LINE 名稱：<strong>Wei.</strong><br>請在 LINE 搜尋手機號碼<br><strong class=\"payment-account-number\">0905302886</strong><br>找到帳號後加入好友，再依畫面指示完成轉帳。";
     }
-    const topupRequestId=String(data.request_id).toUpperCase();
+    const topupRequestId=formatTopupRequestCode(data.request_id);
     document.getElementById("wallet-topup-payment-info").innerHTML=
       "<div class=\"topup-request-id-row\"><strong>儲值申請編號：</strong><span class=\"topup-request-id-value\">"+escapeOrderLookupHtml(topupRequestId)+"</span><button id=\"copyWalletTopupRequestId\" class=\"wallet-history-copy topup-copy-large\" type=\"button\" title=\"複製完整儲值申請編號\" aria-label=\"複製完整儲值申請編號\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"8\" y=\"8\" width=\"12\" height=\"12\" rx=\"2\"/><path d=\"M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3\"/></svg></button></div>"+
       "<br><strong>儲值金額：</strong>NT$"+Number(data.amount).toLocaleString("en-US")+
@@ -1715,6 +1715,8 @@ async function copyCheckoutMemberNumber(){
   }
 }
 
+function formatTopupRequestCode(id){return "SKT"+String(id||"").replace(/-/g,"").slice(0,8).toUpperCase();}
+
 async function copyWalletTopupId(value,button){
   try{
     if(navigator.clipboard&&window.isSecureContext) await navigator.clipboard.writeText(String(value||""));
@@ -1757,7 +1759,7 @@ function renderWalletHistory(topupHistory, transactionHistory){
     const detailNode=document.createElement("span");detailNode.textContent=formatHistoryDate(row.created_at)+"｜"+method;
     item.append(titleNode,detailNode);
     const requestId=row.id||row.request_id||row.topup_request_id;
-    if(requestId){const idRow=document.createElement("div");idRow.style.cssText="display:flex;align-items:flex-start;gap:3px;margin-top:3px";const idText=document.createElement("span");idText.textContent="申請編號："+String(requestId).toUpperCase();idText.style.cssText="min-width:0;flex:1;overflow-wrap:anywhere";const copy=document.createElement("button");copy.type="button";copy.className="wallet-history-copy";copy.title="複製儲值申請編號";copy.setAttribute("aria-label","複製儲值申請編號");copy.innerHTML="<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"8\" y=\"8\" width=\"12\" height=\"12\" rx=\"2\"/><path d=\"M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3\"/></svg>";copy.addEventListener("click",()=>copyWalletTopupId(requestId,copy));idRow.append(idText,copy);item.appendChild(idRow);}
+    if(requestId){const displayCode=formatTopupRequestCode(requestId);const idRow=document.createElement("div");idRow.style.cssText="display:flex;align-items:flex-start;gap:3px;margin-top:3px";const idText=document.createElement("span");idText.textContent="申請編號："+displayCode;idText.style.cssText="min-width:0;flex:1;overflow-wrap:anywhere";const copy=document.createElement("button");copy.type="button";copy.className="wallet-history-copy";copy.title="複製儲值申請編號";copy.setAttribute("aria-label","複製儲值申請編號");copy.innerHTML="<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"8\" y=\"8\" width=\"12\" height=\"12\" rx=\"2\"/><path d=\"M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3\"/></svg>";copy.addEventListener("click",()=>copyWalletTopupId(displayCode,copy));idRow.append(idText,copy);item.appendChild(idRow);}
     topupContainer.appendChild(item);
   });
   if(!topupContainer.children.length){
@@ -1868,7 +1870,7 @@ async function lookupCustomerTopupRequest(){
   const resultBox=document.getElementById("customer-topup-result");
   const requestId=input.value.trim().toUpperCase();
   if(!requestId){resultBox.textContent="請先輸入儲值申請編號。";input.focus();return;}
-  if(!/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/.test(requestId)){resultBox.textContent="請輸入完整申請編號，格式需包含全部連字號。";input.focus();return;}
+  if(!/^SKT[0-9A-F]{8}$/.test(requestId)&&!/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/.test(requestId)){resultBox.textContent="請輸入 SKT 開頭的 11 碼申請編號。";input.focus();return;}
   if(!window.liff||!liff.isLoggedIn()){resultBox.textContent="請先使用 LINE 登入會員。";return;}
   const accessToken=liff.getAccessToken();if(!accessToken){resultBox.textContent="登入憑證已失效，請重新登入會員。";return;}
   button.disabled=true;button.textContent="查詢中⋯";resultBox.textContent="正在查詢儲值申請⋯";
@@ -1877,9 +1879,9 @@ async function lookupCustomerTopupRequest(){
     const data=await response.json();
     if(!response.ok||!data.success){if(data.error==="topup_request_not_found")throw new Error("查無此申請，請確認編號正確，且目前登入的是建立申請時使用的 LINE 會員。");if(data.error==="line_authentication_failed")throw new Error("LINE 登入已失效，請重新登入會員。");throw new Error("目前無法查詢儲值申請，請稍後再試。");}
     const r=data.request||{};const status=({pending:"待客服確認",confirmed:"已入帳",approved:"已入帳",rejected:"未通過",completed:"已完成",cancelled:"已取消"})[String(r.status||"").toLowerCase()]||r.status||"—";const created=r.created_at?new Date(r.created_at).toLocaleString("zh-TW"):"—";
-    const fullRequestId=String(r.id||requestId).toUpperCase();
-    resultBox.innerHTML="<div class=\"customer-order-card\"><div class=\"topup-request-id-row\"><h4>儲值申請編號</h4><span class=\"topup-request-id-value\">"+escapeOrderLookupHtml(fullRequestId)+"</span><button type=\"button\" class=\"wallet-history-copy topup-copy-large\" title=\"複製完整儲值申請編號\" aria-label=\"複製完整儲值申請編號\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"8\" y=\"8\" width=\"12\" height=\"12\" rx=\"2\"/><path d=\"M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3\"/></svg></button></div><p>申請金額：NT$"+Number(r.amount||0).toLocaleString("zh-TW")+"</p><p>付款方式："+escapeOrderLookupHtml(r.payment_method||"—")+"</p><p>存款銀行："+escapeOrderLookupHtml(r.payment_bank||"—")+"</p><p>申請時間："+escapeOrderLookupHtml(created)+"</p><p>申請狀態：<strong>"+escapeOrderLookupHtml(status)+"</strong></p></div>";
-    const copy=resultBox.querySelector(".topup-copy-large");copy.addEventListener("click",()=>copyWalletTopupId(fullRequestId,copy));
+    const displayRequestCode=formatTopupRequestCode(r.id||requestId);
+    resultBox.innerHTML="<div class=\"customer-order-card\"><div class=\"topup-request-id-row\"><h4>儲值申請編號</h4><span class=\"topup-request-id-value\">"+escapeOrderLookupHtml(displayRequestCode)+"</span><button type=\"button\" class=\"wallet-history-copy topup-copy-large\" title=\"複製儲值申請編號\" aria-label=\"複製儲值申請編號\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"8\" y=\"8\" width=\"12\" height=\"12\" rx=\"2\"/><path d=\"M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3\"/></svg></button></div><p>申請金額：NT$"+Number(r.amount||0).toLocaleString("zh-TW")+"</p><p>付款方式："+escapeOrderLookupHtml(r.payment_method||"—")+"</p><p>存款銀行："+escapeOrderLookupHtml(r.payment_bank||"—")+"</p><p>申請時間："+escapeOrderLookupHtml(created)+"</p><p>申請狀態：<strong>"+escapeOrderLookupHtml(status)+"</strong></p></div>";
+    const copy=resultBox.querySelector(".topup-copy-large");copy.addEventListener("click",()=>copyWalletTopupId(displayRequestCode,copy));
   }catch(error){resultBox.textContent=error.message||"查詢失敗，請稍後再試。";}
   finally{button.disabled=false;button.textContent="查詢儲值申請";}
 }
