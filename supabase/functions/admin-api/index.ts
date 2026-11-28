@@ -563,6 +563,18 @@ Deno.serve(async (req) => {
       return reply({ success: true, data });
     }
 
+    if (action === "search_topups") {
+      const query = typeof body.query === "string" ? body.query.trim() : "";
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(query)) {
+        return reply({ success: false, error: "invalid_topup_request_id" }, 400);
+      }
+      const { data, error } = await db.from("sk_wallet_topup_requests")
+        .select("id,customer_id,amount,payment_method,payment_bank,status,created_at,updated_at,confirmed_at,received_amount,excess_amount,admin_note,reviewed_at,reviewed_by")
+        .eq("id", query).limit(1);
+      if (error) throw error;
+      return reply({ success: true, data: await attachMemberCodes(db, data || []) });
+    }
+
     if (action === "topups") {
       const { data, error } = await db.from("sk_wallet_topup_requests")
         .select("id,customer_id,amount,payment_method,payment_bank,status,created_at,updated_at,confirmed_at,received_amount,excess_amount,admin_note,reviewed_at,reviewed_by")
