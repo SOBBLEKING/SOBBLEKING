@@ -65,7 +65,9 @@ Deno.serve(async (req) => {
       auth: { persistSession: false, autoRefreshToken: false },
     });
     const { data: customer, error: customerError } = await admin
-      .from("customers").select("id").eq("line_user_id", profile.userId).maybeSingle();
+      .from("customers")
+      .select("id,member_code,name,display_name,line_display_name,customer_name")
+      .eq("line_user_id", profile.userId).maybeSingle();
     if (customerError) throw customerError;
     if (!customer?.id) return respond({ success: false, error: "member_record_not_found" }, 404);
 
@@ -100,12 +102,59 @@ Deno.serve(async (req) => {
     }
     if (insertError) throw insertError;
 
+    // Notify the administrator only after a new pending request is committed.
+    // Notification failure must never cancel the customer's valid top-up request.
+    let adminNotification: Record<string, unknown> = { sent: false, error: "admin_notification_not_configured" };
+    const lineToken = Deno.env.get("LINE_CHANNEL_ACCESS_TOKEN") || "";
+    const adminLineUserId = Deno.env.get("ADMIN_LINE_USER_ID") || "";
+    if (lineToken && adminLineUserId) {
+      const money = (value: unknown) => "NT$" + Number(value || 0).toLocaleString("zh-TW");
+      const memberName = String(customer.name || customer.display_name || customer.line_display_name || customer.customer_name || profile.displayName || "未命名會員");
+      const message = [
+        "🔔 SOBBLEKING｜收到會員卡儲值申請",
+        "",
+        "會員編號：" + String(customer.member_code || "尚未編號"),
+        "會員名稱：" + memberName,
+        "申請金額：" + money(inserted.amount),
+        "付款方式：" + paymentMethod,
+        ...(paymentMethod === "無卡存款" ? ["存款銀行：" + paymentBank] : []),
+        "申請時間：" + new Date(inserted.created_at).toLocaleString("zh-TW", { timeZone: "Asia/Taipei" }),
+        "申請單號：" + inserted.id,
+        "目前狀態：待管理員確認",
+        "",
+        "請至 SOBBLEKING 管理後台確認款項；確認前不會增加會員錢包餘額。",
+      ].join("\n");
+      try {
+        const lineResponse = await fetch("https://api.line.me/v2/bot/message/push", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "Authorization": "Bearer " + lineToken },
+          body: JSON.stringify({ to: adminLineUserId, messages: [{ type: "text", text: message }] }),
+        });
+        if (lineResponse.ok) {
+          adminNotification = { sent: true, channel: "LINE" };
+        } else {
+          const detail = (await lineResponse.text()).slice(0, 500);
+          console.error("Admin top-up LINE notification failed:", lineResponse.status, detail);
+          adminNotification = { sent: false, channel: "LINE", error: "LINE HTTP " + lineResponse.status };
+        }
+      } catch (notifyError) {
+        console.error("Admin top-up LINE notification error:", notifyError);
+        adminNotification = { sent: false, channel: "LINE", error: "notification_failed" };
+      }
+    } else {
+      console.error("Admin top-up notification secrets missing:", {
+        lineTokenConfigured: Boolean(lineToken),
+        adminLineUserConfigured: Boolean(adminLineUserId),
+      });
+    }
+
     return respond({
       success: true,
       request_id: inserted.id,
       amount: inserted.amount,
       status: inserted.status,
       reused: false,
+      admin_notification: adminNotification,
     });
   } catch (error) {
     console.error("create-topup-request error:", error);
