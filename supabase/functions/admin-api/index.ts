@@ -502,7 +502,8 @@ Deno.serve(async (req) => {
       const { data: wallet, error: walletError } = await db.from("sk_wallet_accounts")
         .select("balance").eq("customer_id", data.customer_id).maybeSingle();
       if (walletError) throw walletError;
-      return reply({ success: true, data: { topup: data, wallet_balance: wallet?.balance ?? 0 } });
+      const displayRequestId = "SKT" + String(data.id || "").replace(/-/g, "").slice(0, 8).toUpperCase();
+      return reply({ success: true, data: { topup: { ...data, display_request_id: displayRequestId }, wallet_balance: wallet?.balance ?? 0 } });
     }
 
     if (action === "confirm_wallet_topup") {
@@ -568,7 +569,10 @@ Deno.serve(async (req) => {
       const { data, error } = await searchQuery;
       if (error) throw error;
       if ((data || []).length > 1) return reply({ success: false, error: "topup_request_code_ambiguous" }, 409);
-      return reply({ success: true, data: await attachMemberCodes(db, data || []) });
+      const rows = await attachMemberCodes(db, data || []);
+      return reply({ success: true, data: rows.map((row: any) => ({
+        ...row, display_request_id: "SKT" + String(row.id || "").replace(/-/g, "").slice(0, 8).toUpperCase(),
+      })) });
     }
 
     if (action === "topups") {
@@ -576,7 +580,10 @@ Deno.serve(async (req) => {
         .select("id,customer_id,amount,payment_method,payment_bank,status,created_at,updated_at,confirmed_at,received_amount,excess_amount,admin_note,reviewed_at,reviewed_by")
         .order("created_at", { ascending: false }).limit(limit);
       if (error) throw error;
-      return reply({ success: true, data: await attachMemberCodes(db, data || []) });
+      const rows = await attachMemberCodes(db, data || []);
+      return reply({ success: true, data: rows.map((row: any) => ({
+        ...row, display_request_id: "SKT" + String(row.id || "").replace(/-/g, "").slice(0, 8).toUpperCase(),
+      })) });
     }
 
     if (action === "wallet_transactions") {
