@@ -278,8 +278,8 @@ async function copyAdminValue(button,value){
    const field=document.createElement("textarea");field.value=String(value??"");field.style.position="fixed";field.style.opacity="0";document.body.appendChild(field);field.select();
    const ok=document.execCommand("copy");field.remove();if(!ok)throw new Error("copy_failed");
   }
-  const original=button.textContent;button.textContent=button.classList.contains("copy-order-number")?"✓":"已複製";button.disabled=true;
-  setTimeout(()=>{button.textContent=original;button.disabled=false;},1400);
+  const originalHTML=button.innerHTML;button.textContent="✓";button.disabled=true;
+  setTimeout(()=>{button.innerHTML=originalHTML;button.disabled=false;},1400);
  }catch(error){alert("複製失敗，請確認瀏覽器允許剪貼簿存取。");}
 }
 async function openOrderDetail(orderId){
