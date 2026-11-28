@@ -36,9 +36,11 @@ Deno.serve(async (req) => {
     }
     if (body.action === "lookup_request") {
       const lookupToken = typeof body.access_token === "string" ? body.access_token : "";
-      const requestId = typeof body.request_id === "string" ? body.request_id.trim() : "";
+      const requestId = typeof body.request_id === "string" ? body.request_id.trim().toUpperCase() : "";
+      const isShortCode = /^SKT[0-9A-F]{8}$/.test(requestId);
+      const isUuid = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/.test(requestId);
       if (!lookupToken) return respond({ success: false, error: "line_authentication_failed" }, 401);
-      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(requestId)) return respond({ success: false, error: "invalid_request_id" }, 400);
+      if (!isShortCode && !isUuid) return respond({ success: false, error: "invalid_request_id" }, 400);
       const profileResponse = await fetch("https://api.line.me/v2/profile", { headers: { Authorization: `Bearer ${lookupToken}` } });
       if (!profileResponse.ok) return respond({ success: false, error: "line_authentication_failed" }, 401);
       const profile = await profileResponse.json();
@@ -47,10 +49,16 @@ Deno.serve(async (req) => {
       const { data: lookupCustomer, error: lookupCustomerError } = await lookupAdmin.from("customers").select("id,member_code").eq("line_user_id", profile.userId).maybeSingle();
       if (lookupCustomerError) throw lookupCustomerError;
       if (!lookupCustomer?.id) return respond({ success: false, error: "member_record_not_found" }, 404);
-      const { data: request, error: requestError } = await lookupAdmin.from("sk_wallet_topup_requests")
+      let requestQuery = lookupAdmin.from("sk_wallet_topup_requests")
         .select("id,amount,payment_method,payment_bank,status,created_at,updated_at,confirmed_at")
-        .eq("id", requestId).eq("customer_id", lookupCustomer.id).maybeSingle();
+        .eq("customer_id", lookupCustomer.id);
+      requestQuery = isShortCode
+        ? requestQuery.filter("id::text", "ilike", `${requestId.slice(3)}%`).limit(2)
+        : requestQuery.eq("id", requestId).limit(1);
+      const { data: requests, error: requestError } = await requestQuery;
       if (requestError) throw requestError;
+      if ((requests || []).length > 1) return respond({ success: false, error: "topup_request_code_ambiguous" }, 409);
+      const request = requests?.[0];
       if (!request) return respond({ success: false, error: "topup_request_not_found" }, 404);
       return respond({ success: true, request });
     }
