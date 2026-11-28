@@ -589,7 +589,8 @@ Deno.serve(async (req) => {
 
     if (action === "products") {
       const { data, error } = await db.from("products")
-        .select("id,name,price,is_active")
+        .select("id,name,price,is_active,sort_order")
+        .order("sort_order", { ascending: true })
         .order("name", { ascending: true });
       if (error) throw error;
       return reply({ success: true, data: data || [] });
@@ -603,10 +604,17 @@ Deno.serve(async (req) => {
       if (!name || !Number.isSafeInteger(price) || price < 0 || typeof body.is_active !== "boolean") {
         return reply({ success: false, error: "invalid_product_fields" }, 400);
       }
-      const values = { name, price, is_active: isActive };
+      let nextSortOrder = 0;
+      if (!productId) {
+        const { data: lastProduct, error: sortError } = await db.from("products")
+          .select("sort_order").order("sort_order", { ascending: false }).limit(1).maybeSingle();
+        if (sortError) throw sortError;
+        nextSortOrder = Number(lastProduct?.sort_order || 0) + 1;
+      }
+      const values = { name, price, is_active: isActive, ...(!productId ? { sort_order: nextSortOrder } : {}) };
       const result = productId
-        ? await db.from("products").update(values).eq("id", productId).select("id,name,price,is_active").maybeSingle()
-        : await db.from("products").insert(values).select("id,name,price,is_active").single();
+        ? await db.from("products").update(values).eq("id", productId).select("id,name,price,is_active,sort_order").maybeSingle()
+        : await db.from("products").insert(values).select("id,name,price,is_active,sort_order").single();
       if (result.error) throw result.error;
       if (!result.data) return reply({ success: false, error: "product_not_found" }, 404);
       const { error: auditError } = await db.from("sk_admin_audit_logs").insert({
@@ -618,6 +626,32 @@ Deno.serve(async (req) => {
       });
       if (auditError) console.error("Product audit log failed:", auditError.message);
       return reply({ success: true, data: result.data });
+    }
+
+    if (action === "reorder_products") {
+      const productIds = Array.isArray(body.product_ids) ? body.product_ids : [];
+      if (!productIds.length || productIds.length > 500 ||
+          productIds.some((id: unknown) => typeof id !== "string" || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(id)) ||
+          new Set(productIds).size !== productIds.length) {
+        return reply({ success: false, error: "invalid_product_order" }, 400);
+      }
+      const { data: currentProducts, error: listError } = await db.from("products").select("id");
+      if (listError) throw listError;
+      const currentIds = (currentProducts || []).map((row: { id: string }) => row.id).sort();
+      const requestedIds = [...productIds].sort();
+      if (currentIds.length !== requestedIds.length || currentIds.some((id: string, index: number) => id !== requestedIds[index])) {
+        return reply({ success: false, error: "product_list_changed_refresh_and_retry" }, 409);
+      }
+      for (let index = 0; index < productIds.length; index++) {
+        const { error } = await db.from("products").update({ sort_order: index + 1 }).eq("id", productIds[index]);
+        if (error) throw error;
+      }
+      const { error: auditError } = await db.from("sk_admin_audit_logs").insert({
+        admin_email: email, action: "reorder_products", target_type: "product",
+        details: { product_ids: productIds },
+      });
+      if (auditError) console.error("Product reorder audit log failed:", auditError.message);
+      return reply({ success: true });
     }
 
     if (action === "toggle_product") {
