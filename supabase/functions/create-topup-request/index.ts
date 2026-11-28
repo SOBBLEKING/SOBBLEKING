@@ -131,7 +131,7 @@ Deno.serve(async (req) => {
     }
     if (insertError) throw insertError;
 
-    // Notify the administrator only after a new pending request is committed.
+    // Use one customer-facing request code everywhere; retain the UUID in the database.\n    const displayRequestId = "SKT" + String(inserted.id || "").replace(/-/g, "").slice(0, 8).toUpperCase();\n\n    // Notify the administrator only after a new pending request is committed.
     // Notification failure must never cancel the customer's valid top-up request.
     let adminNotification: Record<string, unknown> = { sent: false, error: "admin_notification_not_configured" };
     const lineToken = Deno.env.get("LINE_CHANNEL_ACCESS_TOKEN") || "";
@@ -148,7 +148,7 @@ Deno.serve(async (req) => {
         "付款方式：" + paymentMethod,
         ...(paymentMethod === "無卡存款" ? ["存款銀行：" + paymentBank] : []),
         "申請時間：" + new Date(inserted.created_at).toLocaleString("zh-TW", { timeZone: "Asia/Taipei" }),
-        "申請單號：" + inserted.id,
+        "申請單號：" + displayRequestId,
         "目前狀態：待管理員確認",
         "",
         "請至 SOBBLEKING 管理後台確認款項；確認前不會增加會員錢包餘額。",
@@ -200,7 +200,7 @@ Deno.serve(async (req) => {
         ["付款方式", paymentMethod],
         ...(paymentMethod === "無卡存款" ? [["存款銀行", paymentBank]] : []),
         ["申請時間", createdAt],
-        ["申請單號", inserted.id],
+        ["申請單號", displayRequestId],
         ["目前狀態", "待管理員確認"],
       ];
       try {
