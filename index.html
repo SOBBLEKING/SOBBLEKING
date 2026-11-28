@@ -96,7 +96,7 @@ section{padding:75px 7%;scroll-margin-top:90px}
 .customer-order-form button:disabled{opacity:.6;cursor:wait}
 .customer-order-result{margin-top:14px;color:#526f89;font-size:13px;line-height:1.8}
 .customer-order-card{padding:15px;border:1px solid #d7e7f2;border-radius:14px;background:#fff}
-.topup-request-id-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:2px 0 9px}.topup-request-id-row h4{margin:0}.topup-request-id-value{min-width:0;flex:1;overflow-wrap:anywhere;word-break:break-all;color:#315F85;font-weight:800;font-size:12px}.topup-copy-large{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #cfe1ee;border-radius:8px;background:#fff}.topup-copy-large svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.topup-request-id-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:2px 0 12px}.topup-request-id-row h4{margin:0}.topup-request-id-value{min-width:0;flex:1;overflow-wrap:anywhere;word-break:break-all;color:#315F85;font-weight:850;font-size:18px;letter-spacing:.04em}.topup-copy-large{width:28px;height:28px;display:inline-flex;align-items:center;justify-content:center;border:1px solid #cfe1ee;border-radius:8px;background:#fff}.topup-copy-large svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .customer-order-card h4{color:#315F85;font-size:16px;margin:0 0 8px}
 .customer-order-card p{margin:4px 0}
 .customer-order-items{margin:8px 0 0;padding-left:20px}
@@ -1512,7 +1512,7 @@ async function submitWalletTopup(){
     const topupRequestId=formatTopupRequestCode(data.request_id);
     document.getElementById("wallet-topup-payment-info").innerHTML=
       "<div class=\"topup-request-id-row\"><strong>儲值申請編號：</strong><span class=\"topup-request-id-value\">"+escapeOrderLookupHtml(topupRequestId)+"</span><button id=\"copyWalletTopupRequestId\" class=\"wallet-history-copy topup-copy-large\" type=\"button\" title=\"複製完整儲值申請編號\" aria-label=\"複製完整儲值申請編號\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"8\" y=\"8\" width=\"12\" height=\"12\" rx=\"2\"/><path d=\"M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3\"/></svg></button></div>"+
-      "<br><strong>儲值金額：</strong>NT$"+Number(data.amount).toLocaleString("en-US")+
+      "<strong>儲值金額：</strong>NT$"+Number(data.amount).toLocaleString("en-US")+
       "<br><strong>申請狀態：</strong>待管理員確認收款<br><small>款項核對完成後才會入帳；無卡存款若有超額，確認後會一併存入錢包。</small><br><br>"+info;
     decoratePaymentInfo(document.getElementById("wallet-topup-payment-info"));
     const copyTopupIdButton=document.getElementById("copyWalletTopupRequestId");
