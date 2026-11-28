@@ -1112,13 +1112,9 @@ async function loadProducts(){
   const container = document.getElementById("product-list");
   container.innerHTML = '<div class="product-status">正在連線讀取商品⋯</div>';
   try{
-    const {data,error} = await supabaseClient.from("products").select("id,name,price,is_active").eq("is_active",true);
+    const {data,error} = await supabaseClient.from("products").select("id,name,price,is_active,sort_order").eq("is_active",true).order("sort_order",{ascending:true}).order("name",{ascending:true});
     if(error) throw error;
-    const productMap = new Map((data || []).map(item=>[item.id,item]));
-    const ordered = PRODUCT_ORDER.map(id=>productMap.get(id)).filter(Boolean);
-    const orderedIds = new Set(ordered.map(item=>item.id));
-    const additional = (data || []).filter(item=>!orderedIds.has(item.id)).sort((a,b)=>String(a.name||"").localeCompare(String(b.name||""),"zh-Hant"));
-    products = [...ordered,...additional].map(item=>({id:item.id,name:item.name,price:Number(item.price)}));
+    products = (data || []).map(item=>({id:item.id,name:item.name,price:Number(item.price)}));
     if(products.length===0){
       container.innerHTML = '<div class="product-status">目前沒有可購買的商品。</div>';
       return;
