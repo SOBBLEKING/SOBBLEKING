@@ -1112,9 +1112,9 @@ async function loadProducts(){
   const container = document.getElementById("product-list");
   container.innerHTML = '<div class="product-status">正在連線讀取商品⋯</div>';
   try{
-    const {data,error} = await supabaseClient.from("products").select("id,name,price,is_active,sort_order").eq("is_active",true).order("sort_order",{ascending:true}).order("name",{ascending:true});
+    const {data,error} = await supabaseClient.from("products").select("id,name,subtitle,price,is_active,sort_order").eq("is_active",true).order("sort_order",{ascending:true}).order("name",{ascending:true});
     if(error) throw error;
-    products = (data || []).map(item=>({id:item.id,name:item.name,price:Number(item.price)}));
+    products = (data || []).map(item=>({id:item.id,name:item.name,subtitle:item.subtitle||PRODUCT_DESCRIPTIONS[item.id]||"商品",price:Number(item.price)}));
     if(products.length===0){
       container.innerHTML = '<div class="product-status">目前沒有可購買的商品。</div>';
       return;
@@ -1137,7 +1137,7 @@ function renderProducts(){
     title.textContent = product.name;
     const desc = document.createElement("p");
     desc.className = "desc";
-    desc.textContent = PRODUCT_DESCRIPTIONS[product.id] || "商品";
+    desc.textContent = product.subtitle || "商品";
     const price = document.createElement("div");
     price.className = "price";
     price.textContent = "NT$" + product.price.toLocaleString("en-US");
