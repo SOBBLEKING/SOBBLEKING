@@ -1719,7 +1719,7 @@ async function copyWalletTopupId(value,button){
   try{
     if(navigator.clipboard&&window.isSecureContext) await navigator.clipboard.writeText(String(value||""));
     else{const field=document.createElement("textarea");field.value=String(value||"");field.style.position="fixed";field.style.opacity="0";document.body.appendChild(field);field.select();const ok=document.execCommand("copy");field.remove();if(!ok)throw new Error("copy_failed");}
-    if(button){const old=button.textContent;button.textContent="✓ 已複製";button.disabled=true;setTimeout(()=>{button.textContent=old;button.disabled=false;},1200);}
+    if(button){const oldHTML=button.innerHTML;button.textContent="✓";button.disabled=true;setTimeout(()=>{button.innerHTML=oldHTML;button.disabled=false;},1200);}
   }catch(error){if(button)button.textContent="複製失敗";}
 }
 
