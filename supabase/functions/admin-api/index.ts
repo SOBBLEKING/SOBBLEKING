@@ -171,18 +171,20 @@ Deno.serve(async (req) => {
         return reply({ success: false, error: "credentials_encryption_key_missing" }, 503);
       }
       const { data: order, error: orderError } = await db.from("sk_orders")
-        .select("id,order_number,customer_id,total_amount,wallet_amount_used,external_due,payment_method,payment_status,order_status,note,created_at,paid_at")
+        .select("id,order_number,customer_id,total_amount,wallet_amount_used,external_due,payment_method,payment_status,order_status,note,created_at,paid_at,received_amount,excess_amount,excess_wallet_credited")
         .eq("id", orderId).maybeSingle();
       if (orderError) throw orderError;
       if (!order) return reply({ success: false, error: "order_not_found" }, 404);
-      const [{ data: credential, error: credentialError }, { data: items, error: itemsError }] = await Promise.all([
-        db.from("sk_order_credentials").select("encrypted_payload,iv,submitted_at,updated_at")
-          .eq("order_id", orderId).maybeSingle(),
-        db.from("sk_order_items").select("product_name,unit_price,quantity,subtotal")
-          .eq("order_id", orderId),
+      const [{ data: credential, error: credentialError }, { data: items, error: itemsError }, { data: walletUse, error: walletUseError }, { data: walletAccount, error: walletAccountError }] = await Promise.all([
+        db.from("sk_order_credentials").select("encrypted_payload,iv,submitted_at,updated_at").eq("order_id", orderId).maybeSingle(),
+        db.from("sk_order_items").select("product_name,unit_price,quantity,subtotal").eq("order_id", orderId),
+        db.from("sk_wallet_transactions").select("balance_before,balance_after,amount").eq("reference_id", orderId).eq("transaction_type", "purchase").maybeSingle(),
+        db.from("sk_wallet_accounts").select("balance").eq("customer_id", order.customer_id).maybeSingle(),
       ]);
       if (credentialError) throw credentialError;
       if (itemsError) throw itemsError;
+      if (walletUseError) throw walletUseError;
+      if (walletAccountError) throw walletAccountError;
       let credentials = null;
       if (credential) {
         credentials = await decryptOrderCredentials(
@@ -200,7 +202,11 @@ Deno.serve(async (req) => {
       }
       const [orderWithMemberCode] = await attachMemberCodes(db, [order]);
       orderWithMemberCode.customer_code = orderWithMemberCode.member_code;
-      return reply({ success: true, data: { order: orderWithMemberCode, items: items || [], credentials } });
+      return reply({ success: true, data: { order: orderWithMemberCode, items: items || [], credentials, wallet_payment: {
+        balance_before: walletUse?.balance_before ?? null,
+        balance_after: walletUse?.balance_after ?? null,
+        current_balance: walletAccount?.balance ?? null,
+      } } });
     }
 
     if (action === "cancel_order") {
@@ -242,6 +248,7 @@ Deno.serve(async (req) => {
       const allowed = field === "payment_status" ? ["unpaid", "paid", "refunded"] : ["pending", "processing", "completed", "cancelled"];
       if (!allowed.includes(value)) return reply({ success: false, error: "unsupported_order_status" }, 400);
       if (field === "payment_status") {
+        if (value === "paid") return reply({ success: false, error: "use_payment_confirmation_with_received_amount" }, 409);
         if (value === "paid" && order.payment_status !== "unpaid") return reply({ success: false, error: "only_unpaid_orders_can_be_marked_paid" }, 409);
         if (value === "unpaid" && order.payment_status !== "unpaid") return reply({ success: false, error: "paid_or_refunded_orders_cannot_be_reverted_to_unpaid" }, 409);
         if (value === "refunded" && order.payment_status !== "paid") return reply({ success: false, error: "only_paid_orders_can_be_marked_refunded" }, 409);
@@ -308,28 +315,13 @@ Deno.serve(async (req) => {
 
     if (action === "confirm_order_payment") {
       const orderId = typeof body.order_id === "string" ? body.order_id : "";
-      if (!orderId) return reply({ success: false, error: "order_id_required" }, 400);
-      const { data: order, error: orderError } = await db.from("sk_orders")
-        .select("id,order_number,payment_status,order_status").eq("id", orderId).maybeSingle();
-      if (orderError) throw orderError;
-      if (!order) return reply({ success: false, error: "order_not_found" }, 404);
-      if (order.payment_status === "paid") return reply({ success: true, data: { already_paid: true, order_id: order.id } });
-      if (order.payment_status !== "unpaid") return reply({ success: false, error: "payment_status_not_confirmable" }, 409);
-      const paidAt = new Date().toISOString();
-      const { data: updated, error: updateError } = await db.from("sk_orders").update({
-        payment_status: "paid",
-        order_status: order.order_status === "pending" ? "processing" : order.order_status,
-        paid_at: paidAt, updated_at: paidAt,
-      }).eq("id", orderId).eq("payment_status", "unpaid")
-        .select("id,order_number,payment_status,order_status,paid_at").maybeSingle();
-      if (updateError) throw updateError;
-      if (!updated) return reply({ success: false, error: "payment_status_changed_retry" }, 409);
-      const { error: auditError } = await db.from("sk_admin_audit_logs").insert({
-        admin_email: email, action: "confirm_order_payment", target_type: "order", target_id: orderId,
-        details: { order_number: order.order_number, payment_status: "paid" },
+      const receivedAmount = Number(body.received_amount);
+      if (!orderId || !Number.isSafeInteger(receivedAmount) || receivedAmount < 0) return reply({ success: false, error: "invalid_payment_confirmation_input" }, 400);
+      const { data, error } = await db.rpc("sk_confirm_order_payment", {
+        p_order_id: orderId, p_received_amount: receivedAmount, p_admin_email: email,
       });
-      if (auditError) console.error("Payment confirmation audit log failed:", auditError.message);
-      return reply({ success: true, data: updated });
+      if (error) return reply({ success: false, error: error.message || "order_payment_confirmation_failed" }, 409);
+      return reply({ success: true, data });
     }
 
     if (action === "revenue_history") {
