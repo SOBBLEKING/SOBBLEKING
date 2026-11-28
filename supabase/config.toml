@@ -1,0 +1,4 @@
+project_id = "ksellpcaecuihxjxsolr"
+
+[functions.customer-order-lookup]
+verify_jwt = false
