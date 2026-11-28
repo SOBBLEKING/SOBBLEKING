@@ -459,9 +459,12 @@ Deno.serve(async (req) => {
 
     if (action === "save_topup_campaign") {
       const campaignId = typeof body.campaign_id === "string" ? body.campaign_id : "";
-      const name = typeof body.name === "string" ? body.name.trim().slice(0, 100) : "";
       const minAmount = Number(body.min_amount);
       const bonusAmount = Number(body.bonus_amount);
+      const requestedName = typeof body.name === "string" ? body.name.trim().slice(0, 100) : "";
+      const name = requestedName || (Number.isSafeInteger(minAmount) && Number.isSafeInteger(bonusAmount)
+        ? `儲值滿${minAmount}贈${bonusAmount}`
+        : "");
       const startsAt = typeof body.starts_at === "string" && body.starts_at ? body.starts_at : null;
       const endsAt = typeof body.ends_at === "string" && body.ends_at ? body.ends_at : null;
       const isActive = body.is_active === true;
