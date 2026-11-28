@@ -539,7 +539,7 @@ async function checkForNewOrders(initial=false){
      toastHideTimer=setTimeout(()=>{if(toast)toast.style.display="none";},15000);
    }
 
-   const newestTopup=(topups||[]).find(row=>row.status==="pending")||(topups||[])[0];
+   const newestTopup=(topups||[])[0];
    if(!topupPollReady||initial){lastSeenTopupId=newestTopup?.id||null;topupPollReady=true;}
    else if(newestTopup?.id&&newestTopup.id!==lastSeenTopupId&&newestTopup.status==="pending"){
      lastSeenTopupId=newestTopup.id;
