@@ -595,6 +595,25 @@ body:has(.payment-modal:not([hidden])) footer{
   }
 }
 
+
+/* 付款方式選項：窄螢幕時讓長文字留在框內 */
+.payment-method-option{
+  white-space:normal;
+  flex-wrap:wrap;
+  overflow-wrap:anywhere;
+  text-align:center;
+  line-height:1.35;
+  min-height:58px;
+  padding:10px 5px;
+}
+.payment-method-option input{
+  flex:0 0 14px;
+}
+@media(max-width:380px){
+  .payment-methods{gap:6px}
+  .payment-method-option{font-size:10px;padding:9px 3px;min-height:58px;gap:3px}
+  .payment-method-option input{width:12px;height:12px;flex-basis:12px}
+}
 </style>
 <style id="sobbleking-policy-style">
 .policy-modal[hidden]{display:none}.policy-modal{position:fixed;inset:0;z-index:30000;display:grid;place-items:center;padding:18px}.policy-modal-backdrop{position:absolute;inset:0;background:rgba(24,49,70,.62);backdrop-filter:blur(5px)}.policy-modal-card{position:relative;z-index:1;width:min(920px,100%);max-height:88vh;overflow:auto;background:#f7fbfe;border:1px solid #d7e7f2;border-radius:22px;box-shadow:0 24px 80px #173b5a55}.policy-modal-card .policy-section{max-width:1000px;margin:auto;padding:30px 5% 38px}.policy-modal-close{position:sticky;top:10px;float:right;margin:10px 12px 0 0;z-index:2;border:1px solid #d7e7f2;background:#fff;border-radius:50%;width:36px;height:36px;font-size:24px;color:#315f85;cursor:pointer}.policy-intro{max-width:760px;margin:0 auto 22px;text-align:center;color:#71869B;font-size:13px}.policy-intro{max-width:760px;margin:0 auto 22px;text-align:center;color:#71869B;font-size:13px}.policy-list{max-width:900px;margin:auto}.policy-list details{background:rgba(255,255,255,.9);border:1px solid #d7e7f2;border-radius:16px;padding:18px 20px;margin:12px 0}.policy-list summary{font-size:15px;color:#315F85}.policy-copy{padding-top:12px;color:#5c748b;font-size:13px;line-height:1.95}.policy-copy p{margin:8px 0}.policy-copy ul{padding-left:21px;margin:7px 0}.policy-contact{padding:15px 17px;border-radius:14px;background:#f0f8fd;border:1px solid #d7e7f2;margin-top:14px}.policy-footer-links{display:flex;flex-wrap:wrap;justify-content:center;gap:9px 18px;margin:12px 0}.policy-footer-links a{color:#477FAF;text-decoration:underline;text-underline-offset:3px;font-size:12px}
