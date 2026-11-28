@@ -148,6 +148,66 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Send an email to the administrator after a new request is committed.
+    // Configure RESEND_API_KEY, ADMIN_NOTIFICATION_EMAIL and RESEND_FROM_EMAIL in Supabase Secrets.
+    const resendKey = Deno.env.get("RESEND_API_KEY") || "";
+    const adminEmail = Deno.env.get("ADMIN_NOTIFICATION_EMAIL") || "";
+    const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "";
+    let emailNotification: Record<string, unknown> = {
+      sent: false,
+      error: "email_secrets_missing",
+      missing: [
+        ...(!resendKey ? ["RESEND_API_KEY"] : []),
+        ...(!adminEmail ? ["ADMIN_NOTIFICATION_EMAIL"] : []),
+        ...(!fromEmail ? ["RESEND_FROM_EMAIL"] : []),
+      ],
+    };
+    if (resendKey && adminEmail && fromEmail) {
+      const money = (value: unknown) => "NT$" + Number(value || 0).toLocaleString("zh-TW");
+      const memberName = String(customer.name || customer.display_name || customer.line_display_name || customer.customer_name || profile.displayName || "未命名會員");
+      const safe = (value: unknown) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+      }[char] || char));
+      const createdAt = new Date(inserted.created_at).toLocaleString("zh-TW", { timeZone: "Asia/Taipei" });
+      const details = [
+        ["會員編號", customer.member_code || "尚未編號"],
+        ["會員名稱", memberName],
+        ["申請金額", money(inserted.amount)],
+        ["付款方式", paymentMethod],
+        ...(paymentMethod === "無卡存款" ? [["存款銀行", paymentBank]] : []),
+        ["申請時間", createdAt],
+        ["申請單號", inserted.id],
+        ["目前狀態", "待管理員確認"],
+      ];
+      try {
+        const emailResponse = await fetch("https://api.resend.com/emails", {
+          method: "POST",
+          headers: {
+            "Authorization": "Bearer " + resendKey,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            from: fromEmail,
+            to: [adminEmail],
+            subject: "【SOBBLEKING】收到新的會員卡儲值申請",
+            html: "<div style='font-family:Arial,sans-serif;line-height:1.8;color:#253b49'><h2>🔔 收到會員卡儲值申請</h2><table style='border-collapse:collapse'>" +
+              details.map(([label, value]) => "<tr><td style='padding:6px 14px 6px 0;color:#667985'>" + safe(label) + "</td><td style='padding:6px 0;font-weight:600'>" + safe(value) + "</td></tr>").join("") +
+              "</table><p style='margin-top:20px;color:#b45309'>請至 SOBBLEKING 管理後台確認實際款項。管理員確認前，不會增加會員錢包餘額。</p></div>",
+          }),
+        });
+        if (emailResponse.ok) {
+          emailNotification = { sent: true, channel: "Email" };
+        } else {
+          const detail = (await emailResponse.text()).slice(0, 500);
+          console.error("Admin top-up email notification failed:", emailResponse.status, detail);
+          emailNotification = { sent: false, channel: "Email", error: "Resend HTTP " + emailResponse.status };
+        }
+      } catch (notifyError) {
+        console.error("Admin top-up email notification error:", notifyError);
+        emailNotification = { sent: false, channel: "Email", error: "notification_failed" };
+      }
+    }
+
     return respond({
       success: true,
       request_id: inserted.id,
@@ -155,6 +215,7 @@ Deno.serve(async (req) => {
       status: inserted.status,
       reused: false,
       admin_notification: adminNotification,
+      email_notification: emailNotification,
     });
   } catch (error) {
     console.error("create-topup-request error:", error);
