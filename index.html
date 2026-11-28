@@ -637,6 +637,15 @@ body:has(.payment-modal:not([hidden])) footer{
 .payment-method-option span{min-width:0;white-space:normal;overflow-wrap:anywhere;font-size:inherit;line-height:1.35}
 @media(max-width:380px){.payment-methods{gap:5px}.payment-method-option{font-size:13px!important;min-height:60px;padding:9px 3px;gap:4px}.payment-method-option input{flex-basis:13px;width:13px;height:13px}}
 </style>
+
+<style id="sobbleking-readable-controls">
+/* 付款方式與會員卡操作文字加大，保留手機版三欄排列 */
+.payment-method-option{font-size:17px!important;line-height:1.4;min-height:68px;padding:12px 7px;gap:7px}
+.payment-method-option input{width:17px;height:17px;flex-basis:17px}
+.payment-method-option span{font-size:inherit;line-height:1.4}
+.member-tools-row .wallet-topup-button,.member-tools-row .wallet-refresh-button{font-size:16px;min-height:46px;height:auto;padding:10px 20px;line-height:1.4}
+@media(max-width:600px){.payment-method-option{font-size:15px!important;min-height:64px;padding:10px 4px;gap:4px}.payment-method-option input{width:15px;height:15px;flex-basis:15px}.member-tools-row .wallet-topup-button,.member-tools-row .wallet-refresh-button{font-size:15px;min-height:44px;padding:9px 16px}}
+</style>
 </head>
 <body>
 
