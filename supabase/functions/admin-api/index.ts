@@ -584,6 +584,62 @@ Deno.serve(async (req) => {
       return reply({ success: true, data: data || [] });
     }
 
+    if (action === "products") {
+      const { data, error } = await db.from("products")
+        .select("id,name,price,is_active")
+        .order("name", { ascending: true });
+      if (error) throw error;
+      return reply({ success: true, data: data || [] });
+    }
+
+    if (action === "save_product") {
+      const productId = typeof body.product_id === "string" ? body.product_id.trim() : "";
+      const name = typeof body.name === "string" ? body.name.trim().slice(0, 120) : "";
+      const price = Number(body.price);
+      const isActive = body.is_active === true;
+      if (!name || !Number.isSafeInteger(price) || price < 0 || typeof body.is_active !== "boolean") {
+        return reply({ success: false, error: "invalid_product_fields" }, 400);
+      }
+      const values = { name, price, is_active: isActive };
+      const result = productId
+        ? await db.from("products").update(values).eq("id", productId).select("id,name,price,is_active").maybeSingle()
+        : await db.from("products").insert(values).select("id,name,price,is_active").single();
+      if (result.error) throw result.error;
+      if (!result.data) return reply({ success: false, error: "product_not_found" }, 404);
+      const { error: auditError } = await db.from("sk_admin_audit_logs").insert({
+        admin_email: email,
+        action: productId ? "update_product" : "create_product",
+        target_type: "product",
+        target_id: result.data.id,
+        details: { name, price, is_active: isActive },
+      });
+      if (auditError) console.error("Product audit log failed:", auditError.message);
+      return reply({ success: true, data: result.data });
+    }
+
+    if (action === "toggle_product") {
+      const productId = typeof body.product_id === "string" ? body.product_id.trim() : "";
+      if (!productId || typeof body.is_active !== "boolean") {
+        return reply({ success: false, error: "invalid_product_toggle" }, 400);
+      }
+      const { data, error } = await db.from("products")
+        .update({ is_active: body.is_active })
+        .eq("id", productId)
+        .select("id,name,is_active")
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) return reply({ success: false, error: "product_not_found" }, 404);
+      const { error: auditError } = await db.from("sk_admin_audit_logs").insert({
+        admin_email: email,
+        action: body.is_active ? "publish_product" : "unpublish_product",
+        target_type: "product",
+        target_id: productId,
+        details: { name: data.name, is_active: body.is_active },
+      });
+      if (auditError) console.error("Product status audit log failed:", auditError.message);
+      return reply({ success: true, data });
+    }
+
     return reply({ success: false, error: "unknown_action" }, 400);
   } catch (error) {
     console.error("admin-api error:", error);
