@@ -564,14 +564,18 @@ Deno.serve(async (req) => {
     }
 
     if (action === "search_topups") {
-      const query = typeof body.query === "string" ? body.query.trim() : "";
-      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(query)) {
-        return reply({ success: false, error: "invalid_topup_request_id" }, 400);
-      }
-      const { data, error } = await db.from("sk_wallet_topup_requests")
-        .select("id,customer_id,amount,payment_method,payment_bank,status,created_at,updated_at,confirmed_at,received_amount,excess_amount,admin_note,reviewed_at,reviewed_by")
-        .eq("id", query).limit(1);
+      const query = typeof body.query === "string" ? body.query.trim().toUpperCase() : "";
+      const isShortCode = /^SKT[0-9A-F]{8}$/.test(query);
+      const isUuid = /^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/.test(query);
+      if (!isShortCode && !isUuid) return reply({ success: false, error: "invalid_topup_request_id" }, 400);
+      let searchQuery = db.from("sk_wallet_topup_requests")
+        .select("id,customer_id,amount,payment_method,payment_bank,status,created_at,updated_at,confirmed_at,received_amount,excess_amount,admin_note,reviewed_at,reviewed_by");
+      searchQuery = isShortCode
+        ? searchQuery.filter("id::text", "ilike", `${query.slice(3)}%`).limit(2)
+        : searchQuery.eq("id", query).limit(1);
+      const { data, error } = await searchQuery;
       if (error) throw error;
+      if ((data || []).length > 1) return reply({ success: false, error: "topup_request_code_ambiguous" }, 409);
       return reply({ success: true, data: await attachMemberCodes(db, data || []) });
     }
 
