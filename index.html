@@ -377,7 +377,7 @@ footer strong{color:#315F85;letter-spacing:2px}footer a{margin:0 7px}
 .wallet-history-title{font-size:9px;font-weight:900;letter-spacing:.5px;color:#315F85;margin-bottom:6px}
 .wallet-history-list{min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:5px;scrollbar-width:thin}
 .wallet-history-item{padding:5px 0;border-bottom:1px solid rgba(80,139,174,.15);font-size:8px;line-height:1.35;color:#416F8D;overflow-wrap:anywhere}
-.wallet-history-item:last-child{border-bottom:0}
+.wallet-history-item:last-child{border-bottom:0}.wallet-history-copy{border:0;background:transparent;color:#477FAF;padding:1px 3px;cursor:pointer;flex:0 0 auto;line-height:1}.wallet-history-copy svg{width:12px;height:12px;display:block;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 .wallet-history-item strong{display:block;font-size:9px;color:#245A80}
 .wallet-history-empty{font-size:8px;color:#7393A8;line-height:1.5}
 .wallet-back-caption{display:block;font-size:8px;font-weight:850;letter-spacing:2px;color:#6C9AB6}
@@ -711,6 +711,15 @@ body:has(.payment-modal:not([hidden])) footer{
         <button type="button" id="customer-order-search">查詢訂單</button>
       </div>
       <div class="customer-order-result" id="customer-order-result" aria-live="polite"></div>
+    </section>
+    <section class="customer-order-lookup" id="customer-topup-lookup">
+      <h3>儲值申請查詢</h3>
+      <p>請先使用 LINE 登入會員，再輸入完整儲值申請編號查詢自己的申請狀態。</p>
+      <div class="customer-order-form">
+        <input id="customer-topup-request-number" type="text" maxlength="36" placeholder="請輸入完整儲值申請編號" autocomplete="off">
+        <button type="button" id="customer-topup-search">查詢儲值申請</button>
+      </div>
+      <div class="customer-order-result" id="customer-topup-result" aria-live="polite"></div>
     </section>
     <!-- SOBBSTARS 冰晶珍珠會員卡：保留原本動態會員資料 ID -->
     <div class="member-card-info" id="member-card" role="button" tabindex="0" aria-label="會員卡，點擊翻面查看錢包餘額" aria-pressed="false" hidden>
@@ -1499,11 +1508,14 @@ async function submitWalletTopup(){
     }else{
       info="<strong>LINE 好友轉帳</strong><br>LINE 名稱：<strong>Wei.</strong><br>請在 LINE 搜尋手機號碼<br><strong class=\"payment-account-number\">0905302886</strong><br>找到帳號後加入好友，再依畫面指示完成轉帳。";
     }
+    const topupRequestId=String(data.request_id).toUpperCase();
     document.getElementById("wallet-topup-payment-info").innerHTML=
-      "<strong>儲值申請編號：</strong>"+String(data.request_id).toUpperCase()+
+      "<div style=\"display:flex;align-items:center;gap:7px;flex-wrap:wrap\"><strong>儲值申請編號：</strong><span style=\"overflow-wrap:anywhere\">"+topupRequestId+"</span><button id=\"copyWalletTopupRequestId\" type=\"button\" style=\"border:1px solid #cfe1ee;border-radius:8px;padding:5px 9px;background:#fff;color:#477FAF;font-size:11px;font-weight:700\">複製</button></div>"+
       "<br><strong>儲值金額：</strong>NT$"+Number(data.amount).toLocaleString("en-US")+
       "<br><strong>申請狀態：</strong>待管理員確認收款<br><small>款項核對完成後才會入帳；無卡存款若有超額，確認後會一併存入錢包。</small><br><br>"+info;
     decoratePaymentInfo(document.getElementById("wallet-topup-payment-info"));
+    const copyTopupIdButton=document.getElementById("copyWalletTopupRequestId");
+    copyTopupIdButton.addEventListener("click",()=>copyWalletTopupId(topupRequestId,copyTopupIdButton));
     document.getElementById("wallet-topup-form").hidden=true;
     document.getElementById("wallet-topup-result").hidden=false;
     document.getElementById("wallet-topup-title").textContent="儲值申請已建立";
@@ -1702,6 +1714,14 @@ async function copyCheckoutMemberNumber(){
   }
 }
 
+async function copyWalletTopupId(value,button){
+  try{
+    if(navigator.clipboard&&window.isSecureContext) await navigator.clipboard.writeText(String(value||""));
+    else{const field=document.createElement("textarea");field.value=String(value||"");field.style.position="fixed";field.style.opacity="0";document.body.appendChild(field);field.select();const ok=document.execCommand("copy");field.remove();if(!ok)throw new Error("copy_failed");}
+    if(button){const old=button.textContent;button.textContent="✓ 已複製";button.disabled=true;setTimeout(()=>{button.textContent=old;button.disabled=false;},1200);}
+  }catch(error){if(button)button.textContent="複製失敗";}
+}
+
 function appendHistoryItem(container, title, detail){
   const item = document.createElement("div");
   item.className = "wallet-history-item";
@@ -1731,7 +1751,13 @@ function renderWalletHistory(topupHistory, transactionHistory){
     const amountText = Number.isFinite(amount) ? "NT$" + amount.toLocaleString("en-US") : "金額未提供";
     const status = topupStatus[String(row.status || "").toLowerCase()] || row.status || "狀態未提供";
     const method = row.payment_method || "儲值";
-    appendHistoryItem(topupContainer, amountText + "・" + status, formatHistoryDate(row.created_at) + "｜" + method);
+    const item=document.createElement("div");item.className="wallet-history-item";
+    const titleNode=document.createElement("strong");titleNode.textContent=amountText+"・"+status;
+    const detailNode=document.createElement("span");detailNode.textContent=formatHistoryDate(row.created_at)+"｜"+method;
+    item.append(titleNode,detailNode);
+    const requestId=row.id||row.request_id||row.topup_request_id;
+    if(requestId){const idRow=document.createElement("div");idRow.style.cssText="display:flex;align-items:flex-start;gap:3px;margin-top:3px";const idText=document.createElement("span");idText.textContent="申請編號："+String(requestId).toUpperCase();idText.style.cssText="min-width:0;flex:1;overflow-wrap:anywhere";const copy=document.createElement("button");copy.type="button";copy.className="wallet-history-copy";copy.title="複製儲值申請編號";copy.setAttribute("aria-label","複製儲值申請編號");copy.innerHTML="<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"8\" y=\"8\" width=\"12\" height=\"12\" rx=\"2\"/><path d=\"M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3\"/></svg>";copy.addEventListener("click",()=>copyWalletTopupId(requestId,copy));idRow.append(idText,copy);item.appendChild(idRow);}
+    topupContainer.appendChild(item);
   });
   if(!topupContainer.children.length){
     const empty = document.createElement("div"); empty.className = "wallet-history-empty"; empty.textContent = "目前沒有儲值紀錄"; topupContainer.appendChild(empty);
@@ -1835,6 +1861,29 @@ async function lookupCustomerOrder(){
 document.getElementById("customer-order-search").addEventListener("click",lookupCustomerOrder);
 document.getElementById("customer-order-number").addEventListener("keydown",event=>{if(event.key==="Enter")lookupCustomerOrder();});
 
+async function lookupCustomerTopupRequest(){
+  const input=document.getElementById("customer-topup-request-number");
+  const button=document.getElementById("customer-topup-search");
+  const resultBox=document.getElementById("customer-topup-result");
+  const requestId=input.value.trim().toUpperCase();
+  if(!requestId){resultBox.textContent="請先輸入儲值申請編號。";input.focus();return;}
+  if(!/^[0-9A-F]{8}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{4}-[0-9A-F]{12}$/.test(requestId)){resultBox.textContent="請輸入完整申請編號，格式需包含全部連字號。";input.focus();return;}
+  if(!window.liff||!liff.isLoggedIn()){resultBox.textContent="請先使用 LINE 登入會員。";return;}
+  const accessToken=liff.getAccessToken();if(!accessToken){resultBox.textContent="登入憑證已失效，請重新登入會員。";return;}
+  button.disabled=true;button.textContent="查詢中⋯";resultBox.textContent="正在查詢儲值申請⋯";
+  try{
+    const response=await fetch(CREATE_TOPUP_REQUEST_URL,{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_KEY},body:JSON.stringify({action:"lookup_request",access_token:accessToken,request_id:requestId})});
+    const data=await response.json();
+    if(!response.ok||!data.success){if(data.error==="topup_request_not_found")throw new Error("查無此申請，請確認編號正確，且目前登入的是建立申請時使用的 LINE 會員。");if(data.error==="line_authentication_failed")throw new Error("LINE 登入已失效，請重新登入會員。");throw new Error("目前無法查詢儲值申請，請稍後再試。");}
+    const r=data.request||{};const status=({pending:"待客服確認",confirmed:"已入帳",approved:"已入帳",rejected:"未通過",completed:"已完成",cancelled:"已取消"})[String(r.status||"").toLowerCase()]||r.status||"—";const created=r.created_at?new Date(r.created_at).toLocaleString("zh-TW"):"—";
+    resultBox.innerHTML="<div class=\"customer-order-card\"><h4>儲值申請 "+escapeOrderLookupHtml(String(r.id||requestId).toUpperCase())+"</h4><p>申請金額：NT$"+Number(r.amount||0).toLocaleString("zh-TW")+"</p><p>付款方式："+escapeOrderLookupHtml(r.payment_method||"—")+"</p><p>存款銀行："+escapeOrderLookupHtml(r.payment_bank||"—")+"</p><p>申請時間："+escapeOrderLookupHtml(created)+"</p><p>申請狀態：<strong>"+escapeOrderLookupHtml(status)+"</strong></p></div>";
+    const copy=document.createElement("button");copy.type="button";copy.className="member-button secondary";copy.style.cssText="margin-top:9px;padding:7px 14px;font-size:12px";copy.textContent="複製申請編號";copy.addEventListener("click",()=>copyWalletTopupId(r.id||requestId,copy));resultBox.firstElementChild.appendChild(copy);
+  }catch(error){resultBox.textContent=error.message||"查詢失敗，請稍後再試。";}
+  finally{button.disabled=false;button.textContent="查詢儲值申請";}
+}
+document.getElementById("customer-topup-search").addEventListener("click",lookupCustomerTopupRequest);
+document.getElementById("customer-topup-request-number").addEventListener("keydown",event=>{if(event.key==="Enter")lookupCustomerTopupRequest();});
+
 async function refreshMemberWallet(){
  const button=document.getElementById("wallet-refresh-button");button.disabled=true;button.textContent="更新中⋯";
  try{
@@ -1921,6 +1970,8 @@ logoutButton.addEventListener("click",()=>{
   document.getElementById("customer-order-lookup").hidden = false;
   document.getElementById("customer-order-number").value = "";
   document.getElementById("customer-order-result").textContent = "";
+  document.getElementById("customer-topup-request-number").value = "";
+  document.getElementById("customer-topup-result").textContent = "";
   memberCard.classList.remove("is-flipped");
   memberCard.setAttribute("aria-pressed","false");
   logoutButton.hidden = true;
