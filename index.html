@@ -646,6 +646,64 @@ body:has(.payment-modal:not([hidden])) footer{
 .member-tools-row .wallet-topup-button,.member-tools-row .wallet-refresh-button{font-size:16px;min-height:46px;height:auto;padding:10px 20px;line-height:1.4}
 @media(max-width:600px){.payment-method-option{font-size:15px!important;min-height:64px;padding:10px 4px;gap:4px}.payment-method-option input{width:15px;height:15px;flex-basis:15px}.member-tools-row .wallet-topup-button,.member-tools-row .wallet-refresh-button{font-size:15px;min-height:44px;padding:9px 16px}}
 </style>
+
+<style id="sobbleking-frontend-text-and-wallet-buttons">
+/* 前台短標題與操作文字優先維持單行；說明段落仍可自然換行 */
+button, nav a, .section-title, .member-card-label, .member-number {
+  white-space: nowrap;
+}
+/* 會員中心「立即儲值」與「更新錢包」使用完全一致的按鈕規格 */
+.member-tools-row > .wallet-topup-button,
+.member-tools-row > .wallet-refresh-button {
+  box-sizing: border-box;
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  height: 92px;
+  min-height: 92px;
+  margin: 0;
+  padding: 12px 10px;
+  border: 0;
+  border-radius: 48px;
+  background: linear-gradient(135deg,#477FAF,#78B5E2);
+  color: #fff;
+  font-size: clamp(14px,1.2vw,20px);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 0;
+  text-align: center;
+  white-space: nowrap;
+  box-shadow: 0 5px 15px rgba(71,127,175,.18);
+  transition: transform .2s,background .2s;
+}
+.member-tools-row > .wallet-topup-button:hover,
+.member-tools-row > .wallet-refresh-button:hover {
+  transform: translateY(-2px);
+  background: linear-gradient(135deg,#315F85,#659CC8);
+}
+.member-tools-row > .wallet-topup-button:disabled,
+.member-tools-row > .wallet-refresh-button:disabled {
+  opacity: .6;
+  cursor: wait;
+  transform: none;
+}
+@media (max-width:600px) {
+  .member-tools-row > .wallet-topup-button,
+  .member-tools-row > .wallet-refresh-button {
+    height: 52px;
+    min-height: 52px;
+    padding: 8px 3px;
+    border-radius: 28px;
+    font-size: clamp(11px,3.5vw,13px);
+    white-space: nowrap;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -813,7 +871,7 @@ body:has(.payment-modal:not([hidden])) footer{
     <div class="member-tools-row">
       <button class="member-guide-trigger" id="member-guide-open" type="button">會員卡介紹</button>
       <button class="member-button wallet-topup-button" id="wallet-topup-button" type="button" onclick="openWalletTopupModal()" hidden>立即儲值</button>
-      <button class="member-button secondary wallet-refresh-button" id="wallet-refresh-button" type="button" onclick="refreshMemberWallet()" hidden>更新錢包餘額</button>
+      <button class="member-button wallet-refresh-button" id="wallet-refresh-button" type="button" onclick="refreshMemberWallet()" hidden>更新錢包餘額</button>
     </div>
     <div class="member-guide-modal" id="member-guide-modal" hidden>
       <div class="member-guide-dialog" role="dialog" aria-modal="true" aria-labelledby="member-guide-title">
