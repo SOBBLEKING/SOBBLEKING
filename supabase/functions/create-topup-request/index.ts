@@ -124,9 +124,10 @@ Deno.serve(async (req) => {
           (existing.payment_bank || "") !== (paymentMethod === "無卡存款" ? paymentBank : "")) {
         return respond({ success: false, error: "request_id_conflict" }, 409);
       }
+      const displayRequestId = "SKT" + String(existing.id || "").replace(/-/g, "").slice(0, 8).toUpperCase();
       return respond({
-        success: true, request_id: existing.id, amount: existing.amount,
-        status: existing.status, reused: true,
+        success: true, request_id: existing.id, display_request_id: displayRequestId,
+        amount: existing.amount, status: existing.status, reused: true,
       });
     }
     if (insertError) throw insertError;
@@ -238,6 +239,7 @@ Deno.serve(async (req) => {
     return respond({
       success: true,
       request_id: inserted.id,
+      display_request_id: displayRequestId,
       amount: inserted.amount,
       status: inserted.status,
       reused: false,
