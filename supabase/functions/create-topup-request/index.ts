@@ -178,20 +178,15 @@ Deno.serve(async (req) => {
     }
 
     // Send an email to the administrator after a new request is committed.
-    // Configure RESEND_API_KEY, ADMIN_NOTIFICATION_EMAIL and RESEND_FROM_EMAIL in Supabase Secrets.
+    // Match the working new-order notification: use the same Resend sender and admin recipient.
     const resendKey = Deno.env.get("RESEND_API_KEY") || "";
-    const adminEmail = Deno.env.get("ADMIN_NOTIFICATION_EMAIL") || "";
-    const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "";
+    const adminEmail = "sobblekinggg@gmail.com";
+    const fromEmail = "SOBBLEKING <onboarding@resend.dev>";
     let emailNotification: Record<string, unknown> = {
       sent: false,
-      error: "email_secrets_missing",
-      missing: [
-        ...(!resendKey ? ["RESEND_API_KEY"] : []),
-        ...(!adminEmail ? ["ADMIN_NOTIFICATION_EMAIL"] : []),
-        ...(!fromEmail ? ["RESEND_FROM_EMAIL"] : []),
-      ],
+      error: "resend_api_key_missing",
     };
-    if (resendKey && adminEmail && fromEmail) {
+    if (resendKey) {
       const money = (value: unknown) => "NT$" + Number(value || 0).toLocaleString("zh-TW");
       const memberName = String(customer.name || customer.display_name || customer.line_display_name || customer.customer_name || profile.displayName || "未命名會員");
       const safe = (value: unknown) => String(value ?? "").replace(/[&<>"']/g, (char) => ({
