@@ -131,7 +131,10 @@ Deno.serve(async (req) => {
     }
     if (insertError) throw insertError;
 
-    // Use one customer-facing request code everywhere; retain the UUID in the database.\n    const displayRequestId = "SKT" + String(inserted.id || "").replace(/-/g, "").slice(0, 8).toUpperCase();\n\n    // Notify the administrator only after a new pending request is committed.
+    // Use one customer-facing request code everywhere; retain the UUID in the database.
+    const displayRequestId = "SKT" + String(inserted.id || "").replace(/-/g, "").slice(0, 8).toUpperCase();
+
+    // Notify the administrator only after a new pending request is committed.
     // Notification failure must never cancel the customer's valid top-up request.
     let adminNotification: Record<string, unknown> = { sent: false, error: "admin_notification_not_configured" };
     const lineToken = Deno.env.get("LINE_CHANNEL_ACCESS_TOKEN") || "";
