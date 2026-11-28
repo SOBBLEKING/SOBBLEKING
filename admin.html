@@ -145,6 +145,8 @@ let orderPollTimer=null;
 let toastHideTimer=null;
 let lastSeenOrderId=null;
 let orderPollReady=false;
+let lastSeenTopupId=null;
+let topupPollReady=false;
 let adminSession=null;
 const labels={orders:"訂單管理",topups:"儲值管理",members:"會員管理",wallet_transactions:"錢包交易紀錄",audit_logs:"管理員操作紀錄"};
 const columns={
@@ -521,27 +523,41 @@ $("refreshBtn").addEventListener("click",()=>{loadOverview();loadModule(currentA
  $("statRevenue").parentElement.style.cursor="pointer";$("statRevenue").parentElement.title="點擊查看日線、週線、月線營業額";$("statRevenue").parentElement.addEventListener("click",()=>{$("revenuePanel").style.display="block";loadRevenue();$("revenuePanel").scrollIntoView({behavior:"smooth",block:"start"});});document.querySelectorAll(".revenue-period").forEach(b=>b.addEventListener("click",()=>{revenuePeriod=b.dataset.period;renderRevenue();}));$("revenueRefreshBtn").addEventListener("click",loadRevenue);
 async function checkForNewOrders(initial=false){
  try{
-   const rows=await adminRequest("orders");
-   const newest=rows?.[0];
-   if(!newest?.id){if(!orderPollReady){lastSeenOrderId=null;orderPollReady=true;}return;}
-   if(!orderPollReady||initial){lastSeenOrderId=newest.id;orderPollReady=true;return;}
-   if(newest.id!==lastSeenOrderId){
-     lastSeenOrderId=newest.id;
+   const [orders,topups]=await Promise.all([adminRequest("orders"),adminRequest("topups")]);
+   const newestOrder=orders?.[0];
+   if(!orderPollReady||initial){lastSeenOrderId=newestOrder?.id||null;orderPollReady=true;}
+   else if(newestOrder?.id&&newestOrder.id!==lastSeenOrderId){
+     lastSeenOrderId=newestOrder.id;
      const toast=$("newOrderToast");
-     toast.textContent="🛎️ 有新訂單！訂單編號："+(newest.order_number||"新訂單")+"　點此查看訂單";
+     toast.textContent="🛎️ 有新訂單！訂單編號："+(newestOrder.order_number||"新訂單")+"　點此查看訂單";
      toast.style.display="block";
      toast.onclick=()=>{loadModule("orders");$("panelTitle").scrollIntoView({behavior:"smooth",block:"center"});};
      if("Notification" in window && Notification.permission==="granted"){
-       new Notification("SOBBLEKING｜收到新訂單",{body:"訂單編號："+(newest.order_number||"新訂單")});
+       new Notification("SOBBLEKING｜收到新訂單",{body:"訂單編號："+(newestOrder.order_number||"新訂單")});
      }
      if(toastHideTimer)clearTimeout(toastHideTimer);
      toastHideTimer=setTimeout(()=>{if(toast)toast.style.display="none";},15000);
    }
- }catch(e){console.warn("new order polling failed",e);}
+
+   const newestTopup=(topups||[]).find(row=>row.status==="pending")||(topups||[])[0];
+   if(!topupPollReady||initial){lastSeenTopupId=newestTopup?.id||null;topupPollReady=true;}
+   else if(newestTopup?.id&&newestTopup.id!==lastSeenTopupId&&newestTopup.status==="pending"){
+     lastSeenTopupId=newestTopup.id;
+     const toast=$("newOrderToast");
+     toast.textContent="💧 收到會員卡儲值申請！"+(newestTopup.member_code||"會員")+"｜NT$"+Number(newestTopup.amount||0).toLocaleString("zh-TW")+"　點此查看";
+     toast.style.display="block";
+     toast.onclick=()=>{loadModule("topups");$("panelTitle").scrollIntoView({behavior:"smooth",block:"center"});};
+     if("Notification" in window && Notification.permission==="granted"){
+       new Notification("SOBBLEKING｜收到會員卡儲值申請",{body:(newestTopup.member_code||"會員")+" 申請 NT$"+Number(newestTopup.amount||0).toLocaleString("zh-TW")+"，等待確認款項。"});
+     }
+     if(toastHideTimer)clearTimeout(toastHideTimer);
+     toastHideTimer=setTimeout(()=>{if(toast)toast.style.display="none";},20000);
+   }else if(newestTopup?.id){lastSeenTopupId=newestTopup.id;}
+ }catch(e){console.warn("new order/top-up polling failed",e);}
 }
 function startOrderPolling(){
  if(orderPollTimer)clearInterval(orderPollTimer);
- orderPollReady=false;lastSeenOrderId=null;
+ orderPollReady=false;lastSeenOrderId=null;topupPollReady=false;lastSeenTopupId=null;
  checkForNewOrders(true);
  orderPollTimer=setInterval(()=>checkForNewOrders(false),30000);
 }
