@@ -596,26 +596,33 @@ body:has(.payment-modal:not([hidden])) footer{
 }
 
 
-/* 付款方式選項：維持單行，縮小字體避免超出框線 */
+/* 付款方式選項：文字維持單行並完整顯示 */
 .payment-method-option{
   white-space:nowrap;
   flex-wrap:nowrap;
-  overflow:hidden;
-  text-overflow:clip;
+  overflow:visible;
+  text-overflow:unset;
   text-align:center;
-  font-size:11px;
+  font-size:9px;
   line-height:1.25;
   min-height:58px;
-  padding:10px 4px;
-  gap:4px;
+  padding:9px 2px;
+  gap:2px;
 }
 .payment-method-option input{
-  flex:0 0 13px;
+  flex:0 0 12px;
+  width:12px;
+  height:12px;
+}
+.payment-method-option span{
+  min-width:0;
+  white-space:nowrap;
+  font-size:inherit;
 }
 @media(max-width:380px){
-  .payment-methods{gap:6px}
-  .payment-method-option{font-size:9px;padding:9px 2px;min-height:58px;gap:3px}
-  .payment-method-option input{width:12px;height:12px;flex-basis:12px}
+  .payment-methods{gap:5px}
+  .payment-method-option{font-size:7.5px;padding:8px 1px;min-height:58px;gap:2px}
+  .payment-method-option input{width:11px;height:11px;flex-basis:11px}
 }
 </style>
 <style id="sobbleking-policy-style">
